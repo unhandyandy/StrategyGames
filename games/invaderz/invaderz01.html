@@ -1,0 +1,134 @@
+<html>
+<head>
+
+<!-- In the following just change "TTT" to the name of your game. -->
+<script>
+function getGameName(){
+    return "Invaderz";
+};
+</script>
+
+<script type="text/javascript" src="./mydefs01.js">
+</script>
+<script type="text/javascript" src="./strategygames03.js">
+</script>
+<script type="text/javascript" src="./rectUtils.js">
+</script>
+
+<!-- In the following just change "invaderz02.js" to the name of the javascript file for your game. -->
+<script type="text/javascript" src="./invaderz02.js">
+</script>
+<style type="text/css">
+body
+{
+background-image:url("./heic0901a_H1.jpg");
+}
+h1
+{
+color:white;
+text-align:center;
+}
+h5
+{
+color:white;
+font-size:14px;
+}
+div
+{
+font-family:"Times New Roman";
+font-size:36px;
+color:#bcd;
+}
+select
+{
+width:"2em";
+font-size:32px;
+background-color:#abc;
+color:#640;
+}
+input
+{
+font-size:24px;
+background-color:#bca;
+color:#406;
+}
+span.bull {color:fff;font-weight:bold}
+span.cow  {color:ff0;font-weight:bold}
+
+#score 
+{
+margin-top:10px;
+padding-bottom:10px;
+font-weight:bold;
+}	
+#score-left
+{
+float:left;
+margin-left:0px;
+width:100px;
+}
+#score-right
+{
+float:left;
+margin-left:100px;
+width:100px;
+}
+</style>
+</head>
+<body>
+<h1>Invaderz<br />
+<!-- <input type="button" value="Instructions" onclick="showinstructions()" /> -->
+<input type="button" value="New Game" onclick="initGame()" />
+<input type="button" value="Undo" onclick="undoFn()" />
+ </h1>
+<br />
+<br />
+<div id="optionsdiv">
+
+    <form>
+      
+    </form>
+
+</div>
+<br /><br />
+
+<div id="playdiv">
+<script>
+document.write(makePanel(initBdTab))
+</script>
+</div>
+
+
+<div id="messageDiv">
+Messages.
+</div>
+
+<br /><br />
+
+<h5>
+The goal is to have the most pieces on the board when the game ends.  
+Pieces move like chess rooks - vertically or horizontally any distance 
+without jumping over any other pieces.  
+Capturing is a variation on the custodial version: after player A moves a piece, 
+any piece of player B which borders it (vertically or horizontally) and
+which has 2 or more of player A's pieces as neighbors is removed from the board. 
+The other move possible is birth: pieces can be born on the white square at the each
+player's near right.  The birthing square are particular to each player, 
+e.g. player A cannot birth his pieces on player B's birthing square.  
+Passing is allowed, and the game ends with consequetive passes.
+</h5>
+
+<!-- <div id="score"> -->
+<!-- Score -->
+<!-- </div> -->
+<!-- <div id="score-left"> -->
+<!-- Human: 0  -->
+<!-- </div> -->
+<!-- <div id="score-right"> -->
+<!-- Computer: 0  -->
+<!-- </div> -->
+
+
+</body>
+</html>
+

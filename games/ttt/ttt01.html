@@ -1,0 +1,114 @@
+<html>
+<head>
+
+<!-- In the following just change "TTT" to the name of your game. -->
+<script>
+function getGameName(){
+    return "TTT";
+};
+</script>
+
+<script type="text/javascript" src="./mydefs.js">
+</script>
+<script type="text/javascript" src="./strategygames.js">
+</script>
+
+<!-- In the following just change "tttengine01.js" to the name of the javascript file for your game. -->
+<script type="text/javascript" src="./tttengine01.js">
+</script>
+<style type="text/css">
+body
+{
+background-image:url("./heic0901a_H1.jpg");
+}
+h1
+{
+color:white;
+text-align:center;
+}
+div
+{
+font-family:"Times New Roman";
+font-size:36px;
+color:#bcd;
+}
+select
+{
+width:"2em";
+font-size:32px;
+background-color:#abc;
+color:#640;
+}
+input
+{
+font-size:24px;
+background-color:#bca;
+color:#406;
+}
+span.bull {color:fff;font-weight:bold}
+span.cow  {color:ff0;font-weight:bold}
+
+#score 
+{
+margin-top:10px;
+padding-bottom:10px;
+font-weight:bold;
+}	
+#score-left
+{
+float:left;
+margin-left:0px;
+width:100px;
+}
+#score-right
+{
+float:left;
+margin-left:100px;
+width:100px;
+}
+</style>
+</head>
+<body>
+<h1>Tic-Tac-Toe<br />
+<!-- <input type="button" value="Instructions" onclick="showinstructions()" /> -->
+<input type="button" value="New Game" onclick="initGame()" />
+<input type="button" value="Undo" onclick="undoFn()" />
+ </h1>
+<br />
+<br />
+<div id="optionsdiv">
+
+    <form>
+      
+    </form>
+
+</div>
+<br /><br />
+
+<div id="playdiv">
+<script>
+document.write(makePanel(initBdTab))
+</script>
+</div>
+
+
+<div id="messageDiv">
+Messages.
+</div>
+
+<br /><br />
+
+<!-- <div id="score"> -->
+<!-- Score -->
+<!-- </div> -->
+<!-- <div id="score-left"> -->
+<!-- Human: 0  -->
+<!-- </div> -->
+<!-- <div id="score-right"> -->
+<!-- Computer: 0  -->
+<!-- </div> -->
+
+
+</body>
+</html>
+
