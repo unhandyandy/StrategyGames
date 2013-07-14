@@ -72,7 +72,9 @@ var minimaxABcache;
 
 function minimaxAB(pos,depth,player){
     "use strict";
-    var res, newdep = Math.max(depth,getDepth(pos,player)), cchval = minimaxABcache[[JSON.stringify(pos),newdep,player]];
+    var res, 
+        newdep = Math.max(depth,getDepth(pos,player)), 
+        cchval = minimaxABcache[[JSON.stringify(pos),newdep,player]];
     if(cchval===undefined){
 	res = minimaxABaux(pos,newdep,player,maxVal,-maxVal);
 	minimaxABcache[[JSON.stringify(pos),newdep,player]] = res;
@@ -476,7 +478,7 @@ function reEval(pscur,pslst,plyr,dep){
 	deptab = desiredDepth;
     }
     curdep = Math.max(dep,deptab);
-    newval = minimaxABaux(pscur,curdep,plyr,-maxVal,maxVal);
+    newval = minimaxAB(pscur,curdep,plyr);
     newpos =  positionFromMove(nextMove(newval),pscur,plyr);
     if(moveValue(newval) < 0 || 
       newpos.equal(pslst)){

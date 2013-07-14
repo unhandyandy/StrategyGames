@@ -1,38 +1,34 @@
 <html>
 <head>
 
-<!-- In the following just change "TTT" to the name of your game. -->
 <script>
 function getGameName(){
-    return "Invaderz";
+    return "Gerrymander";
+};
+function getHexSize(){
+    return 4;
 };
 </script>
 
-<script type="text/javascript" src="../../mydefs02.js">
+<script type="text/javascript" src="./mydefs.js">
 </script>
-<script type="text/javascript" src="../../strategygames03.js">
+<script type="text/javascript" src="./hexUtils.js">
 </script>
-<script type="text/javascript" src="../../rectUtils.js">
+<script type="text/javascript" src="./strategygames.js">
 </script>
 
-<!-- In the following just change "invaderz02.js" to the name of the javascript file for your game. -->
-<script type="text/javascript" src="./invaderz02.js">
+<!-- In the following just change "tttengine01.js" to the name of the javascript file for your game. -->
+<script type="text/javascript" src="./gerrymander01.js">
 </script>
 <style type="text/css">
 body
 {
-background-color: Green;
 background-image:url("./heic0901a_H1.jpg");
 }
 h1
 {
 color:white;
 text-align:center;
-}
-h5
-{
-color:white;
-font-size:14px;
 }
 div
 {
@@ -74,10 +70,16 @@ float:left;
 margin-left:100px;
 width:100px;
 }
+h5
+{
+color:white;
+font-size:14px;
+}
+
 </style>
 </head>
 <body>
-<h1>Invaderz<br />
+<h1>Gerrymander<br />
 <!-- <input type="button" value="Instructions" onclick="showinstructions()" /> -->
 <input type="button" value="New Game" onclick="initGame()" />
 <input type="button" value="Undo" onclick="undoFn()" />
@@ -99,6 +101,10 @@ document.write(makePanel(initBdTab))
 </script>
 </div>
 
+<!-- <br /> -->
+<!-- <center> -->
+<!-- <input type="button" value="Pass" onclick="buttonFn('pass')" /> -->
+<!-- </center> -->
 
 <div id="messageDiv">
 Messages.
@@ -107,16 +113,7 @@ Messages.
 <br /><br />
 
 <h5>
-The goal is to have the most pieces on the board when the game ends.  
-Pieces move like chess rooks - vertically or horizontally any distance 
-without jumping over any other pieces.  
-Capturing is a variation on the custodial version: after player A moves a piece, 
-any piece of player B which borders it (vertically or horizontally) and
-which has 2 or more of player A's pieces as neighbors is removed from the board. 
-The other move possible is birth: pieces can be born on the white square at the each
-player's near right.  The birthing square are particular to each player, 
-e.g. player A cannot birth his pieces on player B's birthing square.  
-Passing is allowed, and the game ends with consequetive passes.
+This game was inspired by the political shenanigans of the same name.  One player identifies as X, the other as O, but any player may move any pieces.  The goal is to score the most points (votes).  A move consists of moving all the tokens from one cell to a neighboring cell, as long as population of the latter is at least as large as that of the former.  When no more moves are possible, players are assigned points for each occupied cell: whichever player has the most tokens in a cell gets one point for each token of <i>either kind</i> in the cell; draws are ignored.
 </h5>
 
 <!-- <div id="score"> -->

@@ -1,16 +1,23 @@
+//-*- js-mode -*-
+
+/*jslint browser: true, devel: true, es5: true */
+/*global matrixTranspose, opposite, flatten1, cartesianProd, comp, postMessage */
+
 
 function diags(mat){
-    var fun = function(loc){
-	return 	mat[loc[0]][loc[1]];
+    "use strict";
+    var res, fun = function(loc){
+	return ( mat[loc[0]][loc[1]] );
     };
-    var res = [[[0,0],[1,1],[2,2]].map(fun),
-	       [[0,2],[1,1],[2,0]].map(fun)];
-    return res;    
-};
+    res = [[[0,0],[1,1],[2,2]].map(fun),
+	   [[0,2],[1,1],[2,0]].map(fun)];
+    return( res );    
+}
 
 function linesOfMat(mat){
+    "use strict";
     return mat.concat(matrixTranspose(mat),diags(mat));
-};
+}
 
 
 
@@ -23,8 +30,9 @@ function linesOfMat(mat){
 // Here I don't try to do anything clever: any "uncertain" position is simply assigned a value of 0.
 // Tic-tac-toe is so simple we can rely on a brute minimax search to handle everything.
 function evalPosUncert(mat,plyr){
+    "use strict";
     return 0;
-};
+}
 
 
 // This is a required function.  
@@ -33,11 +41,12 @@ function evalPosUncert(mat,plyr){
 //     plyr = current player to move (either 1 or 2).
 // It returns a Boolean value according to whether the position is a win for the player on move.
 function winQ(mat,plyr){
-    var lns = linesOfMat(mat);
-    var winpce = 3 - 2*plyr;
-    var winrow = [winpce,winpce,winpce];
+    "use strict";
+    var lns = linesOfMat(mat),
+        winpce = 3 - 2*plyr,
+        winrow = [winpce,winpce,winpce];
     return lns.has(winrow);
-};
+}
 
 
 // This is a required function.  
@@ -46,16 +55,18 @@ function winQ(mat,plyr){
 //     plyr = current player to move (either 1 or 2).
 // It returns a Boolean value according to whether the position is a loss for the player on move.
 function lossQ(mat,plyr){
+    "use strict";
     return winQ(mat,opposite(plyr));
-};
+}
 
 function numMvs(mat){
+    "use strict";
     var res = flatten1(mat);
     res = res.map(Math.abs);
     return res.reduce(function(a,b){
 			  return a+b;
 		      },0);
-};
+}
 
 
 // This is a required function.  
@@ -64,8 +75,9 @@ function numMvs(mat){
 //     plyr = current player to move (either 1 or 2).
 // It returns a Boolean value according to whether the position is a draw.
 function drawQ(mat,plyr){
-    return numMvs(mat) == 9;
-};
+    "use strict";
+    return numMvs(mat) === 9;
+}
 
 
 // This is a required function.  
@@ -74,14 +86,15 @@ function drawQ(mat,plyr){
 //     plyr = current player to move (either 1 or 2).
 // It returns a list (array) of the possible moves in the given position by the player.
 function movesFromPos(pos,plyr){
+    "use strict";
     var mvs = cartesianProd([0,1,2],[0,1,2]);
     mvs = mvs.filter(function(loc){
-			  return pos[loc[0]][loc[1]] == 0;
+			  return pos[loc[0]][loc[1]] === 0;
 		      });
     return mvs.map(function(l){
 		       return [l]
 		       ;});
-};
+}
 
 
 // This is a required function.  
@@ -91,12 +104,13 @@ function movesFromPos(pos,plyr){
 //     plyr = current player to move (either 1 or 2).
 // It returns the position resulting from the given move by the given player in the given starting position.
 function positionFromMove(mov,pos,plyr){
-    var pscp = pos.clone();
-    var loc = mov[0];
-    var pce = 3 - 2*plyr;
+    "use strict";
+    var pscp = pos.clone(),
+        loc = mov[0],
+        pce = 3 - 2*plyr;
     pscp[loc[0]][loc[1]] = pce;
     return pscp;
-};
+}
 
 
 // This is a required function.  
@@ -104,24 +118,25 @@ function positionFromMove(mov,pos,plyr){
 //     pos = board position;
 // It returns a table (array of arrays) in which each entry is the display string for the corresponding square of the board.
 function poscurToDisplay(pos){
-    var fun = function(x){
+    "use strict";
+    var bd, fun = function(x){
 	var res;
-	if(x==1){
+	if(x===1){
 	    res = " X ";
 	}
-	else if(x==-1){
+	else if(x===-1){
 	    res = " O ";
 	}
-	else if(x==0){
+	else if(x===0){
 	    res = "    ";
-	};
+	}
 	return res;
     };
-    var bd = pos.map(function(r,i){
+    bd = pos.map(function(r,i){
 		   return pos[i].map(fun);
 	       });
     return bd;
-};
+}
 
 
 // This is a required variable.
@@ -131,14 +146,15 @@ var desiredDepth = 3;
 
 
 function makeInitBdTab(){
-    var res = [];
-    for(var i = 0; i < 3; i++){
-	var row = [];
-	for(var j = 0; j<3; j++){
+    "use strict";
+    var i, j, res = [], row;
+    for( i = 0; i < 3; i++){
+	row = [];
+	for( j = 0; j<3; j++){
 	    row.push(["   ",[i,j],{'height' : 40}]);
-	};
+	}
 	res.push(row);
-    };
+    }
     return res;
 }
 
@@ -161,10 +177,11 @@ var posInit = [[0,0,0],[0,0,0],[0,0,0]];
 //      X :  1
 //      O : -1.
 function makePosInit(){
+    "use strict";
     var pce = "O";
-    if(comp==1){
+    if(comp===1){
 	pce = "X";
-    };
+    }
     postMessage("You are "+pce+" in this game.");
     return posInit;
-};
+}
