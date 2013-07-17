@@ -1,47 +1,74 @@
+// -*-js-*-
+
+/*jslint browser: true, devel: true, es5: true */
+
+/*global nbrs, orthDirs, lookUp, setMatEntry, repeat, comp, score, opposite, 
+  movesFromLoc, flatten1, onBoardQ, makeConstantArraySimp, makeConstantArray, 
+  numMvs, cartesianProd, matrixTranspose, postMessage, allDirs,
+  hexMove, setBGCols, rowLen, gameHistory, posCur, setButtonProps, numberSequence */
+
 var hexSize = getHexSize();
 
 var midHt = hexSize - 1;
 
 function offside(n){
+    "use strict";
     return Math.abs(n - midHt);
-};
+}
 
 function rowLen(n){
+    "use strict";
     return 2*hexSize - 1 - offside(n); 
-};
+}
 
 function onBoardQ(loc){
+    "use strict";
     return loc[0] >= 0 && loc[0] < 2*hexSize - 1 && 
 	loc[1] >= 0 && loc[1] < rowLen(loc[0]);
-};
+}
 
 function hexRect(loc){
-    var hr = loc[0];
-    var hc = loc[1];
-    var rc = hc;
+    "use strict";
+    var hr = loc[0],
+        hc = loc[1],
+        rc = hc;
     if(hr>midHt){
 	rc += offside(hr);
-    };
+    }
     return [hr,rc];
-};
+}
 
 function nbrs(loc,dirs){
+    "use strict";
     if(dirs===undefined){
 	dirs = allDirs;
-    };
+    }
     var res = dirs.map(function(d){
 			   return hexMove(loc,d);
 		       });
     return res.filter(function(l){
 			  return onBoardQ(l);
 		      });
-};
+}
+
+function oneLineFillBlank(loc,dir,dst){
+    "use strict";
+    var res = [loc],
+        lst = loc,
+        d;
+    for( d=1;d<=dst;d++){
+	lst = hexMove(lst,dir);
+	res.push(lst);
+    }
+    return res;
+}
 
 function nbrsAtDist(loc,dst){
+    "use strict";
     var dstdirs = allDirs.map(function(dir){
 			       return dir.scalarMult(dst);
-			   });
-    var res = dstdirs.map(function(d){
+			   }),
+        res = dstdirs.map(function(d){
 			   return hexMove(loc,d);
 		       });
     res = res.map(function(l,i){
@@ -51,61 +78,57 @@ function nbrsAtDist(loc,dst){
     return res.filter(function(l){
 			  return onBoardQ(l);
 		      });
-};
+}
 
-function oneLineFillBlank(loc,dir,dst){
-    var res = [loc];
-    var lst = loc;
-    for(var d=1;d<=dst;d++){
-	lst = hexMove(lst,dir);
-	res.push(lst);
-    };
-    return res;
-};
 
 function dirCCW(dir){
+    "use strict";
     var ind = allDirs.indexOfProp(function(d){
 				      return dir.equal(d);
 				  });
     ind = (ind + 2) % 6;
     return allDirs[ind];
-};
+}
 
 function rectHex(loc){
-    var rr = loc[0];
-    var rc = loc[1];
-    var hc = rc;
+    "use strict";
+    var rr = loc[0],
+        rc = loc[1],
+        hc = rc;
     if(rr>midHt){
 	hc -= offside(rr);
-    };
+    }
     return [rr,hc];
-};
+}
 
 function hexMove(l,d){
-    var rl = hexRect(l);
-    var res = rl.vectorAdd(d);
+    "use strict";
+    var rl = hexRect(l),
+        res = rl.vectorAdd(d);
     return rectHex(res);
-};
+}
 
 function oneLine(pos,loc,dir){
-    var res = [];
-    var fin = hexMove(loc,dir);
-    while(onBoardQ(fin) && lookUp(pos,fin)==0){
+    "use strict";
+    var res = [],
+        fin = hexMove(loc,dir);
+    while(onBoardQ(fin) && lookUp(pos,fin)===0){
 	res.push([loc,fin]);
 	fin = hexMove(fin,dir);
-    };
+    }
     return res;
-};
+}
 
 function oneLineFill(pos,loc,dir){
-    var res = [loc];
-    var fin = hexMove(loc,dir);
-    while(onBoardQ(fin) && lookUp(pos,fin)==0){
+    "use strict";
+    var res = [loc],
+        fin = hexMove(loc,dir);
+    while(onBoardQ(fin) && lookUp(pos,fin)===0){
 	res.push(fin);
 	fin = hexMove(fin,dir);
-    };
+    }
     return res;
-};
+}
 
 
 var allDirs = [[1,0],[1,1],[0,1],[-1,0],[-1,-1],[0,-1]];
@@ -113,58 +136,64 @@ var allDirs = [[1,0],[1,1],[0,1],[-1,0],[-1,-1],[0,-1]];
 var halfDirs = [[1,0],[1,1],[0,1]];
 
 function hexDist(l1,l2){
-    var r1 = hexRect(l1);
-    var r2 = hexRect(l2);
-    var del = r1.vectorMinus(r2);
-    var res = del.map(Math.abs);
+    "use strict";
+    var r1 = hexRect(l1),
+        r2 = hexRect(l2),
+        del = r1.vectorMinus(r2),
+        res = del.map(Math.abs);
     if( (del[0] >= 0 && del[1] >= 0) ||
 	(del[0] <= 0 && del[1] <= 0)){
 	res = Math.max.apply(null,res);
     }
     else{
 	res = res.reduce(Math.plus,0);
-    };
+    }
     return res;
-};
+}
 
 
 
 function linesFromLoc(pos,loc,dirs){
+    "use strict";
     var res = dirs.map(function(dir){
 			      return oneLine(pos,loc,dir);
 			  });
     return flatten1(res);
-};
+}
 
 function lineFillsFromLoc(pos,loc,dirs){
+    "use strict";
     var res = dirs.map(function(dir){
 			      return oneLineFill(pos,loc,dir);
 			  });
     return res;
-};
+}
 
 
 function makeEmptyPos(){
-    var rows = numberSequence(0,2*hexSize - 2);
-    var pos = rows.map(function(r){
+    "use strict";
+    var rows = numberSequence(0,2*hexSize - 2),
+        pos = rows.map(function(r){
 			   return makeConstantArraySimp(0,rowLen(r));
 		       });
     return pos;
-};
+}
 
 function makeAllLocs(){
-    var rows = numberSequence(0,2*hexSize - 2);
-    var pos = makeEmptyPos();
-    var res = rows.map(function(r){
+    "use strict";
+    var rows = numberSequence(0,2*hexSize - 2),
+        pos = makeEmptyPos(),
+        res = rows.map(function(r){
 			   return oneLineFill(pos,[r,0],[0,1]);
 		       });
     return flatten1(res);
-};
+}
 
 function makeAllLines(len){
-    var locs = makeAllLocs();
-    var pos = makeEmptyPos();
-    var res = locs.map(function(l){
+    "use strict";
+    var locs = makeAllLocs(),
+        pos = makeEmptyPos(),
+        res = locs.map(function(l){
 				    return lineFillsFromLoc(pos,l,halfDirs);
 				});
     res = flatten1(res);
@@ -174,17 +203,18 @@ function makeAllLines(len){
     return res.map(function(ln){
 		       return ln.slice(0,len);
 		   });
-};
+}
 
 var emptyCell;
 
-function positionGrouped(mat,grps){
+function PositionGrouped(mat,grps){
+    "use strict";
     this.allLocs = makeAllLocs();
     if(mat===undefined){
 	this.table = [];
     }else{
 	this.table = mat;
-    };
+    }
     this.lookUp = function(loc){
 	return lookUp(this.table,loc);
     };
@@ -205,9 +235,9 @@ function positionGrouped(mat,grps){
 	    return grp.some(function(l){
 				return l.equal(loc);
 			    });
-	};
-	var funlst = this.groups.map(fun);
-	var ind = funlst.indexOf(true);
+	},
+	    funlst = this.groups.map(fun),
+	    ind = funlst.indexOf(true);
 	return ind;
     };
     this.occupiedQ = function(loc){
@@ -215,25 +245,24 @@ function positionGrouped(mat,grps){
     };
     //DEBUG
     // this.checkGroups = function(){
-    // 	var chckQ = function(l){
-    // 	    return this.groupNumOf(l) >= 0;
-    // 	};
-    // 	var locs = this.allLocs.filter(this.occupiedQ,this);
-    // 	return locs.every(chckQ,this);
+    // var chckQ = function(l){
+    // return this.groupNumOf(l) >= 0;
+    // };
+    // var locs = this.allLocs.filter(this.occupiedQ,this);
+    // return locs.every(chckQ,this);
     // };
     //GUBED
     this.joinGroups = function(lst){
-	var lstcp = lst.clone();
+	var lstcp = lst.clone(), newgrp = [];
 	//DEBUG
 	// if(!this.checkGroups()){
-	// 		console.debug("Group check failed!");
-	// 		console.debug("Table: %s", this.getTable().join());
-	// 		console.debug("Groups: %s",this.groups.join());
+	// console.debug("Group check failed!");
+	// console.debug("Table: %s", this.getTable().join());
+	// console.debug("Groups: %s",this.groups.join());
 	// };
 	// var oldTab = this.getTable().clone();
 	// var oldGrps = this.groups.clone();
 	//GUBED
-	var newgrp = [];
 	lstcp.forEach(function(i){
 			newgrp = newgrp.concat(this.groups[i]);
 		    },this);
@@ -248,99 +277,102 @@ function positionGrouped(mat,grps){
 	this.groups.push(newgrp);
 	//DEBUG
 	// if(!this.checkGroups()){
-	// 		console.debug("Group check failed!");
-	// 		console.debug("Old Table: %s", oldTab.join());
-	// 		console.debug("Old Groups: %s",oldGrps.join());
-	// 		console.debug("Groups joined: %s", lstcp.join());
-	// 		console.debug("Table: %s", this.getTable().join());
-	// 		console.debug("Groups: %s",this.groups.join());
+	// console.debug("Group check failed!");
+	// console.debug("Old Table: %s", oldTab.join());
+	// console.debug("Old Groups: %s",oldGrps.join());
+	// console.debug("Groups joined: %s", lstcp.join());
+	// console.debug("Table: %s", this.getTable().join());
+	// console.debug("Groups: %s",this.groups.join());
 	// };
 	//GUBED
 	//return newgrp;
     };
     this.regroupAdd = function(loc){
-	var pce = this.lookUp(loc);
-	if(pce==emptyCell){
+	var pce = this.lookUp(loc),
+	    ind0, nbs, pces, len, i, newpce, ind1, ind2;
+	if(pce===emptyCell){
 	    return ;
-	};
-	var ind0 = this.groupNumOf(loc);
+	}
+	ind0 = this.groupNumOf(loc);
 	if(ind0<0){
 	    this.getGroups().push([loc]);	    
 	}
-	var nbs = this.nbrs(loc);
-	var pces = nbs.map(this.lookUp,this);
-	var len = nbs.length;
-	for(var i=0;i<len;i++){
-	    var newpce = pces[i];
-	    if(newpce==pce){
-		var ind1 = this.groupNumOf(loc);
-		var ind2 = this.groupNumOf(nbs[i]);
-		if(ind1 != ind2){
+	nbs = this.nbrs(loc);
+	pces = nbs.map(this.lookUp,this);
+	len = nbs.length;
+	for( i=0;i<len;i++){
+	    newpce = pces[i];
+	    if(newpce===pce){
+		ind1 = this.groupNumOf(loc);
+		ind2 = this.groupNumOf(nbs[i]);
+		if(ind1 !== ind2){
 		  this.joinGroups([ind1,ind2]);  
-		};
-	    };
-	};
+		}
+	    }
+	}
     };
     this.regroupChange = function(loc,breakQ){
-	var pce = this.lookUp(loc);
+	var pce = this.lookUp(loc),
+	    ind0, oldgrp, nbs, pces, newpce, len, ind1, ind2, i;
 	if(breakQ===undefined){
 	    breakQ = false;
-	};
-	var ind0 = this.groupNumOf(loc);
+	}
+	ind0 = this.groupNumOf(loc);
 	if(pce.equal(emptyCell) || breakQ){
 	    if(ind0>=0){
 		//this.groups[ind0].removeAll(loc);
-		var oldgrp = this.groups[ind0].clone();
+		oldgrp = this.groups[ind0].clone();
 		this.groups.splice(ind0,1);
 		this.makeGroupList(oldgrp);
-	    };
+	    }
 	    return;
-	};
+	}
 	if(ind0<0){
 	    this.getGroups().push([loc]);	    
 	}
-	var nbs = this.nbrs(loc);
-	var pces = nbs.map(this.lookUp,this);
-	var len = nbs.length;
-	for(var i=0;i<len;i++){
-	    var newpce = pces[i];
+	nbs = this.nbrs(loc);
+	pces = nbs.map(this.lookUp,this);
+	len = nbs.length;
+	for( i=0;i<len;i++){
+	    newpce = pces[i];
 	    if(this.linkedPcesQ(newpce,pce)){
-		var ind1 = this.groupNumOf(loc);
-		var ind2 = this.groupNumOf(nbs[i]);
-		if(ind1 != ind2){
+		ind1 = this.groupNumOf(loc);
+		ind2 = this.groupNumOf(nbs[i]);
+		if(ind1 !== ind2){
 		  this.joinGroups([ind1,ind2]);  
-		};
-	    };
-	};	
+		}
+	    }
+	}	
     };
     this.makeGroupList = function(locs){
+	var fun1, fun2, num, numitr, i;
 	if(locs===undefined){
 	    locs = this.allLocs;
 	    this.groups = [];
-	};
-	var fun1 = function(loc){
+	}
+	fun1 = function(loc){
 	    if(!this.lookUp(loc).equal(emptyCell)){
 		this.groups.push([loc]);
-	    };
+	    }
 	};
 	//console.debug("allLocs.forEach...");
 	locs.forEach(fun1,this);
 	//console.debug("...done.");
-	var fun2 = function(loc){
+	fun2 = function(loc){
 	    this.regroupChange(loc);
 	};
-	var num = this.allLocs.length;
-	var numitr = Math.log(num)/Math.log(2)+1;
-	for(var i=0;i<numitr;i++){
+	num = this.allLocs.length;
+	numitr = Math.log(num)/Math.log(2)+1;
+	for( i=0;i<numitr;i++){
 	    locs.forEach(fun2,this);
-	};
+	}
     };
     if(grps===undefined){
 	this.groups = [];
 	this.makeGroupList();
     }else{
 	this.groups = grps;
-    };
+    }
     this.setTable = function(tab){
 	this.table = tab;
     };
@@ -351,11 +383,11 @@ function positionGrouped(mat,grps){
 	setMatEntry(this.table,loc,val);
     };
     this.groupNbrsOfGrp = function(grp){
-	var grpnbs = [];
-	var fun2 = function(nb){
+	var grpnbs = [],
+	    fun2 = function(nb){
 	    return !grpnbs.has(nb) && !grp.has(nb);
-	};
-	var fun1 = function(loc){
+	},
+	    fun1 = function(loc){
 	    var nbs = this.nbrs(loc);
 	    grpnbs = grpnbs.concat(nbs.filter(fun2));
 	};
@@ -367,7 +399,7 @@ function positionGrouped(mat,grps){
 	return this.groupNbrsOfGrp(grp);
     };
     this.clone = function(){
-	return new positionGrouped(this.getTable().clone(),this.groups.clone());
+	return new PositionGrouped(this.getTable().clone(),this.groups.clone());
     };
     this.equal = function(pos){
 	return this.getTable().equal(pos.getTable());
@@ -378,16 +410,16 @@ function positionGrouped(mat,grps){
 	    return;
 	}else{
 	    this.groups[grpind] = this.groups[grpind].removeAll(loc);
-	};
+	}
     };
     this.makeGroupSolo = function(ind){
-	var grp = this.getGroups()[ind].clone();
-	var newpos = new positionGrouped(makeEmptyPos(),[grp]);
-	var fun = function(l){
+	var grp = this.getGroups()[ind].clone(),
+	    newpos = new PositionGrouped(makeEmptyPos(),[grp]),
+	    fun = function(l){
 	    newpos.setLoc(l,this.lookUp(l));
 	};
 	grp.forEach(fun,this);
 	return newpos;
     };
-};
+}
 

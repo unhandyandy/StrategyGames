@@ -68,6 +68,24 @@ function nextMove(str){
     return path(str)[0];
 }
 
+//update gameHistory
+function updateGameHistory( newmov, pos ){
+    "use strict";
+    gameHistory[0] = [newmov].concat(gameHistory[0]);
+    gameHistory[1] = [pos].concat(gameHistory[1]);    
+}
+
+//undo last addition to gameHistory
+function undoGameHistory( n ){
+    "use strict";
+    var movls = gameHistory[0], posls = gameHistory[1];
+    if ( n === undefined ){
+	n = 1;}
+    gameHistory[1] = posls.slice(n);
+    gameHistory[0] = movls.slice(n);    
+}
+
+
 var minimaxABcache;
 
 function minimaxAB(pos,depth,player){
@@ -115,15 +133,18 @@ function minimaxABaux(pos,depth,player,useThresh,passThresh){
 	    //console.debug("succ = %s",succ.join());
 	    //console.debug("pos = %s",pos.join());
 	    newpos = positionFromMove(succ,pos,player);
+	    updateGameHistory( succ, newpos );
 	    //console.debug("newpos computed");
 	    newplayer = opposite(player);
 	    if(winQ(newpos,newplayer)){
-		//return makeStr(-maxVal,[succ]);
-		newValue = -maxVal;
-	    }
+		newValue = -maxVal;}
 	    else if(lossQ(newpos,newplayer)){
-		return makeStr( maxVal,[succ]);
-	    }else{
+		undoGameHistory();
+		return makeStr( maxVal,[succ]);}
+	    else if ( drawQ( newpos, newplayer ) ){
+		newValue = 0;
+		resSucc = makeStr( newValue, [] );}
+	    else{
 		resSucc = minimaxABaux(newpos,
 				       depth - 1,
 				       newplayer,
@@ -139,6 +160,7 @@ function minimaxABaux(pos,depth,player,useThresh,passThresh){
 	    if(passThresh >= useThresh){
 		quit = true;
 	    }
+	    undoGameHistory();
 	} while(!quit && s.length>0);
 	return makeStr(passThresh,bestPath);
     }
@@ -199,10 +221,10 @@ function setPause(pq){
     pauseQ = pq;
 }
 
+
 function updatePosCur(newmov){
     "use strict";
-    gameHistory[0] = [newmov].concat(gameHistory[0]);
-    gameHistory[1] = [posCur].concat(gameHistory[1]);
+    updateGameHistory( newmov, posCur );
     //console.debug("updating posCur...");
     posCur = positionFromMove(newmov,posCur,statusN);
     //console.debug("...done");
@@ -372,6 +394,7 @@ function newFromPos(pos,plyr){
 		    });
 }
 
+
 function undoFn(arg){
     "use strict";
     var move = histButt, movls = gameHistory[0], posls = gameHistory[1];
@@ -380,8 +403,7 @@ function undoFn(arg){
 	if(move.length === 0 && movls.length > 1){
 	    posCur = posls[1];
 	    postPosition(posCur);
-	    gameHistory[1] = posls.slice(2);
-	    gameHistory[0] = movls.slice(2);
+	    undoGameHistory( 2 );
 	}
 	histButt = [];
 	setPause(false);
@@ -408,7 +430,7 @@ function repetitionQaux(pos,plyr,hist,stt){
 
 function repetitionQ(pos,plyr){
     "use strict";
-    return repetitionQaux(pos,plyr,gameHistory[1],statusN);
+    return repetitionQaux(pos,plyr,gameHistory[1].slice(2),statusN);
 }
 
 function postMortemCheck(plyr){

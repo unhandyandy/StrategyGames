@@ -119,7 +119,7 @@ function score(mat,plyr){
 
 function gameOverQ(pos,plyr){
     "use strict";
-    return lookUp(pos,passLoc) === 12;
+    return repetitionQ( pos, plyr );
 }
 
 
@@ -136,8 +136,7 @@ function lossQ(mat,plyr){
 
 function drawQ(pos,plyr){
      "use strict";
-   return repetitionQ( pos, plyr ) || 
-	( gameOverQ(pos,plyr) &&  evalPosUncert(pos,plyr) === 0 );
+   return ( gameOverQ(pos,plyr) &&  evalPosUncert(pos,plyr) === 0 );
 }
 
 function listEggs(pos,plyr){

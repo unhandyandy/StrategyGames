@@ -1,24 +1,22 @@
 <html>
 <head>
 
+<!-- In the following just change "TTT" to the name of your game. -->
 <script>
 function getGameName(){
-    return "Gerrymander";
-};
-function getHexSize(){
-    return 4;
+    return "554";
 };
 </script>
 
 <script type="text/javascript" src="../../mydefs02.js">
 </script>
-<script type="text/javascript" src="../../hexUtils.js">
+<script type="text/javascript" src="../../rectUtils.js">
 </script>
 <script type="text/javascript" src="../../strategygames03.js">
 </script>
 
-<!-- In the following just change "tttengine01.js" to the name of the javascript file for your game. -->
-<script type="text/javascript" src="./gerrymander01.js">
+<!-- In the following just change "554.js" to the name of the javascript file for your game. -->
+<script type="text/javascript" src="./554.js">
 </script>
 <style type="text/css">
 body
@@ -71,16 +69,10 @@ float:left;
 margin-left:100px;
 width:100px;
 }
-h5
-{
-color:white;
-font-size:14px;
-}
-
 </style>
 </head>
 <body>
-<h1>Gerrymander<br />
+<h1>4-in-a-Row<br />
 <!-- <input type="button" value="Instructions" onclick="showinstructions()" /> -->
 <input type="button" value="New Game" onclick="initGame()" />
 <input type="button" value="Undo" onclick="undoFn()" />
@@ -102,20 +94,12 @@ document.write(makePanel(initBdTab))
 </script>
 </div>
 
-<!-- <br /> -->
-<!-- <center> -->
-<!-- <input type="button" value="Pass" onclick="buttonFn('pass')" /> -->
-<!-- </center> -->
 
 <div id="messageDiv">
 Messages.
 </div>
 
 <br /><br />
-
-<h5>
-This game was inspired by the political shenanigans of the same name.  One player identifies as X, the other as O, but any player may move any pieces.  The goal is to score the most points (votes).  A move consists of moving all the tokens from one cell to a neighboring cell, as long as population of the latter is at least as large as that of the former.  When no more moves are possible, players are assigned points for each occupied cell: whichever player has the most tokens in a cell gets one point for each token of <i>either kind</i> in the cell; draws are ignored.
-</h5>
 
 <!-- <div id="score"> -->
 <!-- Score -->
