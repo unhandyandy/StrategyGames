@@ -377,7 +377,7 @@ function buttonFn(arg){
 	    updatePosCur(nwmv);
 	    if(comp === statusN && !pauseQ){
 		postMessage("Thinking...");
-		setTimeout(compTurn,0);
+		setTimeout(compTurn,100);
 	    }
 	}
 	else{

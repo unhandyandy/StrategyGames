@@ -2,14 +2,16 @@
 
 /*jslint browser: true, devel: true, es5: true */
 
-/*global nbrs, orthDirs, lookUp, setMatEntry, repeat, comp, score, opposite, 
+/*global orthDirs, lookUp, setMatEntry, repeat, comp, score, opposite, 
   movesFromLoc, flatten1, onBoardQ, makeConstantArraySimp, makeConstantArray, 
-  numMvs, cartesianProd, matrixTranspose, postMessage, allDirs,
-  hexMove, setBGCols, rowLen, gameHistory, posCur, setButtonProps, numberSequence */
+  numMvs, cartesianProd, matrixTranspose, postMessage, 
+  setBGCols, rowLen, gameHistory, posCur, setButtonProps, numberSequence,
+  mapLp, eachLp, equalLp */
 
 var hexSize = getHexSize();
 
 var midHt = hexSize - 1;
+var allDirs = [[1,0],[1,1],[0,1],[-1,0],[-1,-1],[0,-1]];
 
 function offside(n){
     "use strict";
@@ -38,17 +40,47 @@ function hexRect(loc){
     return [hr,rc];
 }
 
+function rectHex(loc){
+    "use strict";
+    var rr = loc[0],
+        rc = loc[1],
+        hc = rc;
+    if(rr>midHt){
+	hc -= offside(rr);
+    }
+    return [rr,hc];
+}
+
+function hexMove(l,d){
+    "use strict";
+    var rl = hexRect(l),
+        res = rl.vector2Add(d);
+    return rectHex(res);
+}
+
+
 function nbrs(loc,dirs){
     "use strict";
     if(dirs===undefined){
 	dirs = allDirs;
     }
-    var res = dirs.map(function(d){
+    var res = mapLp( dirs, function(d){
 			   return hexMove(loc,d);
-		       });
+		       } );
     return res.filter(function(l){
 			  return onBoardQ(l);
 		      });
+}
+
+function nbrsAll( loc ){
+    "use strict";
+    var res = [], i, dir, newloc;
+    for ( i = 0; i < 6; i += 1 ){
+	dir = allDirs[ i ];
+	newloc = hexMove( loc, dir );
+	if ( onBoardQ( newloc ) ){
+	    res.push( newloc ); }}
+    return res;
 }
 
 function oneLineFillBlank(loc,dir,dst){
@@ -65,15 +97,15 @@ function oneLineFillBlank(loc,dir,dst){
 
 function nbrsAtDist(loc,dst){
     "use strict";
-    var dstdirs = allDirs.map(function(dir){
+    var dstdirs = mapLp( allDirs, function(dir){
 			       return dir.scalarMult(dst);
 			   }),
-        res = dstdirs.map(function(d){
+        res = mapLp( dstdirs, function(d){
 			   return hexMove(loc,d);
-		       });
-    res = res.map(function(l,i){
+		       } );
+    res = mapLp( res, function(l,i){
 		      return oneLineFillBlank(l,allDirs[(i+2)%6],dst-1);
-		  });
+		  } );
     res = flatten1(res);
     return res.filter(function(l){
 			  return onBoardQ(l);
@@ -84,29 +116,12 @@ function nbrsAtDist(loc,dst){
 function dirCCW(dir){
     "use strict";
     var ind = allDirs.indexOfProp(function(d){
-				      return dir.equal(d);
+				      return equalLp( dir, d);
 				  });
     ind = (ind + 2) % 6;
     return allDirs[ind];
 }
 
-function rectHex(loc){
-    "use strict";
-    var rr = loc[0],
-        rc = loc[1],
-        hc = rc;
-    if(rr>midHt){
-	hc -= offside(rr);
-    }
-    return [rr,hc];
-}
-
-function hexMove(l,d){
-    "use strict";
-    var rl = hexRect(l),
-        res = rl.vectorAdd(d);
-    return rectHex(res);
-}
 
 function oneLine(pos,loc,dir){
     "use strict";
@@ -131,7 +146,6 @@ function oneLineFill(pos,loc,dir){
 }
 
 
-var allDirs = [[1,0],[1,1],[0,1],[-1,0],[-1,-1],[0,-1]];
 
 var halfDirs = [[1,0],[1,1],[0,1]];
 
@@ -139,8 +153,8 @@ function hexDist(l1,l2){
     "use strict";
     var r1 = hexRect(l1),
         r2 = hexRect(l2),
-        del = r1.vectorMinus(r2),
-        res = del.map(Math.abs);
+        del = r1.vector2Minus(r2),
+        res = del.mapLp(Math.abs, del);
     if( (del[0] >= 0 && del[1] >= 0) ||
 	(del[0] <= 0 && del[1] <= 0)){
 	res = Math.max.apply(null,res);
@@ -155,7 +169,7 @@ function hexDist(l1,l2){
 
 function linesFromLoc(pos,loc,dirs){
     "use strict";
-    var res = dirs.map(function(dir){
+    var res = mapLp( dirs, function(dir){
 			      return oneLine(pos,loc,dir);
 			  });
     return flatten1(res);
@@ -163,7 +177,7 @@ function linesFromLoc(pos,loc,dirs){
 
 function lineFillsFromLoc(pos,loc,dirs){
     "use strict";
-    var res = dirs.map(function(dir){
+    var res = mapLp( dirs, function(dir){
 			      return oneLineFill(pos,loc,dir);
 			  });
     return res;
@@ -173,7 +187,7 @@ function lineFillsFromLoc(pos,loc,dirs){
 function makeEmptyPos(){
     "use strict";
     var rows = numberSequence(0,2*hexSize - 2),
-        pos = rows.map(function(r){
+        pos = mapLp(rows, function(r){
 			   return makeConstantArraySimp(0,rowLen(r));
 		       });
     return pos;
@@ -183,7 +197,7 @@ function makeAllLocs(){
     "use strict";
     var rows = numberSequence(0,2*hexSize - 2),
         pos = makeEmptyPos(),
-        res = rows.map(function(r){
+        res = mapLp(rows, function(r){
 			   return oneLineFill(pos,[r,0],[0,1]);
 		       });
     return flatten1(res);
@@ -193,14 +207,14 @@ function makeAllLines(len){
     "use strict";
     var locs = makeAllLocs(),
         pos = makeEmptyPos(),
-        res = locs.map(function(l){
+        res = mapLp( locs, function(l){
 				    return lineFillsFromLoc(pos,l,halfDirs);
 				});
     res = flatten1(res);
     res = res.filter(function(l){
 			 return l.length >= len;
 		     });
-    return res.map(function(ln){
+    return mapLp( res, function(ln){
 		       return ln.slice(0,len);
 		   });
 }
@@ -225,23 +239,23 @@ function PositionGrouped(mat,grps){
 	return this.groups;
     };
     this.nbrs = function(loc){
-	return nbrs(loc);
+	return nbrsAll(loc);
     };
     this.linkedPcesQ = function(p1,p2){
-	return p1.equal(p2);
+	return equalLp( p1, p2 );
     };
     this.groupNumOf = function(loc){
 	var fun = function(grp){
 	    return grp.some(function(l){
-				return l.equal(loc);
+				return equalLp( l, loc );
 			    });
 	},
-	    funlst = this.groups.map(fun),
+	    funlst = mapLp( this.groups, fun),
 	    ind = funlst.indexOf(true);
 	return ind;
     };
     this.occupiedQ = function(loc){
-	return !this.lookUp(loc).equal(emptyCell);
+	return !equalLp( this.lookUp(loc), emptyCell);
     };
     //DEBUG
     // this.checkGroups = function(){
@@ -263,15 +277,19 @@ function PositionGrouped(mat,grps){
 	// var oldTab = this.getTable().clone();
 	// var oldGrps = this.groups.clone();
 	//GUBED
-	lstcp.forEach(function(i){
-			newgrp = newgrp.concat(this.groups[i]);
-		    },this);
+	// lstcp.forEach(function(i){
+	//  newgrp = newgrp.concat(this.groups[i]);
+	//  },this);
+	eachLp(lstcp, function(i){
+	    newgrp = newgrp.concat(this.groups[i]);
+	},this);
+
 	//console.debug("Groups joined: %s", lstcp.join());
 	lstcp.sort(Math.minus);
 	//console.debug("Groups joined: %s", lstcp.join());
 	lstcp.reverse();
 	//console.debug("Groups joined: %s", lstcp.join());
-	lstcp.forEach(function(i){
+	eachLp(lstcp,function(i){
 			this.groups.splice(i,1);
 		    },this);
 	this.groups.push(newgrp);
@@ -298,7 +316,7 @@ function PositionGrouped(mat,grps){
 	    this.getGroups().push([loc]);	    
 	}
 	nbs = this.nbrs(loc);
-	pces = nbs.map(this.lookUp,this);
+	pces = mapLp( nbs, this.lookUp,this);
 	len = nbs.length;
 	for( i=0;i<len;i++){
 	    newpce = pces[i];
@@ -318,7 +336,7 @@ function PositionGrouped(mat,grps){
 	    breakQ = false;
 	}
 	ind0 = this.groupNumOf(loc);
-	if(pce.equal(emptyCell) || breakQ){
+	if( equalLp( pce, emptyCell ) || breakQ){
 	    if(ind0>=0){
 		//this.groups[ind0].removeAll(loc);
 		oldgrp = this.groups[ind0].clone();
@@ -331,7 +349,7 @@ function PositionGrouped(mat,grps){
 	    this.getGroups().push([loc]);	    
 	}
 	nbs = this.nbrs(loc);
-	pces = nbs.map(this.lookUp,this);
+	pces = mapLp( nbs, this.lookUp,this);
 	len = nbs.length;
 	for( i=0;i<len;i++){
 	    newpce = pces[i];
@@ -351,7 +369,7 @@ function PositionGrouped(mat,grps){
 	    this.groups = [];
 	}
 	fun1 = function(loc){
-	    if(!this.lookUp(loc).equal(emptyCell)){
+	    if( !equalLp( this.lookUp(loc), emptyCell )){
 		this.groups.push([loc]);
 	    }
 	};
@@ -364,7 +382,7 @@ function PositionGrouped(mat,grps){
 	num = this.allLocs.length;
 	numitr = Math.log(num)/Math.log(2)+1;
 	for( i=0;i<numitr;i++){
-	    locs.forEach(fun2,this);
+	    eachLp(locs,fun2,this);
 	}
     };
     if(grps===undefined){
@@ -391,7 +409,7 @@ function PositionGrouped(mat,grps){
 	    var nbs = this.nbrs(loc);
 	    grpnbs = grpnbs.concat(nbs.filter(fun2));
 	};
-	grp.forEach(fun1,this);
+	eachLp(grp, fun1,this);
 	return grpnbs;	
     };
     this.groupNbrs = function(grpind){
@@ -402,7 +420,7 @@ function PositionGrouped(mat,grps){
 	return new PositionGrouped(this.getTable().clone(),this.groups.clone());
     };
     this.equal = function(pos){
-	return this.getTable().equal(pos.getTable());
+	return equalLp( this.getTable(), pos.getTable() );
     };
     this.removeFromGroups = function(loc){
 	var grpind = this.groupNumOf(loc);
@@ -418,7 +436,7 @@ function PositionGrouped(mat,grps){
 	    fun = function(l){
 	    newpos.setLoc(l,this.lookUp(l));
 	};
-	grp.forEach(fun,this);
+	eachLp(grp,fun,this);
 	return newpos;
     };
 }

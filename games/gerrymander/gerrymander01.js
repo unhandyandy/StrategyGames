@@ -5,11 +5,11 @@
 /*global nbrs, orthDirs, lookUp, setMatEntry, repeat, comp, score, opposite, 
   movesFromLoc, flatten1, onBoardQ, makeConstantArraySimp, makeConstantArray, 
   numMvs, cartesianProd, matrixTranspose, postMessage, PositionGrouped, allDirs,
-  hexMove, setBGCols, rowLen, gameHistory, posCur, setButtonProps */
+  hexMove, setBGCols, rowLen, gameHistory, posCur, setButtonProps, mapLp */
 
 // This is a required variable.
 // It represents the default search depth.  
-var desiredDepth = 4;
+var desiredDepth = 2;
 
 emptyCell = [0,0];
 
@@ -42,7 +42,7 @@ function groupScore(pos,grp){
     "use strict";
     var res = [0,0];
     grp.forEach(function(l){
-		    res = res.vectorAdd(pos.lookUp(l));
+		    res = res.vector2Add(pos.lookUp(l));
 		});
     return pceScore(res);
 }
@@ -94,11 +94,11 @@ function GerryPos(tab,grps){
     this.clone = function(){
 	return new GerryPos(this.getTable().clone(),this.getGroups().clone());
     };
-    this.circum = function nbrs(loc){
-	crc = allDirs.map(function(d){
+    this.circum = function(loc){
+	crc = mapLp( allDirs, function(d){
 			       return hexMove(loc,d);
 			   });
-	nbs = crc.map(function(l){
+	nbs = mapLp( crc, function(l){
 			      return onBoardQ(l) && this.occupiedQ(l);
 			  },this);
 	res = 0;
@@ -159,7 +159,7 @@ function positionFromMove(mov,pos,plyr){
     var pscp = pos.clone(),
         pc1 = pos.lookUp(mov[0]),
         pc2 = pos.lookUp(mov[1]),
-        newpce = pc1.vectorAdd(pc2);
+        newpce = pc1.vector2Add(pc2);
     pscp.setLoc(mov[0],emptyCell);
     pscp.setLoc(mov[1],newpce);
     pscp.regroupChange(mov[0],true);
