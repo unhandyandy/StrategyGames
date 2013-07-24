@@ -2,10 +2,11 @@
 
 /*jslint browser: true, devel: true, es5: true */
 
-/*global nbrs, orthDirs, lookUp, setMatEntry, repeat, comp, score, opposite, 
+/*global nbrs, lookUp, setMatEntry, repeat, comp, score, opposite, 
   movesFromLoc, flatten1, onBoardQ, makeConstantArraySimp, makeConstantArray, 
-  numMvs, cartesianProd, matrixTranspose, postMessage, allDirs,
-  hexMove, setBGCols, rowLen, gameHistory, posCur, setButtonProps, numberSequence */
+  numMvs, cartesianProd, matrixTranspose, 
+  setBGCols, rowLen, gameHistory, posCur, setButtonProps, numberSequence,
+  mapLp */
 
 
 function onBoardQ(loc,numRows,numCols){
@@ -16,10 +17,10 @@ function onBoardQ(loc,numRows,numCols){
 function oneLine(pos,loc,dir,numRows,numCols){
     "use strict";
     var res = [],
-        fin = loc.vectorAdd(dir);
+        fin = loc.vector2Add(dir);
     while(onBoardQ(fin,numRows,numCols) && lookUp(pos,fin)===0){
 	res.push([loc,fin]);
-	fin = fin.vectorAdd(dir);
+	fin = fin.vector2Add(dir);
     }
     return res;
 }
@@ -27,10 +28,10 @@ function oneLine(pos,loc,dir,numRows,numCols){
 function oneLineFill(pos,loc,dir,numRows,numCols){
     "use strict";
     var res = [loc],
-        fin = loc.vectorAdd(dir);
+        fin = loc.vector2Add(dir);
     while(onBoardQ(fin,numRows,numCols) && lookUp(pos,fin)===0){
 	res.push(fin);
-	fin = fin.vectorAdd(dir);
+	fin = fin.vector2Add(dir);
     }
     return res;
 }
@@ -46,8 +47,8 @@ var allDirs = orthDirs.concat(diagDirs);
 
 function nbrs(loc,dirs,numRows,numCols){
     "use strict";
-    var res = dirs.map(function(d){
-			   return loc.vectorAdd(d);
+    var res = mapLp( dirs, function(d){
+			   return loc.vector2Add(d);
 		       });
     return res.filter(function(l){
 			  return onBoardQ(l,numRows,numCols);
@@ -57,7 +58,7 @@ function nbrs(loc,dirs,numRows,numCols){
 function diagDist(l1,l2){
     "use strict";
     var del = l1.vectorMinus(l2);
-    del = del.map(Math.abs);
+    del = mapLp( del, Math.abs);
     return Math.max.apply(null,del);
 }
 
@@ -71,7 +72,7 @@ function movesFromLoc(pos,loc,dirs,numRows,numCols){
 
 function lineFillsFromLoc(pos,loc,dirs,numRows,numCols){
     "use strict";
-    var res = dirs.map(function(dir){
+    var res = mapLp( dirs, function(dir){
 			      return oneLineFill(pos,loc,dir,numRows,numCols);
 			  });
     return res;
@@ -88,14 +89,14 @@ function makeAllLines(numRows,numCols,len){
     var locs = makeAllLocs(numRows,numCols),
         row = makeConstantArraySimp(0,numCols),
         pos = makeConstantArray(row,numRows),
-        res = locs.map(function(l){
+        res = mapLp( locs, function(l){
 				    return lineFillsFromLoc(pos,l,halfDirs,numRows,numCols);
 				});
     res = flatten1(res);
     res = res.filter(function(l){
 			 return l.length >= len;
 		     });
-    return res.map(function(ln){
+    return mapLp( res, function(ln){
 		       return ln.slice(0,len);
 		   });
 }

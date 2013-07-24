@@ -194,7 +194,7 @@ function compTurn(){
 	}else{
 	    comp = opposite(comp);
 	    postMessage("Thinking...");
-	    setTimeout(compTurn,0);
+	    setTimeout(compTurn,100);
 	}	
     }
 }
@@ -339,7 +339,7 @@ function setup(){
     }
     if(comp===statusN){
 	postMessage("Thinking...");
-	compTurn();
+	setTimeout(compTurn,100);
     }
 }
 
@@ -440,7 +440,7 @@ function postMortemCheck(plyr){
     }
     if(comp === plyr){
 	postMessage("Performing post-mortem...");
-	setTimeout(postMortem,0,gameHistory,plyr);
+	setTimeout(postMortem,100,gameHistory,plyr);
     }
 }
 

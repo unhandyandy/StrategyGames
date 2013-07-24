@@ -5,11 +5,11 @@
 /*global nbrs, orthDirs, lookUp, setMatEntry, repeat, comp, score, opposite, 
   movesFromLoc, flatten1, onBoardQ, makeConstantArraySimp, makeConstantArray, 
   numMvs, cartesianProd, matrixTranspose, postMessage, PositionGrouped, allDirs,
-  hexMove, setBGCols, rowLen, gameHistory, posCur, setButtonProps, mapLp */
+  hexMove, setBGCols, rowLen, gameHistory, posCur, setButtonProps, mapLp, eachLp */
 
 // This is a required variable.
 // It represents the default search depth.  
-var desiredDepth = 2;
+var desiredDepth = 4;
 
 emptyCell = [0,0];
 
@@ -41,7 +41,7 @@ function pceScore(pce){
 function groupScore(pos,grp){
     "use strict";
     var res = [0,0];
-    grp.forEach(function(l){
+    eachLp( grp, function(l){
 		    res = res.vector2Add(pos.lookUp(l));
 		});
     return pceScore(res);
@@ -122,7 +122,7 @@ function movesFromLoc(pos,loc){
         fun = function(n){
 	res = res.concat(nbrMove(pos,loc,n));
     };
-    nbs.forEach(fun);
+    eachLp( nbs, fun);
     return res;
 }
 
@@ -148,7 +148,7 @@ function movesFromPos(pos,plyr){
         fun = function(l){
 	res = res.concat(movesFromLoc(pos,l));
     };
-    locs.forEach(fun);
+    eachLp( locs, fun);
     sortMoves(pos,res);
     return res;
 }
@@ -256,7 +256,8 @@ function pceFn(r,c){
 }
 
 var posInit = new GerryPos(makeEmptyPos(),[makeAllLocs()]);
-posInit.allLocs.forEach(function(l){
+
+eachLp( posInit.allLocs, function(l){
     "use strict";
     posInit.setLoc(l,pceFn.apply(null,l));
 		    });
@@ -315,5 +316,5 @@ function setBGCols(){
         fun = function(loc){
 	setButtonProps(loc,false,{'bgc' : cellBG(loc)});
     };
-    locs.forEach(fun);
+    eachLp( locs, fun);
 }

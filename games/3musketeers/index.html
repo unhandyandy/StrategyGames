@@ -3,22 +3,22 @@
 
 <script>
 function getGameName(){
-    return "Gerrymander";
+    return "3 Musketeers";
 };
-function getHexSize(){
-    return 4;
+function getRectSize(){
+    return 5;
 };
 </script>
 
 <script type="text/javascript" src="../../mydefs.js">
 </script>
-<script type="text/javascript" src="../../hexUtils.js">
+<script type="text/javascript" src="../../rectUtils.js">
 </script>
 <script type="text/javascript" src="../../strategygames03.js">
 </script>
 
-<!-- In the following just change "gerrymander01.js" to the name of the javascript file for your game. -->
-<script type="text/javascript" src="./gerrymander01.js">
+
+<script type="text/javascript" src="./engine.js">
 </script>
 <style type="text/css">
 body
@@ -80,7 +80,7 @@ font-size:14px;
 </style>
 </head>
 <body>
-<h1>Gerrymander<br />
+<h1>Three Musketeers<br />
 <!-- <input type="button" value="Instructions" onclick="showinstructions()" /> -->
 <input type="button" value="New Game" onclick="initGame()" />
 <input type="button" value="Undo" onclick="undoFn()" />
@@ -114,7 +114,12 @@ Messages.
 <br /><br />
 
 <h5>
-This game was inspired by the political shenanigans of the same name.  One player identifies as X, the other as O, but any player may move any pieces.  The goal is to score the most points (votes).  A move consists of moving all the tokens from one cell to a neighboring cell, as long as population of the latter is at least as large as that of the former.  When no more moves are possible, players are assigned points for each occupied cell: whichever player has the most tokens in a cell gets one point for each token of <i>either kind</i> in the cell; draws are ignored.
+This game was invented by Haar Hoolim and first published in Sid
+Sackson's great collection "A Gamut of Games".  The enemy pieces (&#x25ce;)
+try to get the 3 musketeers (&#x254b;) in a horizontal or
+vertical line.  Musketeers move by capturing a (horizontally or
+vertically) adjacent piece; the enemy moves by sliding to an empty
+adjacent space.  The musketeers win if they have no possible moves.
 </h5>
 
 <!-- <div id="score"> -->
