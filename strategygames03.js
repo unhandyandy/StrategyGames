@@ -2,7 +2,10 @@
 
 /*jslint browser: true, devel: true, es5: true */
 
-/*global setDiv, makeTag, makeButton, setTagOpt, setTagSty, getDiv, makeValCheck, flatten1, compareNumbers, newFromPos, winQ, lossQ, evalPosUncert, getDepth, minimaxABaux, movesFromPos, movesFromPos, positionFromMove, postPosition, updatePosCur, postMessage, textWin, postMortemCheck, drawQ, poscurToDisplay, postPositionCol, postPositionRow, setButtonProps, makePosInit, postMortem, reEval, makeRow, makebutton */
+/*global setDiv, makeTag, makeButton, setTagOpt, setTagSty, getDiv, makeValCheck, 
+  flatten1, compareNumbers, newFromPos, winQ, lossQ, drawQ, evalPosUncert, getDepth,  
+  positionFromMove, postPosition, movesFromPos, makebutton, setButtonProps, makePosInit,
+  poscurToDisplay, nbspN, gameOverQ */
 
 
 var gameName = getGameName();
@@ -17,6 +20,63 @@ var pauseQ;
 
 var depthTable;
 
+var scores = {
+    "H": 0,
+    "J": 0
+};
+
+var messageHist = ["","","",""];
+
+function postMessage(txt){
+    "use strict";
+    messageHist.push(txt);
+    messageHist = messageHist.slice(1);
+    
+    var mesdiv = document.getElementById("messageDiv");
+    //messageHist.reverse();
+    mesdiv.innerHTML = messageHist.join("<br />");
+    //messageHist.reverse();
+}
+
+function textWin(n){
+    "use strict";
+    return "Player " + n + " wins!";
+}
+
+function setPause(pq){
+    "use strict";
+    if(pq===undefined){
+	pq = true;
+    }
+    pauseQ = pq;
+}
+
+//print scores
+function printScores( scrs ){
+    "use strict";
+    if ( scrs === undefined ){
+	scrs = scores;}
+    var text = "Human: " + scrs.H + nbspN(8) + "JS: " + scrs.J;
+    postMessage( text );
+}
+
+
+
+//default score function
+function scoreGame( pos, plyr ){
+    "use strict";
+    var res = { H: 0, J: 0 };
+    if ( drawQ( pos,plyr ) ){
+	return res;}
+    if ( winQ( pos, plyr ) ){
+	if ( plyr === comp ) {
+	    res.J = 1;}
+	else {
+	    res.H = 1;}
+	return res ;}
+}
+
+
 function movegen(pos,player){
     "use strict";
   return newFromPos(pos,player);
@@ -25,6 +85,13 @@ function movegen(pos,player){
 function opposite(player){
     "use strict";
     return 3 - player;
+}
+
+//update the cumulative scores
+function updateScores( lst ){
+    "use strict";
+    scores.H += lst.H;
+    scores.J += lst.J;
 }
 
 function staticPos(pos,player){
@@ -86,7 +153,7 @@ function undoGameHistory( n ){
 }
 
 
-var minimaxABcache;
+var minimaxABcache, minimaxABaux;
 
 function minimaxAB(pos,depth,player){
     "use strict";
@@ -168,6 +235,45 @@ function minimaxABaux(pos,depth,player,useThresh,passThresh){
 
 var twoComps = false;
 
+var postMortemCheck;
+
+function updatePosCur(newmov){
+    "use strict";
+    var scr, hi, ji;
+    updateGameHistory( newmov, posCur );
+    //console.debug("updating posCur...");
+    posCur = positionFromMove(newmov,posCur,statusN);
+    //console.debug("...done");
+    histButt = [];
+    postPosition(posCur);
+    statusN = opposite(statusN);
+
+    if(winQ(posCur,statusN)){
+	postMessage(textWin(statusN));
+	setPause();
+	postMortemCheck(opposite(statusN));
+    }
+    else if(lossQ(posCur,statusN)){
+	postMessage(textWin(opposite(statusN)));
+	setPause();
+	postMortemCheck(statusN);
+    }
+    else if(drawQ(posCur,statusN)){
+	postMessage("Game Drawn");
+	setPause();
+    }
+    else if( gameOverQ( posCur, statusN ) ){
+	postMessage( "Game Over" );
+	scr = scoreGame( posCur, statusN );
+	printScores( scr );
+	setPause();
+	if ( scr.J < scr.H ){
+	    postMortemCheck( comp );}
+	else {
+	    postMortemCheck( opposite( comp ) );}}
+}
+
+
 function compTurn(){
     "use strict";
     var mvs = movesFromPos(posCur,statusN), mov, newcalc;
@@ -200,58 +306,24 @@ function compTurn(){
 }
 
 
-var messageHist = ["","","",""];
 
-function postMessage(txt){
+
+
+
+
+
+function postPositionRow(row,rownum,colnum){
     "use strict";
-    messageHist.push(txt);
-    messageHist = messageHist.slice(1);
-    
-    var mesdiv = document.getElementById("messageDiv");
-    //messageHist.reverse();
-    mesdiv.innerHTML = messageHist.join("<br />");
-    //messageHist.reverse();
-}
-
-function setPause(pq){
-    "use strict";
-    if(pq===undefined){
-	pq = true;
+    if(colnum===undefined){
+	colnum = 0;
     }
-    pauseQ = pq;
-}
-
-
-function updatePosCur(newmov){
-    "use strict";
-    updateGameHistory( newmov, posCur );
-    //console.debug("updating posCur...");
-    posCur = positionFromMove(newmov,posCur,statusN);
-    //console.debug("...done");
-    histButt = [];
-    postPosition(posCur);
-    statusN = opposite(statusN);
-
-    if(winQ(posCur,statusN)){
-	postMessage(textWin(statusN));
-	setPause();
-	postMortemCheck(opposite(statusN));
+    if(row.length===0){
+	return [];
     }
-    else if(lossQ(posCur,statusN)){
-	postMessage(textWin(opposite(statusN)));
-	setPause();
-	postMortemCheck(statusN);
+    else{
+	setButtonProps.apply(null,[[rownum,colnum],row[0]]);
+	postPositionRow(row.slice(1),rownum,colnum+1);
     }
-    else if(drawQ(posCur,statusN)){
-	postMessage("Game Drawn");
-	setPause();
-    }
-}
-
-function postPosition(pos){
-    "use strict";
-    var bdtab = poscurToDisplay(pos);
-    postPositionCol(bdtab);
 }
 
 function postPositionCol(rows,rownum){
@@ -268,20 +340,12 @@ function postPositionCol(rows,rownum){
     }
 }
 
-function postPositionRow(row,rownum,colnum){
-    "use strict";
-    if(colnum===undefined){
-	colnum = 0;
-    }
-    if(row.length===0){
-	return [];
-    }
-    else{
-	setButtonProps.apply(null,[[rownum,colnum],row[0]]);
-	postPositionRow(row.slice(1),rownum,colnum+1);
-    }
-}
 
+function postPosition(pos){
+    "use strict";
+    var bdtab = poscurToDisplay(pos);
+    postPositionCol(bdtab);
+}
 
 
 function defineDepthTable(){
@@ -301,7 +365,7 @@ function defineDepthTable(){
 
 function defineMinimaxCache(){
     "use strict";
-    if( localStorage.hasOwnProperty( gameName+"_minimaxAB" ) ){
+    if( localStorage.hasOwnProperty( gameName + "_minimaxAB" ) ){
 	try {
 	    minimaxABcache = JSON.parse(localStorage[gameName+"_minimaxAB"]);
 	} catch (x) {
@@ -310,6 +374,18 @@ function defineMinimaxCache(){
     }
     else{
 	minimaxABcache = {};
+    }
+}
+
+//initialize the scores
+function defineScores(){
+    "use strict";
+     if( localStorage.hasOwnProperty( gameName + "_scores" ) ){
+	try {
+	    scores = JSON.parse(localStorage[gameName+"_scores"]);
+	} catch (x) {
+	     //scores = { "H": 0, "J": 0 };
+	}	
     }
 }
 
@@ -346,8 +422,6 @@ function setup(){
 function initGame(args){
     "use strict";
     postMessage("New Game");
-    localStorage[gameName+"_minimaxAB"] = JSON.stringify(minimaxABcache);
-    localStorage[gameName+"_depthTable"] = JSON.stringify(depthTable);
 
     setup();
 }
@@ -356,6 +430,7 @@ function initEngine(){
     "use strict";
     defineDepthTable();
     defineMinimaxCache();
+    defineScores();
 }
 
 initEngine();
@@ -433,16 +508,6 @@ function repetitionQ(pos,plyr){
     return repetitionQaux(pos,plyr,gameHistory[1].slice(2),statusN);
 }
 
-function postMortemCheck(plyr){
-    "use strict";
-    if(twoComps){
-	comp = opposite(comp);
-    }
-    if(comp === plyr){
-	postMessage("Performing post-mortem...");
-	setTimeout(postMortem,100,gameHistory,plyr);
-    }
-}
 
 var cutoff = 99999;
 
@@ -463,6 +528,26 @@ function truncEval(x){
 	else{
 	    return x;
 	}
+    }
+}
+
+
+function reEval(pscur,pslst,plyr,dep){
+    "use strict";
+    var deptab = getDepth(pscur,plyr), curdep, newval, newpos;
+    if(deptab<0){
+	deptab = desiredDepth;
+    }
+    curdep = Math.max(dep,deptab);
+    newval = minimaxAB(pscur,curdep,plyr);
+    newpos =  positionFromMove(nextMove(newval),pscur,plyr);
+    if(moveValue(newval) < 0 || 
+      newpos.equal(pslst)){
+	return false;
+    }
+    else{
+	depthTable[[JSON.stringify(pscur),plyr]] = curdep;
+	return true;
     }
 }
 
@@ -490,27 +575,29 @@ function postMortem(hist,plyr){
 	hstrmn = hstrmn.slice(2);
     }while(!reEval(pscur,pslst,plyr,dep));
     numChoices = numChoices/fct;
-    postMessage("...done!");
 }
 
-function reEval(pscur,pslst,plyr,dep){
+
+function postMortemCheck(plyr){
     "use strict";
-    var deptab = getDepth(pscur,plyr), curdep, newval, newpos;
-    if(deptab<0){
-	deptab = desiredDepth;
+    if(twoComps){
+	comp = opposite(comp);
     }
-    curdep = Math.max(dep,deptab);
-    newval = minimaxAB(pscur,curdep,plyr);
-    newpos =  positionFromMove(nextMove(newval),pscur,plyr);
-    if(moveValue(newval) < 0 || 
-      newpos.equal(pslst)){
-	return false;
+
+    updateScores( scoreGame( posCur, opposite( plyr ) ) );
+    postMessage( "Cumulative scores:" );
+    printScores();
+
+    if(comp === plyr){
+	postMessage("Performing post-mortem...");
+	setTimeout(postMortem,100,gameHistory,plyr);
+	postMessage("...done!");
     }
-    else{
-	depthTable[[JSON.stringify(pscur),plyr]] = curdep;
-	return true;
-    }
+    localStorage[gameName+"_minimaxAB"] = JSON.stringify(minimaxABcache);
+    localStorage[gameName+"_depthTable"] = JSON.stringify(depthTable);
+    localStorage[gameName+"_scores"] = JSON.stringify(scores);
 }
+
 
 function getDepth(pos,plyr){
     "use strict";
@@ -522,22 +609,6 @@ function getDepth(pos,plyr){
 	return res;
     }
 }
-
-
-function makePanel(vctmat){
-    "use strict";
-    var res = vctmat.map(makeRow);
-    return "<center>   "  + res.join(" ") + "   </center>";
-}
-
-function textWin(n){
-    "use strict";
-    return "Player " + n + " wins!";
-}
-
-var controls;
-
-var controlsTab;
 
 function whichButton(btls){
     "use strict";
@@ -551,11 +622,26 @@ function whichButton(btls){
     }
 }
 
+
 function makeRow(vctlst){
     "use strict";
     var res = vctlst.map(whichButton);
     return res.join(" ") + " <br />";    
 }
+
+
+function makePanel(vctmat){
+    "use strict";
+    var res = vctmat.map(makeRow);
+    return "<center>   "  + res.join(" ") + "   </center>";
+}
+
+
+var controls;
+
+var controlsTab;
+
+
 
 function makeButton(text,data,func,opts){
     "use strict";

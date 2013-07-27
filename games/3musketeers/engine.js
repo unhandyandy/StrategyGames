@@ -48,11 +48,6 @@ function distFromLine( pos ){
     return Math.min( spanList( coords[0] ), spanList( coords[1] ) ); 
 }
 
-function evalPosUncert( pos ){
-    "use strict";
-    var sgn = plyrSgn( pos.plyr );
-    return  sgn * ( - pos.b.length + distFromLine( pos ) );
-}
 
 
 var muskPos = {
@@ -132,17 +127,23 @@ function movesFromLoc(pos,loc){
     return res;
 }
 
+//calc distance between points
+function distanceTC( l1, l2 ){
+    "use strict";
+    return Math.abs( l1[0] - l2[0] ) + Math.abs( l1[1] - l2[1] );
+}
+
 // assign val to move for sorting
 function moveSortVal(pos,mv){
     "use strict";
     if ( pos.plyr === 1 ){
 	return 0;}
     var start = mv[ 0 ], end = mv[ 1 ], mvdir = moveToVct( mv ),
-        dirs = mapLp( pos.a, 
-		      function(l){ return l.vector2Minus( start ); }),
-        vals = mapLp( dirs, 
-		      function(d){ return ( d.dot( mvdir ) > 0 ) ? 1 : 0; });
-    return vals.reduce( Math.plus );
+        dsts = mapLp( pos.a, 
+		      function(l){ return distanceTC( start, l ); });
+        // vals = mapLp( dirs;
+	// function(d){ return ( d.dot( mvdir ) > 0 ) ? 1 : 0; });
+    return - Math.min.apply( null, dsts );
 }
 
 function sortMoves(pos,mvs){
@@ -183,27 +184,6 @@ function positionFromMove(mov,pos){
     return pscp;
 }
 
-// // count how many Ms in list
-// function countListMs( lst ){
-//     "use strict";
-//     return lst.count( function(x){ return x === 1; } );
-// }
-
-// //check list of lists to see if any contains 3 Ms
-// function checkListsQ( lst ){
-//     "use strict";
-//     if ( lst.length === 0 ){
-//  return false;}
-//     var tl = lst.clone(), hd = tl.pop();
-//     return ( countListMs( hd ) === 3 ) || checkListsQ( tl );
-// }
-
-// //check whether the 3 Ms are lined up
-// function checkLineQ( pos ){
-//     "use strict";
-//     var lsts = pos.tab.concat( matrixTranspose( pos.tab ) );
-//     return checkListsQ( lsts );
-// }
 
 //check whether the 3 Ms are lined up
 function checkLineQ( pos ){
@@ -212,16 +192,18 @@ function checkLineQ( pos ){
 	( pos.a[0][1] === pos.a[1][1] && pos.a[2][1] === pos.a[1][1] );
 }
 
-function gameOverQ(pos){
+function gameOverQ(pos, plyr){
     "use strict";
-    return checkLineQ( pos ) || ( pos.plyr === 1 && movesFromPos(pos,1).length === 0 );
+    // trouble if plyr != pos.plyr
+    return checkLineQ( pos ) || ( movesFromPos(pos).length === 0 );
 }
 
 
 function winQ(pos,plyr){
     "use strict";
     // Trouble if plyr != pos.plyr
-    return plyr === 1 ? movesFromPos(pos,1).length === 0 : checkLineQ( pos );
+    //return plyr === 1 ? movesFromPos(pos,1).length === 0 : checkLineQ( pos );
+    return false;
 }
 
 
@@ -230,11 +212,41 @@ function lossQ(mat,plyr){
     return winQ(mat,opposite(plyr));
 }
 
-
-
 function drawQ(mat,plyr){
     "use strict";
     return false;
+}
+// weighting function for distFromLine
+function dflWt( x ){
+    "use strict";
+    return x * x;
+}
+
+//score function for completed game pos
+function scoreGame( pos ){
+    "use strict";
+    var res = {  }, lst;
+    if ( checkLineQ( pos ) ){
+	lst = [ 0, pos.b.length ];}
+    else {
+	lst = [ 10, 0 ];}
+    if ( comp !== 2 ){
+	lst.reverse();}
+    res.H = lst[0];
+    res.J = lst[1];
+    return res;
+}
+
+function evalPosUncert( pos ){
+    "use strict";
+    var sgn, scr;
+    if ( gameOverQ( pos ) ){
+	scr = scoreGame( pos );
+	sgn = ( comp === pos.plyr ) ? -1 : 1;
+	return sgn * ( scr.H - scr.J );}
+    else {
+	sgn = plyrSgn( pos.plyr );
+	return  sgn * ( - pos.b.length + dflWt( distFromLine( pos ) ) );}
 }
 
 // return string to represent player on board
