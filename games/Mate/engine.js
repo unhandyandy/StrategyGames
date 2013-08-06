@@ -41,6 +41,8 @@ var matePos = {
     "tab": [],
     "foreplays": [],
     "plyr": 1,
+    "hands": [],
+    "lead": null,
     "clone": function(){
 	"use strict";
 	var newob;
@@ -48,6 +50,7 @@ var matePos = {
 	newob.tab = this.tab.clone();
 	newob.foreplays = this.foreplays.clone();
 	newob.plyr = this.plyr;
+	newob.hands = this.hands.clone();
 	return newob;
     },
    "equal": function( pos ){
@@ -55,6 +58,26 @@ var matePos = {
 	return equalLp( this.tab, pos.tab ) && 
 	       equalLp( this.foreplays, pos.foreplays ) &&
 	       this.plyr === pos.plyr;
+    },
+    "removeCardFrom": function ( crd, p ){
+	"use strict";
+	this.hands[ p - 1 ].removeOne( crd );
+    },
+    "playCard": function ( crd ){
+	"use strict";
+	var s = crd[0], r = crd[1], p = this.plyr, ls, lr;
+	this.removeCardFrom( crd, p );
+	if ( this.lead === null ){
+	    this.tab[s][r] = p + 2;
+	    this.lead = crd;}
+	else{
+	    this.tab[s][r] = 0;
+	    this.lead = null;
+	    ls = this.lead[0];
+	    lr = this.lead[1];
+	    if ( r < lr || 
+	         ( r === lr &&  s < ls ) ){
+		 this.plyr = opposite( p );}}
     }
 };
 
@@ -139,7 +162,7 @@ function poscurToDisplay(pos){
     var bd = [],
         fun = function( stt ){
 	    
-	}};
+	};
     return bd;
 }
 
