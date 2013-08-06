@@ -27,6 +27,9 @@ var scores = {
 
 var messageHist = ["","","",""];
 
+var switchPlayers = true;
+
+
 function postMessage(txt){
     "use strict";
     messageHist.push(txt);
@@ -294,12 +297,12 @@ function compTurn(){
 	updatePosCur(mov);
     }
     if(!pauseQ){
-	postMessage("Computer played "+mov.join());
+	postMessage( "Computer played "+mov.join());
 	if(!twoComps){
-	    postMessage("Your move.");
+	    postMessage( "Your move." );
 	}else{
 	    comp = opposite(comp);
-	    postMessage("Thinking...");
+	    postMessage( "Thinking..." );
 	    setTimeout(compTurn,100);
 	}	
     }
@@ -408,8 +411,8 @@ function setup(){
 
     posCur = makePosInit();
     postPosition(posCur);
-    comp = opposite(comp);
 
+    comp = opposite(comp);
     if(twoComps){
 	comp = statusN;
     }
@@ -613,7 +616,7 @@ function getDepth(pos,plyr){
 function whichButton(btls){
     "use strict";
     var newbtt;
-    if(btls[1].length===0){
+    if( typeof( btls[1] ) === 'object' && btls[1].length === 0 ){
 	return makebutton.apply(null,btls);
     }
     else{
@@ -645,21 +648,26 @@ var controlsTab;
 
 function makeButton(text,data,func,opts){
     "use strict";
-    var defaults = { 'bg' : "lightgray", 'fg' : "black", 'width' : 50 , 'height' : 50 , 'fontsize' : 12}, ind, btn;
+    var defaults = { 'bg' : "lightgray", 'fg' : "black", 'width' : 50 , 
+		     'height' : 50 , 'fontsize' : 12, 'marginTop': 10, 
+		     'disabled': false, 'border': "1px", 'boxShadow': "2px" }, 
+    ind, btn, dis;
     if(opts===undefined){
 	opts = {};
     }
+    dis = opts.disabled ? " disabled" : "";
     for( ind in defaults ){
 	if ( typeof( defaults[ ind ] ) !== 'function' ){
-	    if(opts[ind]===undefined){
+	    if (opts[ind] === undefined ){
 		opts[ind] = defaults[ind];
 	    }}
     }
     btn = "<input type='button' value='" + text + "' onclick='" + 
 func + "(" + JSON.stringify(data) + ")' " + 
-"style='align:center;width:"+opts.width+";height:"+
-opts.height+";background-color:" + opts.bg + ";color:" + opts.fg + ";background-image:" + opts.bgimg + ";font-size:" + opts.fontsize +
-"' id='" + data.join() + "' />";
+"style=margin-top:" + opts.marginTop + ";align:center;width:" + opts.width+";height:"+
+opts.height+";background-color:" + opts.bg + ";color:" + opts.fg + ";background-image:" + opts.bgimg + ";font-size:" + opts.fontsize + 
+	";border:" + opts.border + ";box-shadow:" + opts.boxShadow +
+"' id='" + data.join() + "'" + dis + " />";
     return btn;
 }
 
@@ -671,7 +679,7 @@ function setButtonProps(name,txt,opts){
     }
     
     var btn = document.getElementById(name);
-    if(txt){
+    if( txt !== undefined ){
 	btn.value = txt;
     }
     if( opts.bgc !== undefined ){
