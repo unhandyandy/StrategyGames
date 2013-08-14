@@ -196,7 +196,7 @@ Array.prototype.clone = function(){
     var res = [],
         len = this.length, i, newobj;
     for(i=0;i<len;i++){
-	if(typeof(this[i])==='object'){
+	if( this[i] && typeof(this[i])==='object'){
 	    newobj = this[i].clone();
 	}
 	else{
@@ -250,8 +250,13 @@ function cartesianProd(l1,l2){
 }
 
 Array.prototype.equal = function(arr){
-	"use strict";
-    if(this.length !== arr.length){
+    "use strict";
+    var arrlen;
+    try{
+	arrlen = arr.length;}
+    catch (e){
+	return false;}
+    if(this.length !== arrlen){
 	return false;
     }
     return this.every(function(e,i){
@@ -334,6 +339,16 @@ Array.prototype.removeAll = function ( elem ){
     return this;
 };
 
+Array.prototype.removeOne = function ( elem ) {
+    "use strict";
+    var hd;
+    if ( this.length !== 0 ){
+	hd = this.pop();
+	if ( ! hd.equal( elem ) ){
+	    this.removeOne( elem );
+	    this.push( hd );}
+    }};
+
 Array.prototype.removeAllC = function ( elem ){
     "use strict";
     // return true if e equal to elem
@@ -358,6 +373,11 @@ Array.prototype.removeAllOfListC = function ( lst ){
 function lookUp(mat,loc){
     "use strict";
     return mat[loc[0]][loc[1]];
+}
+
+function lookUpSet(mat,loc,val){
+    "use strict";
+    mat[loc[0]][loc[1]] = val;
 }
 
 Array.prototype.vectorAdd = function(vct){

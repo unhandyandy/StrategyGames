@@ -4,11 +4,11 @@
 
 /*jslint browser: true, devel: true, es5: true */
 
-/*global nbrs, orthDirs, lookUp, setMatEntry, repeat, comp, score, opposite, 
+/*global nbrs, orthDirs, lookUp, lookUpSet, setMatEntry, repeat, comp, score, opposite, 
   movesFromLoc, flatten1, onBoardQ, makeConstantArraySimp, makeConstantArray, 
   numMvs, cartesianProd, matrixTranspose, postMessage, PositionGrouped, 
   setBGCols, rowLen, gameHistory, posCur, setButtonProps, mapLp, eachLp, equalLp,
-  switchPlayers:true, repetitionQ, numberSequence */
+  switchPlayers:true, repetitionQ, numberSequence, setTagOpt, setTagSty */
 
 // This is a required variable.
 // It represents the default search depth.  
@@ -28,6 +28,7 @@ function makeInitBdTab(){
 	for ( j = 0; j < 5; j += 1 ){
 	    row.push([ cardVals[ j ].toString(), [i,j],{'height' : 80, 'width' : 80, 'fontsize' : 16}]);}
 	res.push( row );}
+    res.push( [ [ "Pass", [5,0],{'height' : 80, 'width' : 160, 'fontsize' : 16}] ] );
     return res;
 }
 
@@ -38,11 +39,39 @@ var initBdTab = makeInitBdTab();
 //        1, 2 = in hand of player 1 or 2;
 //        3, 4 = just led by 1 or 2.
 var matePos = {
-    "tab": [],
+    "tab": makeConstantArraySimp( makeConstantArraySimp( null, 5 ), 4 ),
     "foreplays": [],
     "plyr": 1,
     "hands": [],
-    "lead": null,
+    "trick": [ null, null ],
+    "getLead": function(){
+	"use strict";
+	return this.trick[0];
+    },
+    "getReply": function(){
+	"use strict";
+	return this.trick[1];
+    },	
+    "setLead": function( crd ){
+	"use strict";
+	this.trick[0] = crd;
+    },
+    "setReply": function( crd ){
+	"use strict";
+	this.trick[1] = crd;
+    },	
+    "clearTrick": function(){
+	"use strict";
+	var ld, rp, ldlo, rplo;
+	ld = this.getLead();
+	rp = this.getReply();
+	if ( ld !== null ){
+	    lookUpSet( this.tab, ld, 0 );}
+	if ( rp !== null ){
+	    lookUpSet( this.tab, rp, 0 );}
+	this.setLead( null );
+	this.setReply( null );
+    },
     "clone": function(){
 	"use strict";
 	var newob;
@@ -51,46 +80,74 @@ var matePos = {
 	newob.foreplays = this.foreplays.clone();
 	newob.plyr = this.plyr;
 	newob.hands = this.hands.clone();
+	newob.trick = this.trick.clone();
 	return newob;
     },
-   "equal": function( pos ){
+    "equal": function( pos ){
 	"use strict";
 	return equalLp( this.tab, pos.tab ) && 
-	       equalLp( this.foreplays, pos.foreplays ) &&
-	       this.plyr === pos.plyr;
+	    equalLp( this.foreplays, pos.foreplays ) &&
+	    this.plyr === pos.plyr;
     },
     "removeCardFrom": function ( crd, p ){
 	"use strict";
 	this.hands[ p - 1 ].removeOne( crd );
     },
+    "addCardTo": function ( crd, p ){
+	"use strict";
+	this.hands[ p - 1 ].push( crd );
+    },
     "playCard": function ( crd ){
 	"use strict";
 	var s = crd[0], r = crd[1], p = this.plyr, ls, lr;
 	this.removeCardFrom( crd, p );
-	if ( this.lead === null ){
-	    this.tab[s][r] = p + 2;
-	    this.lead = crd;}
+	this.tab[s][r] = p + 2;
+	if ( this.getReply() !== null || this.getHand( 2 ).length === 10 ){
+	    this.clearTrick();
+	    this.setLead( crd );
+	    this.plyr = opposite( p );}
 	else{
-	    this.tab[s][r] = 0;
-	    this.lead = null;
-	    ls = this.lead[0];
-	    lr = this.lead[1];
-	    if ( r < lr || 
-	         ( r === lr &&  s < ls ) ){
-		 this.plyr = opposite( p );}}
+	    this.setReply( crd );
+	    ls = this.getLead()[0];
+	    lr = this.getLead()[1];
+	    if ( !( r < lr || 
+	            ( r === lr &&  s < ls ) ) ){
+		this.plyr = opposite( p );}}
+    },
+    "getHand": function ( p ){
+	"use strict";
+	return this.hands[ p - 1 ].clone();
+    },
+    "setHand": function ( p, hnd ){
+	"use strict";
+	this.hands[ p - 1 ] = hnd.clone();
+    },
+    "deal": function(){
+	"use strict";
+	var res, cnt = [ 10, 10 ], s, r, p;
+	this.hands = [ [], [] ];
+	for ( s = 0; s < 4; s += 1 ){
+	    for ( r = 0; r < 5; r += 1 ){
+		p = ( Math.random() < cnt[0] / ( cnt[0] + cnt[1]) ) ? 1 : 2;
+		cnt[ p - 1 ] -= 1;
+		this.addCardTo( [ s, r ], p );
+		this.tab[s][r] = p;}}
+	this.plyr = 1;
+	this.clearTrick();
+	this.foreplays = [];
     }
 };
 
-var posInit = matePos.clone();
-//posInit.plyr = cupsPos.opposite( posInit.plyr );
+var previousPos;
 
 function makePosInit(){
     "use strict";
-    //posInit.plyr = cupsPos.opposite( posInit.plyr );
-    return posInit.clone();
+    if ( comp === 2 ){
+	return previousPos;}
+    previousPos = matePos.clone();
+    previousPos.deal();
+    return ( previousPos.clone() );
 }
-
-
 
 function plyrSgn(n){
     "use strict";
@@ -102,29 +159,38 @@ function plyrSgn(n){
 numChoices = 12;
 
 
-function movesFromPos(pos){
+function movesFromPos(pos, plyr){
     "use strict";
-    var res = allMoves.clone(), p = pos.plyr,
-        fun = function(m){ return checkMoveQ( m, pos ); };
-    res = res.filter( fun );
-    res = mapLp( res, function(m){ return shortToButt( m, p ); } );
-    if (res.length === 0 ){
-	res = [ [ [4,0] ] ];}
-    return res;
+    var res, resfil, s, r;
+    res = pos.getHand( plyr );
+
+    if ( pos.plyr !== plyr || res.length === 0 ){
+	return [[[5,0]]];}
+
+    if ( pos.getReply() !== null || pos.getLead() ===  null ){
+	return matrixTranspose( [ res ] );}
+
+    s = pos.getLead()[0];
+    resfil = res.filter( function(c){ return c[0] === s;} );
+    if ( resfil.length === 0 ){
+	r = pos.getLead()[1];
+	resfil = res.filter( function(c){ return c[1] === r;} );
+        if ( resfil.length === 0 ){
+	    return [[[5,0]]];}}
+    return matrixTranspose( [ resfil ] );
 }
 
 
 // assign val to move for sorting
 function moveSortVal(pos,mv){
     "use strict";
-    //fill in for larger sizes!
+    //return -4 * mv[0][1] - mv[0][0];
     return 0;
 }
 
 
 function sortMoves(pos,mvs){
      "use strict";
-    //fill in for larger sizes!
     return mvs;
 }
 
@@ -132,58 +198,46 @@ function sortMoves(pos,mvs){
 // return new muskPos by applying given mov to given pos 
 function positionFromMove(mv,pos){
     "use strict";
-    var pscp = pos.clone(), nm, i, p = pos.plyr, op, cap, mov;
-    mov = buttToShort( mv , p );
-    if ( mov.length === 1 ){
-	if ( mov[0] !== "P" ){
-	    // nm = largest index whose cell is affected
-	    nm = mov[0] - 1;
-	    for ( i = 0; i < nm; i += 1 ){
-		pscp.cups[ p ][ i ] += 1;}
-	    pscp.cups[ p ][ nm ] = 0;
-	    pscp.pots[ p ] +=  1;}}
-    else {
-	// nm = smallest index affected
-	nm = numberCups - mov[1];
-	for ( i = numberCups - 1; i >= nm; i -= 1 ){
-	    pscp.cups[ p ][ i ] += 1;}
-	pscp.stacks[ p ] -= mov[1];
-	if ( 0 === pos.cups[ p ][ nm ] ){
-	    op = pscp.opposite( p );
-	    cap = pscp.cups[ op ][ oppCup( nm ) ];
-	    pscp.cups[ op ][ oppCup( nm ) ] = 0;
-	    pscp.pots[ p ] += cap;}}
-    pscp.plyr = pos.opposite( p );
+    var pscp = pos.clone(), p = pos.plyr, mov = mv[0];
+    if ( ! equalLp( mov, [5,0] ) ){
+	pscp.playCard( mov );}
     return pscp;
 }
 
+function dispCard( crd ){
+    "use strict";
+    var n = lookUp( posCur.tab, crd );
+    if ( n === 1 || n === 3 ){
+	if ( n === 3 ){
+	    setTagSty( crd, "background-color", "purple" );}
+	else {
+	    setTagSty( crd, "background-color", "lightblue" );}}
+    else if ( n === 2 || n === 4 ){
+	if ( n === 4 ){
+	    setTagSty( crd, "background-color", "orange" );}
+	else {
+	    setTagSty( crd, "background-color", "yellow" );}}
+    else {
+	setTagSty( crd, "background-color", "black" );}
+}
+
+var allCards = cartesianProd( [0,1,2,3], [0,1,2,3,4] );
+
 function poscurToDisplay(pos){
     "use strict";
-    var bd = [],
-        fun = function( stt ){
-	    
-	};
-    return bd;
+    allCards.forEach( dispCard );
+    return makeConstantArraySimp( cardVals, 4 );
 }
 
-
-//check for blocked cup
-function numBlocked( pos, p ){
-    "use strict";
-    var res = 0, i, nm = 0, ni;
-    for ( i = 0; i < numberCups; i += 1 ){
-	ni = pos.cups[ p ][ i ];
-	if ( ni > i + 1 ){
-	    res += 1;
-	    nm += ni;}}
-    return [ res, nm ];
-}
 
 
 function gameOverQ(pos, plyr){
     "use strict";
     // trouble if plyr != pos.plyr
-    return repetitionQ( pos, plyr );
+    return  ( ( pos.getLead() !== null ) && 
+	      ( pos.getReply() === null ) && 
+	      ( equalLp( movesFromPos( pos, plyr ), [[[5,0]]] ) ) ) ||
+	repetitionQ( pos, plyr );
 }
 
 
@@ -205,30 +259,59 @@ function drawQ(mat,plyr){
     return false;
 }
 
+//look up card's value
+function getCardValue( crd ){
+    "use strict";
+    return cardVals[ crd[1] ];
+}
+
 //score function for completed game pos
 function scoreGame( pos ){
     "use strict";
-    var res = {  };
-    res.H = pos.pots.b;
-    res.J = pos.pots.a;
+    var res = {  }, val, nts, pnt, p = pos.plyr, q = opposite( p );
+    if ( pos.getReply() !== null || pos.getLead() === null ){
+	res.H = 0;
+	res.J = 0;}
+    else {
+	val = getCardValue( pos.getLead() );
+	nts = 10 - pos.getHand( q ).length;
+	pnt = val * nts;
+	if ( comp === p ){
+	    res.H = pnt;
+	    res.J = 0;}
+	else{
+	    res.H = 0;
+	    res.J = pnt;}}
     return res;
+}
+
+//rough measure of strength of hand
+function handStrength( hnd ){
+    "use strict";
+    if ( hnd.length === 0 ){
+	return 0;}
+    var lst = matrixTranspose( hnd )[1];
+    return lst.reduce( Math.plus );
 }
 
 function evalPosUncert( pos ){
     "use strict";
-    var sgn, scr, base, p = pos.plyr, op = cupsPos.opposite( p ), stcks, 
-        nbp, nbo;
-    scr = scoreGame( pos );
-    sgn = ( comp === letToNum( p ) ) ? -1 : 1;
-    base = sgn * ( scr.H - scr.J );
-    if ( gameOverQ( pos ) ){
+    var sgn, strength, val, len, p, q, scr, base, sp, sq;
+    sgn = ( comp === p ) ? -1 : 1;
+    p = pos.plyr;
+   
+    if ( gameOverQ( pos, p ) ){
+	scr = scoreGame( pos );
+	base = sgn * ( scr.H - scr.J );
 	return base;}
-    else {
-	nbp = numBlocked( pos, p );
-	nbo = numBlocked( pos, op );
-	stcks = pos.stacks[ p ] +  pos.stacks[ op ];
-	return base - nbp[1] + nbo[1] - 1/numberCups * 
-	    ( nbp[0] * stcks  - nbo[0] * stcks );}
+
+    q = opposite( p );
+    val = 7;
+    len = 10 - 0.5 * pos.getHand( p );
+    sp = handStrength( pos.getHand( p ) );
+    sq = handStrength( pos.getHand( q ) );
+    strength = 2 * sp / ( sp + sq ) - 1;
+    return strength * ( val * len );
 }
 
 
