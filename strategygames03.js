@@ -499,10 +499,13 @@ function repetitionQaux(pos,plyr,hist,stt){
     par = ind/2;
     par = (par === Math.floor(par));
     if(par){
-	return plyr !== stt;
+	return plyr !== stt ||
+	       repetitionQaux( pos, plyr, hist.slice( ind + 1 ), 
+			       opposite(stt) );
     }
     else{
-	return plyr === stt;
+	return plyr === stt ||
+	       repetitionQaux( pos, plyr, hist.slice( ind + 1 ), stt ); 
     }
 }
 
