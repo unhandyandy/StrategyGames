@@ -1,6 +1,6 @@
 // -*-js-*-
 
-// 3 Musketeers
+// Mate
 
 /*jslint browser: true, devel: true, es5: true */
 
@@ -40,7 +40,8 @@ var initBdTab = makeInitBdTab();
 //        3, 4 = just led by 1 or 2.
 var matePos = {
     "tab": makeConstantArraySimp( makeConstantArraySimp( null, 5 ), 4 ),
-    "foreplays": [],
+    "foreplays": [ null, null ],
+    "foreplayFlag": true,
     "plyr": 1,
     "hands": [],
     "trick": [ null, null ],
@@ -100,7 +101,8 @@ var matePos = {
     "playCard": function ( crd ){
 	"use strict";
 	var s = crd[0], r = crd[1], p = this.plyr, ls, lr;
-	this.removeCardFrom( crd, p );
+	if ( this.getHand( p ).length > 1 || ! this.checkForeplay( p ) ){
+	    this.removeCardFrom( crd, p );}
 	this.tab[s][r] = p + 2;
 	if ( this.getReply() !== null || this.getHand( 2 ).length === 10 ){
 	    this.clearTrick();
@@ -113,6 +115,15 @@ var matePos = {
 	    if ( !( r < lr || 
 	            ( r === lr &&  s < ls ) ) ){
 		this.plyr = opposite( p );}}
+    },
+    "forePlayCard": function( crd ){
+	"use strict";
+	var s = crd[0], r = crd[1], p = this.plyr, ls, lr;
+	this.removeCardFrom( crd, p );
+	this.tab[s][r] = - p;
+	this.plyr = opposite( p );
+	if ( p === 2 ){
+	    this.foreplayFlag = false;}
     },
     "getHand": function ( p ){
 	"use strict";
@@ -135,7 +146,10 @@ var matePos = {
 	this.plyr = 1;
 	this.clearTrick();
 	this.foreplays = [];
-    }
+    },
+    "checkForeplay": function( p ){
+	"use strict";
+	return this.foreplay[ p - 1 ] !== null;}
 };
 
 var previousPos;
@@ -154,8 +168,6 @@ function plyrSgn(n){
     return 3 - 2*n;
 }
 
-
-
 numChoices = 12;
 
 
@@ -163,21 +175,32 @@ function movesFromPos(pos, plyr){
     "use strict";
     var res, resfil, s, r;
     res = pos.getHand( plyr );
+    if ( ! pos.foreplayFlag ){
 
-    if ( pos.plyr !== plyr || res.length === 0 ){
-	return [[[5,0]]];}
+	if ( pos.plyr !== plyr || res.length === 0 ){
+	    return [[[5,0]]];}
 
-    if ( pos.getReply() !== null || pos.getLead() ===  null ){
-	return matrixTranspose( [ res ] );}
+	if ( pos.getReply() !== null || pos.getLead() ===  null ){
+	    return matrixTranspose( [ res ] );}
 
-    s = pos.getLead()[0];
-    resfil = res.filter( function(c){ return c[0] === s;} );
-    if ( resfil.length === 0 ){
-	r = pos.getLead()[1];
-	resfil = res.filter( function(c){ return c[1] === r;} );
-        if ( resfil.length === 0 ){
-	    return [[[5,0]]];}}
-    return matrixTranspose( [ resfil ] );
+	s = pos.getLead()[0];
+	resfil = res.filter( function(c){ return c[0] === s;} );
+	if ( resfil.length === 0 ){
+	    r = pos.getLead()[1];
+	    resfil = res.filter( function(c){ return c[1] === r;} );
+            if ( resfil.length === 0 ){
+		return [[[5,0]]];}}
+	return matrixTranspose( [ resfil ] );}
+    else{
+	if ( plyr === 1 || pos.foreplay[0] === null ){
+	    return  matrixTranspose( [ res ] ).concat( [[[5,0]]] );}
+	else {
+	    s = pos.foreplay[0][0];
+	    r = pos.foreplay[0][1];
+	    resfil = res.filter( function(c){ 
+		return c[0] !== s && c[1] !== r;} );
+	    return matrixTranspose( [ resfil ] ).concat( [[[5,0]]] );}
+    }
 }
 
 
@@ -199,9 +222,16 @@ function sortMoves(pos,mvs){
 function positionFromMove(mv,pos){
     "use strict";
     var pscp = pos.clone(), p = pos.plyr, mov = mv[0];
-    if ( ! equalLp( mov, [5,0] ) ){
-	pscp.playCard( mov );}
-    return pscp;
+    if ( ! pos.foreplayFlag ){
+	if ( ! equalLp( mov, [5,0] ) ){
+	    pscp.playCard( mov );}
+	return pscp;}
+    else {
+	if ( ! equalLp( mov, [5,0] ) ){
+	    pscp.forePlayCard( mov );}
+	else {
+	    pscp.plyr = opposite( p );
+	return pscp;}}	
 }
 
 function dispCard( crd ){
@@ -268,14 +298,17 @@ function getCardValue( crd ){
 //score function for completed game pos
 function scoreGame( pos ){
     "use strict";
-    var res = {  }, val, nts, pnt, p = pos.plyr, q = opposite( p );
+    var res = {  }, val, nts, pnt, p = pos.plyr, q = opposite( p ), mult = 1;
     if ( pos.getReply() !== null || pos.getLead() === null ){
 	res.H = 0;
 	res.J = 0;}
     else {
 	val = getCardValue( pos.getLead() );
 	nts = 10 - pos.getHand( q ).length;
-	pnt = val * nts;
+	if ( pos.getHand( p ).length === 1 && pos.checkForeplay( q ) && ! pos.checkForeplay( p ) ){
+	    nts = 11;
+	    mult = 2;}
+	pnt = mult * val * nts;
 	if ( comp === p ){
 	    res.H = pnt;
 	    res.J = 0;}
