@@ -282,21 +282,25 @@ everyLp = function( o, fun, that ){
     return res;
 };
 
+
 equalLp = function(arr1,arr2){
-	"use strict";
-    if(arr1.length !== arr2.length){
-	return false;
-    }
-    return everyLp( arr1, 
-		    function(e,i){
-			if(typeof(e) === "object"){
-			    return equalLp( e, arr2[i] );
-			}
-			else{
-			    return e === arr2[i];
-			}
-		    });
-};
+    "use strict";
+    var equalLpAux = function(e,i){
+	var ai = arr2[i];
+	return equalLp( e, ai );
+    };
+    if ( Array.isArray( arr1 ) ){
+	if ( Array.isArray( arr2 ) ){
+	    if( arr1.length !== arr2.length ){
+		return false;
+	    }
+	    return everyLp( arr1, equalLpAux );}
+	else {
+	    return false;}}
+    else {
+	return arr1 === arr2;}
+	
+    };
 
 String.prototype.equal = function(str){
 	"use strict";

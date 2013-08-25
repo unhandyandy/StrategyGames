@@ -15,7 +15,7 @@
 
 switchPlayers = false;
 
-var desiredDepth = 8;
+var desiredDepth = 12;
 
 cardVals = [ 11, 10, 4, 3, 7 ];
 
@@ -39,12 +39,14 @@ var initBdTab = makeInitBdTab();
 //        1, 2 = in hand of player 1 or 2;
 //        3, 4 = just led by 1 or 2.
 var matePos = {
-    "tab": makeConstantArraySimp( makeConstantArraySimp( null, 5 ), 4 ),
+    "tab": makeConstantArraySimp( makeConstantArraySimp( null, 5 ), 4 )
+	.concat( [[ null ]] ),
     "foreplays": [ null, null ],
     "foreplayFlag": true,
     "plyr": 1,
     "hands": [],
     "trick": [ null, null ],
+    "over": false,
     "getLead": function(){
 	"use strict";
 	return this.trick[0];
@@ -82,6 +84,8 @@ var matePos = {
 	newob.plyr = this.plyr;
 	newob.hands = this.hands.clone();
 	newob.trick = this.trick.clone();
+	newob.foreplayFlag = this.foreplayFlag;
+	newob.over = this.over;
 	return newob;
     },
     "equal": function( pos ){
@@ -100,26 +104,36 @@ var matePos = {
     },
     "playCard": function ( crd ){
 	"use strict";
-	var s = crd[0], r = crd[1], p = this.plyr, ls, lr;
-	if ( this.getHand( p ).length > 1 || ! this.checkForeplay( p ) ){
+	var s = crd[0], r = crd[1], p = this.plyr, q = opposite( p ), 
+	    ls, lr, over = false;
+	if ( this.getHand( p ).length > 1 || 
+	     ! this.checkForeplay( p ) || 
+	     this.checkForeplay( q ) ||
+	     this.over ){
 	    this.removeCardFrom( crd, p );}
+	else{
+	    over = true;
+	    this.over = true;}
 	this.tab[s][r] = p + 2;
-	if ( this.getReply() !== null || this.getHand( 2 ).length === 10 ){
+	if ( this.getReply() !== null ){
 	    this.clearTrick();
+	    if ( over ){
+		lookUpSet( this.tab, crd, p );}
 	    this.setLead( crd );
-	    this.plyr = opposite( p );}
+	    this.plyr = q;}
 	else{
 	    this.setReply( crd );
 	    ls = this.getLead()[0];
 	    lr = this.getLead()[1];
 	    if ( !( r < lr || 
 	            ( r === lr &&  s < ls ) ) ){
-		this.plyr = opposite( p );}}
+		this.plyr = q;}}
     },
     "forePlayCard": function( crd ){
 	"use strict";
 	var s = crd[0], r = crd[1], p = this.plyr, ls, lr;
 	this.removeCardFrom( crd, p );
+	this.foreplays[ p - 1 ] = crd;
 	this.tab[s][r] = - p;
 	this.plyr = opposite( p );
 	if ( p === 2 ){
@@ -144,12 +158,12 @@ var matePos = {
 		this.addCardTo( [ s, r ], p );
 		this.tab[s][r] = p;}}
 	this.plyr = 1;
-	this.clearTrick();
-	this.foreplays = [];
+	this.trick = [[4,0],[4,0]];
+	this.foreplays = [ null, null ];
     },
     "checkForeplay": function( p ){
 	"use strict";
-	return this.foreplay[ p - 1 ] !== null;}
+	return this.foreplays[ p - 1 ] !== null;}
 };
 
 var previousPos;
@@ -192,11 +206,11 @@ function movesFromPos(pos, plyr){
 		return [[[5,0]]];}}
 	return matrixTranspose( [ resfil ] );}
     else{
-	if ( plyr === 1 || pos.foreplay[0] === null ){
+	if ( plyr === 1 || pos.foreplays[0] === null ){
 	    return  matrixTranspose( [ res ] ).concat( [[[5,0]]] );}
 	else {
-	    s = pos.foreplay[0][0];
-	    r = pos.foreplay[0][1];
+	    s = pos.foreplays[0][0];
+	    r = pos.foreplays[0][1];
 	    resfil = res.filter( function(c){ 
 		return c[0] !== s && c[1] !== r;} );
 	    return matrixTranspose( [ resfil ] ).concat( [[[5,0]]] );}
@@ -218,7 +232,7 @@ function sortMoves(pos,mvs){
 }
 
 
-// return new muskPos by applying given mov to given pos 
+// return new matePos by applying given mov to given pos 
 function positionFromMove(mv,pos){
     "use strict";
     var pscp = pos.clone(), p = pos.plyr, mov = mv[0];
@@ -230,8 +244,10 @@ function positionFromMove(mv,pos){
 	if ( ! equalLp( mov, [5,0] ) ){
 	    pscp.forePlayCard( mov );}
 	else {
-	    pscp.plyr = opposite( p );
-	return pscp;}}	
+	    if ( pos.plyr === 2 ) {
+		pscp.foreplayFlag = false;}
+	    pscp.plyr = opposite( p );}
+	return pscp;}	
 }
 
 function dispCard( crd ){
@@ -330,7 +346,7 @@ function handStrength( hnd ){
 function evalPosUncert( pos ){
     "use strict";
     var sgn, strength, val, len, p, q, scr, base, sp, sq;
-    sgn = ( comp === p ) ? -1 : 1;
+    sgn = ( comp === p ) ? 1 : -1;
     p = pos.plyr;
    
     if ( gameOverQ( pos, p ) ){

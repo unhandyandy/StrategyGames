@@ -25,7 +25,7 @@ var scores = {
     "J": 0
 };
 
-var messageHist = ["","","",""];
+var messageHist = ["","","","",""];
 
 var switchPlayers = true;
 
