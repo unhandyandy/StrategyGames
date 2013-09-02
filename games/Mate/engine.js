@@ -8,7 +8,7 @@
   movesFromLoc, flatten1, onBoardQ, makeConstantArraySimp, makeConstantArray, 
   numMvs, cartesianProd, matrixTranspose, postMessage, PositionGrouped, 
   setBGCols, rowLen, gameHistory, posCur, setButtonProps, mapLp, eachLp, equalLp,
-  switchPlayers:true, repetitionQ, numberSequence, setTagOpt, setTagSty */
+  switchPlayers:true, repetitionQ, numberSequence, setTagOpt, setTagSty, numChoices:true */
 
 // This is a required variable.
 // It represents the default search depth.  
@@ -17,7 +17,7 @@ switchPlayers = false;
 
 var desiredDepth = 12;
 
-cardVals = [ 11, 10, 4, 3, 7 ];
+var cardVals = [ 11, 10, 4, 3, 7 ];
 
 
 function makeInitBdTab(){
@@ -65,7 +65,7 @@ var matePos = {
     },	
     "clearTrick": function(){
 	"use strict";
-	var ld, rp, ldlo, rplo;
+	var ld, rp;
 	ld = this.getLead();
 	rp = this.getReply();
 	if ( ld !== null ){
@@ -131,7 +131,7 @@ var matePos = {
     },
     "forePlayCard": function( crd ){
 	"use strict";
-	var s = crd[0], r = crd[1], p = this.plyr, ls, lr;
+	var s = crd[0], r = crd[1], p = this.plyr;
 	this.removeCardFrom( crd, p );
 	this.foreplays[ p - 1 ] = crd;
 	this.tab[s][r] = - p;
@@ -149,7 +149,7 @@ var matePos = {
     },
     "deal": function(){
 	"use strict";
-	var res, cnt = [ 10, 10 ], s, r, p;
+	var cnt = [ 10, 10 ], s, r, p;
 	this.hands = [ [], [] ];
 	for ( s = 0; s < 4; s += 1 ){
 	    for ( r = 0; r < 5; r += 1 ){
@@ -255,16 +255,16 @@ function dispCard( crd ){
     var n = lookUp( posCur.tab, crd );
     if ( n === 1 || n === 3 ){
 	if ( n === 3 ){
-	    setTagSty( crd, "background-color", "purple" );}
+	    setTagSty( crd, "backgroundColor", "purple" );}
 	else {
-	    setTagSty( crd, "background-color", "lightblue" );}}
+	    setTagSty( crd, "backgroundColor", "lightblue" );}}
     else if ( n === 2 || n === 4 ){
 	if ( n === 4 ){
-	    setTagSty( crd, "background-color", "orange" );}
+	    setTagSty( crd, "backgroundColor", "orange" );}
 	else {
-	    setTagSty( crd, "background-color", "yellow" );}}
+	    setTagSty( crd, "backgroundColor", "yellow" );}}
     else {
-	setTagSty( crd, "background-color", "black" );}
+	setTagSty( crd, "backgroundColor", "black" );}
 }
 
 var allCards = cartesianProd( [0,1,2,3], [0,1,2,3,4] );

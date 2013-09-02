@@ -5,7 +5,7 @@
 /*global setDiv, makeTag, makeButton, setTagOpt, setTagSty, getDiv, makeValCheck, 
   flatten1, compareNumbers, newFromPos, winQ, lossQ, drawQ, evalPosUncert, getDepth,  
   positionFromMove, postPosition, movesFromPos, makebutton, setButtonProps, makePosInit,
-  poscurToDisplay, nbspN, gameOverQ */
+  poscurToDisplay, nbspN, gameOverQ, getGameName, localStorage */
 
 
 var gameName = getGameName();
@@ -242,7 +242,7 @@ var postMortemCheck;
 
 function updatePosCur(newmov){
     "use strict";
-    var scr, hi, ji;
+    var scr;
     updateGameHistory( newmov, posCur );
     //console.debug("updating posCur...");
     posCur = positionFromMove(newmov,posCur,statusN);
