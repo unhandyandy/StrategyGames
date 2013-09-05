@@ -123,7 +123,8 @@ var matePos = {
             r = crd[1],
             p = this.plyr,
             q = opposite(p),
-            ls, lr, over = false;
+            ls, lr;
+	    //over = false;
         if (this.getHand(p).length > 1 || !this.checkForeplay(p) || this.checkForeplay(q) || this.over) {
             this.removeCardFrom(crd, p);
         } else {
