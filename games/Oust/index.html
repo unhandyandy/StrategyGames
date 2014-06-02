@@ -1,27 +1,29 @@
 <html>
 <head>
 
-<!-- In the following just change "TTT" to the name of your game. -->
 <script>
 function getGameName(){
-    return "TTT";
+    return "Oust";
+};
+function getHexSize(){
+    return 4;
 };
 </script>
 
-
 <script type="text/javascript" src="../../mydefs.js">
+</script>
+<script type="text/javascript" src="../../hexUtils.js">
 </script>
 <script type="text/javascript" src="../../strategygames03.js">
 </script>
 
-<!-- In the following just change "tttengine01.js" to the name of the javascript file for your game. -->
-<script type="text/javascript" src="./tttengine01.js">
+
+<script type="text/javascript" src="./engine.js">
 </script>
 <style type="text/css">
 body
 {
-background-color: Green;
-background-image:url("../heic0901a_H1.jpg");
+background-color: #070;
 }
 h1
 {
@@ -68,10 +70,16 @@ float:left;
 margin-left:100px;
 width:100px;
 }
+h5
+{
+color:white;
+font-size:14px;
+}
+
 </style>
 </head>
 <body>
-<h1>Tic-Tac-Toe<br />
+<h1>Oust<br />
 <!-- <input type="button" value="Instructions" onclick="showinstructions()" /> -->
 <input type="button" value="New Game" onclick="initGame()" />
 <input type="button" value="Undo" onclick="undoFn()" />
@@ -93,12 +101,25 @@ document.write(makePanel(initBdTab))
 </script>
 </div>
 
+<br />
+<center>
+<input type="button" value="Pass" onclick="buttonFn('pass')" />
+</center>
 
 <div id="messageDiv">
 Messages.
 </div>
 
 <br /><br />
+
+<h5>
+This game was designed by Mark Steere; see his <a href="http://www.marksteeregames.com/index.html"> website </a> for other of his games.  
+Detailed rules for Oust are <a href="http://www.marksteeregames.com/Oust_rules.pdf">
+here (pdf file).</a>  
+Briefly, the goal of the game is to eliminate the opponent's stones. 
+Stones are placed on the board, never moved, but can be captured.  
+Captures are effected by placing a new stone adjacent to one's <i>own</i> existing stones, thus creating a larger group: any group of the opponent's stones contiguous with that newly enlarged group are removed from the board, but such a move can only be made if all of the opponents affected groups are smaller in size than the enlarged group.  After a capture a player gets an extra move, which is realized here by requiring the opponent to pass.  Noncapturing moves are placements which do not touch any of one's own stones.
+</h5>
 
 <!-- <div id="score"> -->
 <!-- Score -->

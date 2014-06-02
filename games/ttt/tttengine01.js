@@ -76,8 +76,14 @@ function numMvs(mat){
 // It returns a Boolean value according to whether the position is a draw.
 function drawQ(mat,plyr){
     "use strict";
-    return numMvs(mat) === 9;
+    return numMvs(mat) === 9 && !winQ(mat,plyr) && !lossQ(mat,plyr);
 }
+
+function gameOverQ( mat, plyr ){
+    "use strict";
+    return winQ(mat,plyr) || lossQ(mat,plyr) || drawQ(mat,plyr);
+}
+
 
 
 // This is a required function.  

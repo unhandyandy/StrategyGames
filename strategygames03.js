@@ -7,6 +7,7 @@
   positionFromMove, postPosition, movesFromPos, makebutton, setButtonProps, makePosInit,
   poscurToDisplay, nbspN, gameOverQ, getGameName, localStorage */
 
+var pmDisabled = false;
 
 var gameName = getGameName();
 
@@ -276,6 +277,11 @@ function updatePosCur(newmov){
 	    postMortemCheck( opposite( comp ) );}}
 }
 
+function moveToString( mov ){
+    "use strict";
+    return( mov.join() );
+}
+
 
 function compTurn(){
     "use strict";
@@ -297,7 +303,7 @@ function compTurn(){
 	updatePosCur(mov);
     }
     if(!pauseQ){
-	postMessage( "Computer played "+mov.join());
+	postMessage( "Computer played " + moveToString( mov ) );
 	if(!twoComps){
 	    postMessage( "Your move." );
 	}else{
@@ -448,7 +454,7 @@ function buttonFn(arg){
     hst.push(arg);
     nwmv = hst.clone();
 
-    postMessage("New move: " + nwmv.join());
+    postMessage("New move: " + moveToString( nwmv ) );
     if( statusN === opposite(comp) && !pauseQ){
 	mvsposs = movesFromPos(posCur,statusN);
 	if(mvsposs.has(nwmv)){
@@ -594,7 +600,7 @@ function postMortemCheck(plyr){
     postMessage( "Cumulative scores:" );
     printScores();
 
-    if(comp === plyr){
+    if( comp === plyr && !pmDisabled ){
 	postMessage("Performing post-mortem...");
 	setTimeout(postMortem,100,gameHistory,plyr);
 	postMessage("...done!");

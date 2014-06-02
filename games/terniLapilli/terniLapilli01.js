@@ -109,6 +109,11 @@ function drawQ(mat,plyr){
     return numMvs(mat) === 9;
 }
 
+function gameOverQ( mat, plyr ){
+    "use strict";
+    return winQ(mat,plyr) || lossQ(mat,plyr) || drawQ(mat,plyr);
+}
+
 function movesFromPos(pos,plyr){
     "use strict";
     var mvs;

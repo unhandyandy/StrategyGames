@@ -17,7 +17,7 @@ switchPlayers = false;
 
 var desiredDepth = 8;
 
-var numberCups = 2;
+var numberCups = 4;
 
 
 function makeInitBdTab(){

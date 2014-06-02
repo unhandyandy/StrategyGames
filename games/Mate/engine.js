@@ -1,4 +1,4 @@
-// -*-js-*-
+// -*-js2-*-
 
 // Mate
 
@@ -8,12 +8,14 @@
   movesFromLoc, flatten1, onBoardQ, makeConstantArraySimp, makeConstantArray, 
   numMvs, cartesianProd, matrixTranspose, postMessage, PositionGrouped, 
   setBGCols, rowLen, gameHistory, posCur, setButtonProps, mapLp, eachLp, equalLp,
-  switchPlayers:true, repetitionQ, numberSequence, setTagOpt, setTagSty, numChoices:true */
+  switchPlayers:true, repetitionQ, numberSequence, setTagOpt, setTagSty, numChoices:true, pmDisabled:true */
 
 // This is a required variable.
 // It represents the default search depth.  
 
 switchPlayers = false;
+
+pmDisabled = true;
 
 var desiredDepth = 12;
 
@@ -330,6 +332,15 @@ function dispCard(crd) {
     }
 }
 
+function moveToString( mov ){
+    "use strict";
+    var r = mov[0][0], c = mov[0][1], rnk;
+    if ( r === 5 ) {
+	return( "Pass" ); }
+    rnk = cardVals[ c ].toString();
+    return( rnk + "-" + String( r ) );
+}
+
 var allCards = cartesianProd([0, 1, 2, 3], [0, 1, 2, 3, 4]);
 
 function poscurToDisplay(pos) {
@@ -349,7 +360,6 @@ function gameOverQ(pos, plyr) {
         ]
     ]))) || repetitionQ(pos, plyr);
 }
-
 
 function winQ(pos, plyr) {
     "use strict";
