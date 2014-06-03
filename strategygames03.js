@@ -5,7 +5,7 @@
 /*global setDiv, makeTag, makeButton, setTagOpt, setTagSty, getDiv, makeValCheck, 
   flatten1, compareNumbers, newFromPos, winQ, lossQ, drawQ, evalPosUncert, getDepth,  
   positionFromMove, postPosition, movesFromPos, makebutton, setButtonProps, makePosInit,
-  poscurToDisplay, nbspN, gameOverQ, getGameName, localStorage */
+  poscurToDisplay, nbspN, getGameName, localStorage */
 
 var pmDisabled = false;
 
@@ -240,6 +240,11 @@ function minimaxABaux(pos,depth,player,useThresh,passThresh){
 var twoComps = false;
 
 var postMortemCheck;
+
+function gameOverQ( mat, plyr ){
+    "use strict";
+    return winQ( mat, plyr ) ||  lossQ( mat, plyr )  || drawQ( mat, plyr );
+}
 
 function updatePosCur(newmov){
     "use strict";
