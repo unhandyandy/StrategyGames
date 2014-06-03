@@ -1,0 +1,22 @@
+canvas     { border: 0px solid red; 
+} 
+body       { background-color:White; 
+}
+#buttons { float: left;
+}
+#canvasDiv { float: left;
+}
+
+#labels { vertical-align: left;
+	  margin-left: 180;
+	  font-size: 40;
+}
+
+input { font-size: 40;
+	font-family: Times;
+	font-style: italic;
+}
+
+.lab { font-style: italic }
+.def { font-style: normal }
+
