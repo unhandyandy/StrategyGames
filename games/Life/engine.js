@@ -55,7 +55,7 @@ function initNbrs(){
 function fillBdRandom( pos, pieces ){
     "use strict";
     var r, c, lens, 
-	sum = bdSize*bdSize, 
+	sum = bdSize*bdSize + 1, 
 	rnd, k, curpc, last,
 	kinds = pieces.length,
 	plst = pieces.clone();
@@ -144,13 +144,16 @@ var lifePos = {
     "birtherQ": function( r, c, p ){
 	"use strict";
 	var q = opposite( p ),
-	    nbr =  this.getNbrs( r, c, p ) - this.getNbrs( r, c, q );
-	return this.getSquare( r, c ) === 0 && nbr === 3; },
+	    nbrp = this.getNbrs( r, c, p ),
+	    nbrq = this.getNbrs( r, c, q );
+	return this.getSquare( r, c ) === 0 && nbrp === 3; },
     "deatherQ": function( r, c, p ){
 	"use strict";
 	var q = opposite( p ),
-	    nbr = this.getNbrs( r, c, q ) - this.getNbrs( r, c, p );
-	return this.getSquare( r, c ) === q && ( nbr < 3 || nbr > 4 ); }
+	    nbrp = this.getNbrs( r, c, p ),
+	    nbrq = this.getNbrs( r, c, q );
+	return this.getSquare( r, c ) === q && 
+	    ( nbrq < 3 || nbrp + nbrq > 4 ); }
 };
 
 
@@ -271,7 +274,7 @@ function gameOverQ(pos, plyr) {
 	pos1,
 	hist = previousMov( 2 ),
 	passes = [ [ passSq, passSq ], [ passSq, passSq ] ];
-    if ( hist.equal( passes ) ){
+    if ( hist.equal( passes ) || repetitionQ( pos, pos.plyr ) ){
 	return true; }
     if ( pos.phase < 1 ){
 	return false; }
