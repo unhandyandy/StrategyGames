@@ -500,6 +500,16 @@ function undoFn(arg){
     }
 }
 
+function previousPos( n ){
+    "use strict";
+    if ( n === undefined ){ n = 1; }
+    return gameHistory[1].slice( 0, n ); }
+
+function previousMov( n ){
+    "use strict";
+    if ( n === undefined ){ n = 1; }
+    return gameHistory[0].slice( 0, n ); }
+
 function repetitionQaux(pos,plyr,hist,stt){
     "use strict";
     var ind = hist.indexOfProp( function(e){ return pos.equal(e); } ), 
