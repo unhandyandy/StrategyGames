@@ -602,6 +602,7 @@ function postMortem(hist,plyr){
 	hstrmn = hstrmn.slice(2);
     }while(!reEval(pscur,pslst,plyr,dep));
     numChoices = numChoices/fct;
+    postMessage("...done!");
 }
 
 
@@ -618,7 +619,6 @@ function postMortemCheck(plyr){
     if( comp === plyr && !pmDisabled ){
 	postMessage("Performing post-mortem...");
 	setTimeout(postMortem,100,gameHistory,plyr);
-	postMessage("...done!");
     }
     localStorage[gameName+"_minimaxAB"] = JSON.stringify(minimaxABcache);
     localStorage[gameName+"_depthTable"] = JSON.stringify(depthTable);
