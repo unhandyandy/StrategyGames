@@ -18,7 +18,7 @@ function getGameName(){
 <style type="text/css">
 body
 {
-background-color: Green;
+background-color: LightGray;
 
 }
 h1
@@ -30,7 +30,7 @@ div
 {
 font-family:"Times New Roman";
 font-size:36px;
-color:#bcd;
+color: Black;
 }
 select
 {
@@ -75,7 +75,7 @@ font-size:14px;
 </style>
 </head>
 <body>
-<h1>Life &amp; Death<br />
+<h1>Life &amp; <span style="color:Black">Death</span><br />
 <!-- <input type="button" value="Instructions" onclick="showinstructions()" /> -->
 <input type="button" value="New Game" onclick="initGame()" />
 <input type="button" value="Undo" onclick="undoFn()" />
@@ -110,7 +110,7 @@ Messages.
 
 <h3>
 Life &amp; Death is based on Conway's Game of Life.  At each turn a
-player may give birth to one of his own pieces and kill an opponents.
+player may give birth to one of his own pieces and kill an opponent's.
 Birth is possible on any empty square touching (orthogonally or
 diagonally) exactly three of her own pieces; Death is possible for any
 of the opponent's pieces which either lack at least two neighbors of his

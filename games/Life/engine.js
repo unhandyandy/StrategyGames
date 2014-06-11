@@ -40,7 +40,8 @@ function makeInitBdTab() {
         ["Pass", passSq, {
             'height': 80,
             'width': 160,
-            'fontsize': 16
+            'fontsize': 24,
+	    'bg': "white"
         }]
     ]);
     return res;
@@ -92,6 +93,8 @@ var lifePos = {
     "tab": makeConstantArraySimp(makeConstantArraySimp(0, bdSize + 2), bdSize + 2),
     "plyr": 1,
     "phase": 0,
+    "allLocs": cartesianProduct( numberSequence( 0, bdSize - 1 ),
+				 numberSequence( 0, bdSize - 1 ) ),
     "clone": function() {
 	"use strict";
 	var res = Object.create( lifePos );
@@ -259,8 +262,34 @@ function playerToString( p ){
     "use strict";
     return p === 1 ? "X" : "O"; }
 
+function bgColor( loc ){
+    "use strict";
+    var r = loc[0] + 1, 
+	c = loc[1] + 1,
+	locp = posCur.getSquare( r, c ),
+	death = posCur.deatherQ( r, c, 1 ) || posCur.deatherQ( r, c, 2 ),
+	birth = posCur.birtherQ( r, c, 1 ) || posCur.birtherQ( r, c, 2 ),
+	res = "";
+    if ( death || birth ){
+	if ( locp === 1 ){
+	    res += "lightblue"; }
+	else if ( locp === 2 ){
+	    res += "orange"; }
+	else{
+	    res += "darkgray"; } }
+    else{
+	if ( locp === 1 ){
+	    res += "blue"; }
+	else if ( locp === 2 ){
+	    res += "chocolate"; }
+	else{
+	    res += "black"; } }	
+    return res; }
+
+
 function poscurToDisplay(pos) {
     "use strict";
+    setBGCols( bgColor );
     var tab = [], r, res;
     for ( r = 1; r <= bdSize; r += 1 ){
 	tab.push( pos.tab[ r ].slice( 1, bdSize + 1 ) ); }
@@ -361,3 +390,4 @@ function evalPosUncert(pos) {
     "use strict";
     return plyrSgn( pos.plyr ) * ( scorePos( pos ) + scoreNbrsPos( pos ) );
  }
+

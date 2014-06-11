@@ -5,7 +5,7 @@
 /*global setDiv, makeTag, makeButton, setTagOpt, setTagSty, getDiv, makeValCheck, 
   flatten1, compareNumbers, newFromPos, winQ, lossQ, drawQ, evalPosUncert, getDepth,  
   positionFromMove, postPosition, movesFromPos, makebutton, setButtonProps, makePosInit,
-  poscurToDisplay, nbspN, getGameName, localStorage */
+  poscurToDisplay, nbspN, getGameName, localStorage, eachLp */
 
 var pmDisabled = false;
 
@@ -720,3 +720,11 @@ function setButtonProps(name,txt,opts){
     }
 }
 
+function setBGCols( colorFun ){
+    "use strict";
+    var locs = posCur.allLocs,
+        fun = function(loc){
+	setButtonProps(loc,false,{'bgc' : colorFun(loc)});
+    };
+    eachLp( locs, fun );
+}
