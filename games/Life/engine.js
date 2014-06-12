@@ -161,9 +161,20 @@ var lifePos = {
 };
 
 
+// function makePosInit() {
+//     "use strict";
+//     return lifePos.clone().initTab();
+// }
+
+var previousPos;
+
 function makePosInit() {
     "use strict";
-    return lifePos.clone().initTab();
+    if (comp === 2) {
+        return previousPos;
+    }
+    previousPos = lifePos.clone().initTab();
+    return previousPos.clone();
 }
 
 function plyrSgn(n) {
