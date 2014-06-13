@@ -399,6 +399,6 @@ function scoreGame(pos) {
 
 function evalPosUncert(pos) {
     "use strict";
-    return plyrSgn( pos.plyr ) * ( scorePos( pos ) + scoreNbrsPos( pos ) );
+    return plyrSgn( pos.plyr ) * ( 8 * scorePos( pos ) + scoreNbrsPos( pos ) );
  }
 
