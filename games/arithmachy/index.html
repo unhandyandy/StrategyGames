@@ -116,7 +116,10 @@ An <i>exact</i> move is one for which <i>mn</i> equals the value of the
 piece; capturing is only allowed on exact moves.  If a move is inexact,
 then the piece is reduced in value to <i>mn</i>, and the difference
 between that and the original value is left behind on the original
-square.  The goal is complete annihilation of the opponent.
+square.  If the target square is occupied by another piece of the same
+player, the values are added.
+<br /><br />
+The goal is complete annihilation of the opponent.
 </h5>
 
 <!-- <div id="score"> -->
