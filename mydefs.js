@@ -1,4 +1,4 @@
-//-*-mode: Javascript; -*-
+//-*-mode:js2; -*-
 
 /*jslint browser: true, devel: true */
 
@@ -425,6 +425,7 @@ Array.prototype.map2 = function(fun,o){
 	};
     return this.map(fun1,o);
 };
+
 mapLp = function( o, fun, that ){
     "use strict";
     if( that === undefined ){
@@ -663,6 +664,17 @@ Array.prototype.stringListToString = function ( ){
     }
     return this.reduce( cnct, "" );
 };
+
+Array.prototype.sum = function( n ){
+    "use strict";
+    var len = this.length, i, res = 0, fun;
+    if ( n === 0 ){
+	fun = function(j){ res += this[j]; }; }
+    else {
+	fun = function(j){ res += this[j].sum( n - 1 ); }; }
+    for ( i = 0; i < len; i += 1 ){
+	res += fun( i ); }
+    return res; };
 
 // lexicographical order on lists of numbers 
 // right to left!

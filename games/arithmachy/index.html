@@ -1,0 +1,134 @@
+<html>
+<head>
+
+<script>
+function getGameName(){
+    return "Arithmachy";
+};
+</script>
+
+<script type="text/javascript" src="../../mydefs.js">
+</script>
+<script type="text/javascript" src="../../strategygames03.js">
+</script>
+<script type="text/javascript" src="../../rectUtils.js">
+</script>
+
+
+<script type="text/javascript" src="./engine.js">
+</script>
+<style type="text/css">
+body
+{
+background-color: Green;
+}
+h1
+{
+color:white;
+text-align:center;
+}
+h5
+{
+color:white;
+font-size:14px;
+}
+div
+{
+font-family:"Times New Roman";
+font-size:36px;
+color:#bcd;
+}
+select
+{
+width:"2em";
+font-size:32px;
+background-color:#abc;
+color:#640;
+}
+input
+{
+font-size:24px;
+background-color:#bca;
+color:#406;
+}
+span.bull {color:fff;font-weight:bold}
+span.cow  {color:ff0;font-weight:bold}
+
+#score 
+{
+margin-top:10px;
+padding-bottom:10px;
+font-weight:bold;
+}	
+#score-left
+{
+float:left;
+margin-left:0px;
+width:100px;
+}
+#score-right
+{
+float:left;
+margin-left:100px;
+width:100px;
+}
+</style>
+</head>
+<body>
+<h1>Number Chess<br />
+<!-- <input type="button" value="Instructions" onclick="showinstructions()" /> -->
+<input type="button" value="New Game" onclick="initGame()" />
+<input type="button" value="Undo" onclick="undoFn()" />
+ </h1>
+<br />
+<br />
+<div id="optionsdiv">
+
+    <form>
+      
+    </form>
+
+</div>
+<br /><br />
+
+<div id="playdiv">
+<script>
+document.write(makePanel(initBdTab))
+</script>
+</div>
+
+
+<div id="messageDiv">
+Messages.
+</div>
+
+<br /><br />
+
+<h5>
+Each number moves like a chess knight, i.e. to the opposite corner of an
+<i>m</i>x<i>n</i> rectangle where <i>mn</i> is no greater than the value
+of the piece.  For 
+example, the number 6 moves like a standard chess knight 
+(<i>m</i> = 2 or 3, <i>n</i> = 3 or 2) 
+or like a pawn (<i>m</i> = 1, <i>n</i> = 2 or 3).
+An <i>exact</i> move is one for which <i>mn</i> equals the value of the
+piece; capturing is only allowed on exact moves.  If a move is inexact,
+then the piece is reduced in value to <i>mn</i>, and the difference
+between that and the original value is left behind on the original
+square.  The goal is complete annihilation of the opponent.
+</h5>
+
+<!-- <div id="score"> -->
+<!-- Score -->
+<!-- </div> -->
+<!-- <div id="score-left"> -->
+<!-- Human: 0  -->
+<!-- </div> -->
+<!-- <div id="score-right"> -->
+<!-- Computer: 0  -->
+<!-- </div> -->
+
+
+</body>
+</html>
+

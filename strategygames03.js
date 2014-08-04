@@ -142,8 +142,8 @@ function nextMove(str){
 //update gameHistory
 function updateGameHistory( newmov, pos ){
     "use strict";
-    gameHistory[0] = [newmov].concat(gameHistory[0]);
-    gameHistory[1] = [pos].concat(gameHistory[1]);    
+    gameHistory[0] = [newmov.clone()].concat(gameHistory[0]);
+    gameHistory[1] = [pos.clone()].concat(gameHistory[1]);    
 }
 
 //undo last addition to gameHistory
@@ -583,7 +583,7 @@ function postMortem(hist,plyr){
     var fct = 1, pscur, pslst, hstrmn, dep, hsttot;
     numChoices = fct*numChoices;
     hsttot = hist[1];
-    hsttot = [posCur].concat(hsttot);
+    hsttot = [posCur.clone()].concat(hsttot);
     if(statusN===plyr){
 	hsttot = hsttot.slice(1);
     }
@@ -725,6 +725,15 @@ function setBGCols( colorFun ){
     var locs = posCur.allLocs,
         fun = function(loc){
 	setButtonProps(loc,false,{'bgc' : colorFun(loc)});
+    };
+    eachLp( locs, fun );
+}
+
+function setFGCols( colorFun ){
+    "use strict";
+    var locs = posCur.allLocs,
+        fun = function(loc){
+	setButtonProps(loc,false,{'fgc' : colorFun(loc)});
     };
     eachLp( locs, fun );
 }
