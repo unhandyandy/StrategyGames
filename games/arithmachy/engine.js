@@ -15,9 +15,9 @@
 
 pmDisabled = false;
 
-var desiredDepth = 4;
+var desiredDepth = 5;
 
-var bdSize = 4;
+var bdSize = 6;
 
 function makeInitBdTab() {
     "use strict";
@@ -177,7 +177,8 @@ var arithPos = {
 	"use strict";
 	this.white = !this.white;
 	var rmax = bdSize - 1,
-	    pcval = bdSize * bdSize - 1,
+	    //pcval = bdSize * bdSize - 1,
+	    pcval = 2 * bdSize + 1,
 	    topp = this.white ? 2 : 1,
 	    botp = opposite( topp ),
 	    //pcval = Math.floor( (bdSize + 1)/2 ),
