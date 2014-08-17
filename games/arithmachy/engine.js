@@ -15,9 +15,11 @@
 
 pmDisabled = false;
 
-var desiredDepth = 5;
+var desiredDepth = 4;
 
 var bdSize = 6;
+
+var passSq = [ bdSize, 0 ];
 
 function makeInitBdTab() {
     "use strict";
@@ -34,14 +36,14 @@ function makeInitBdTab() {
         }
         res.push(row);
     }
-    // res.push([
-    //     ["Pass", passSq, {
-    //         'height': 80,
-    //         'width': 160,
-    //         'fontsize': 24,
-    //'bg': "white"
-    //     }]
-    // ]);
+    res.push([
+        ["Pass", passSq, {
+            'height': 80,
+            'width': 160,
+            'fontsize': 24,
+    'bg': "white"
+        }]
+    ]);
     return res;
 }
 
@@ -64,80 +66,19 @@ var numberPiece = {
     "setValue": function( v ){
 	"use strict";
 	this.value = v;
-	//this.setFactors();
-	//this.setAddends(); 
     },
     "plus": function( v ){
 	"use strict";
 	this.setValue( v + this.getValue() ); },
-    // "factors": [ [1,1] ],
-    // "getFactors": function(){ 
-    // 	"use strict";
-    // 	return this.factors; },
-    // "setFactors": function(){
-    // 	"use strict";
-    // 	var i, 
-    // 	    v = this.getValue(),
-    // 	    sqrtv = Math.sqrt(v),
-    // 	    res = [];
-    // 	for ( i = 1; i < sqrtv; i += 1 ){
-    // 	    if ( v % i === 0 ){
-    // 		res.push( [i,v/i] ); } }
-    // 	this.factors = res; },
     "clone": function(){
 	"use strict";
 	return newNumberPiece( this.getValue(), this.getPlayer() ); },
-    // "addends": [],
-    // "getAddends": function(){ 
-    // 	"use strict";
-    // 	return this.addends; },
-    // "setAddends": function(){
-    // 	"use strict";
-    // 	var i,
-    // 	    v = this.getValue(),
-    // 	    lim = v / 2,
-    // 	    res = [];
-    // 	for ( i = 1; i <= lim; i += 1 ){
-    // 	    res.push( [ i, v - i ] ); }
-    // 	this.addends = res; },
     "addSigns": function ( pair ){
 	"use strict";
 	var x = pair[0],
 	    y = pair[1];
 	return [ [x,y],[-x,y],[x,-y],[-x,-y],
 		 [y,x],[-y,x],[y,-x],[-y,-x] ]; }
-    // "makeChild": function( pair ){
-    // 	"use strict";
-    // 	var x = pair[0],
-    // 	    y = pair[1],
-    // 	    p = this.getPlayer(),
-    // 	    res1 = [ newNumberPiece( x, p ), newNumberPiece( y, p ) ],
-    // 	    res2 = [ newNumberPiece( y, p ), newNumberPiece( x, p ) ],
-    // 	    res = [ res1, res2 ];
-    // 	if ( x === 1 ){
-    // 	    res = [ res1 ]; }
-    // 	else if ( y === 1 ){
-    // 	    res = [ res2 ]; }
-    // 	return res; },
-    // "moves": [],
-    // "getMoves": function(){
-    // 	"use strict";
-    // 	return this.moves; },
-    // "setMoves": function(){
-    // 	"use strict";
-    // 	var res,
-    // 	    factors = this.getFactors();
-    // 	res = mapLp( factors, this.addSigns );
-    // 	this.moves = flatten1( res ); },
-    // "splits": [],
-    // "getSplits": function(){
-    // 	"use strict";
-    // 	return this.splits; },
-    // "setSplits": function(){
-    // 	"use strict";
-    // 	var res, addends = this.getAddends();
-    // 	res = mapLp( addends, this.makeChild );
-    // 	this.splits = flatten1( res ); }
 };
 
 function newNumberPiece( v, p ){
@@ -190,13 +131,25 @@ var arithPos = {
 	    rowmid = makeConstantArraySimp( 0, bdSize ),
 	    middle = makeConstantArraySimp( rowmid, bdSize - 2 );
 	this.tab = first.concat( middle ).concat( last );
-	this.setMoves();
 	this.goalSqs.b = this.white ? [ rmax, rmax ] : [ 0, 0 ];
 	this.goalSqs.a = this.white ? [ 0, 0 ] : [ rmax, rmax ];
 	this.flags = { "a": 0, "b": 0 };
+	this.setPhase( 3 );
+	this.setMoves();
 	return this; },
     "tab": makeConstantArraySimp(makeConstantArraySimp(0, bdSize ), bdSize ),
     "plyr": 1,
+    "phase": 3,
+    "setPhase": function( ph ){
+	"use strict";
+	this.phase = ph; },
+    "getPhase": function( ){
+	"use strict";
+	return this.phase; },
+    "nextPhase": function(){
+	"use strict";
+	var ph = this.getPhase();
+	this.setPhase( ph < 3 ? ph + 1 : 1 ); },
     "flags": { "a": 0, "b": 0 },
     "goalSqs": { },
     "getGoalSq": function( p ){
@@ -204,7 +157,7 @@ var arithPos = {
 	return ( p === 1 ) ? this.goalSqs.a : this.goalSqs.b; },
     "winForQ": function( p ){
 	"use strict";
-	return this.getFlag( p ) >= 2; },
+	return this.getFlag( p ) >= 3; },
     "getFlag": function( p ){
 	"use strict";
 	return ( p === 1 ) ? this.flags.a : this.flags.b; },
@@ -232,13 +185,15 @@ var arithPos = {
 	res.moves = this.moves.clone();
 	res.flags = { "a": this.getFlag( 1 ), "b": this.getFlag( 2 ) };
 	res.goalSqs = this.goalSqs;
+	res.setPhase( this.getPhase() );
 	return res; },
     "equal": function(pos) {
         "use strict";
         return equalLp(this.getNumberTab(), pos.getNumberTab() ) && 
 	    this.getPlayer() === pos.getPlayer() &&
 	    this.getFlag( 1 ) === pos.getFlag( 1 ) &&
-	    this.getFlag( 2 ) === pos.getFlag( 2 );
+	    this.getFlag( 2 ) === pos.getFlag( 2 ) &&
+	    this.getPhase() === pos.getPhase();
     },
     "getSquare": function( r, c ){
 	"use strict";
@@ -284,6 +239,8 @@ var arithPos = {
 		fun( r, c, pc ); } ); } ); },
     "detMoves": function(){
 	"use strict";
+	if ( this.getPhase() === 2 ){
+	    return [ [ passSq ] ]; }
 	var res = [],
 	    thisplayer = this.getPlayer(),
 	    that = this;
@@ -314,6 +271,11 @@ var arithPos = {
 	return this.moves.clone(); },
     "updatePos": function( mv ){
 	"use strict";
+	if ( mv[0].equal( passSq )  ){
+	    this.nextPhase();
+	    this.setPlayer( opposite( this.getPlayer() ) );
+	    this.setMoves();
+	    return; }
 	var r1 = mv[0][0],
 	    c1 = mv[0][1],
 	    r2 = mv[1][0],
@@ -338,6 +300,7 @@ var arithPos = {
 	else{
 	    this.setFlag( plyr, 0 ); }
 	this.setPlayer( opposite( plyr ) );
+	this.nextPhase();
 	this.setMoves(); },
     "getNumberTab": function(){
 	"use strict";
@@ -384,6 +347,8 @@ var letters = [ "a", "b", "c", "d", "e", "f", "g", "h" ];
 
 function moveToString( mov ){
     "use strict";
+    if ( mov === "Pass" ){
+	return ""; }
     var str = "", r, c, k;
     for ( k = 0; k < mov.length; k += 1 ){
 	r = mov[k][0];
@@ -463,7 +428,7 @@ function evalPosUncert(pos) {
     "use strict";
     var p = pos.getPlayer(),
 	q = opposite( p ),
-	flagCon = 5;
+	flagCon = 1;
     return plyrSgn( p ) * scorePos( pos ) + 
 	flagCon * ( pos.getFlag( p ) - pos.getFlag( q ) );
  }
