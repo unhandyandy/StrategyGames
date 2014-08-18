@@ -8,14 +8,14 @@
   movesFromLoc, flatten1, onBoardQ, makeConstantArraySimp, makeConstantArray, 
   numMvs, cartesianProd, matrixTranspose, postMessage, PositionGrouped, 
   setBGCols, setFGCols, rowLen, gameHistory, posCur, setButtonProps, mapLp, eachLp, equalLp,
-  switchPlayers:true, repetitionQ, numberSequence, setTagOpt, setTagSty, numChoices:true, cloneList, cartesianProduct, previousMov, pmDisabled:true */
+  switchPlayers:true, repetitionQ, numberSequence, setTagOpt, setTagSty, numChoices:true, cloneList, cartesianProduct, previousMov, pmDisabled:true, evenQ */
 
 // This is a required variable.
 // It represents the default search depth.  
 
 pmDisabled = false;
 
-var desiredDepth = 4;
+var desiredDepth = 7;
 
 var bdSize = 6;
 
@@ -118,8 +118,14 @@ var arithPos = {
 	"use strict";
 	this.white = !this.white;
 	var rmax = bdSize - 1,
+	    bdMid = evenQ( bdSize ) ? bdSize / 2 : ( bdSize + 1 ) / 2,
+	    bdMid2 = evenQ( bdSize ) ? bdMid + 1 : bdMid,
+	    bdQuad = bdMid * bdMid2,
 	    //pcval = bdSize * bdSize - 1,
-	    pcval = 2 * bdSize + 1,
+	    //pcval = bdSize * ( bdSize + 1 ) / 2 + rmax,
+	    //pcval = 2 * bdSize + 1,
+	    //pcval = 3 * rmax,
+	    pcval = bdQuad + rmax,
 	    topp = this.white ? 2 : 1,
 	    botp = opposite( topp ),
 	    //pcval = Math.floor( (bdSize + 1)/2 ),
@@ -157,7 +163,7 @@ var arithPos = {
 	return ( p === 1 ) ? this.goalSqs.a : this.goalSqs.b; },
     "winForQ": function( p ){
 	"use strict";
-	return this.getFlag( p ) >= 3; },
+	return this.getFlag( p ) >= 4; },
     "getFlag": function( p ){
 	"use strict";
 	return ( p === 1 ) ? this.flags.a : this.flags.b; },

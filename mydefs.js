@@ -1,4 +1,4 @@
-//-*-mode:js2; -*-
+//-*-mode: Javascript; -*-
 
 /*jslint browser: true, devel: true */
 
@@ -425,7 +425,6 @@ Array.prototype.map2 = function(fun,o){
 	};
     return this.map(fun1,o);
 };
-
 mapLp = function( o, fun, that ){
     "use strict";
     if( that === undefined ){
@@ -665,17 +664,6 @@ Array.prototype.stringListToString = function ( ){
     return this.reduce( cnct, "" );
 };
 
-Array.prototype.sum = function( n ){
-    "use strict";
-    var len = this.length, i, res = 0, fun;
-    if ( n === 0 ){
-	fun = function(j){ res += this[j]; }; }
-    else {
-	fun = function(j){ res += this[j].sum( n - 1 ); }; }
-    for ( i = 0; i < len; i += 1 ){
-	res += fun( i ); }
-    return res; };
-
 // lexicographical order on lists of numbers 
 // right to left!
 // Destructive!
@@ -861,4 +849,15 @@ function betterBezier( x1, y1, a1, a2, x2, y2, scale, cnv ){
     cnv.moveTo( x1, y1 );
     cnv.bezierCurveTo( x1 + scale * cos1, y1 - scale * sin1, x2 + scale * cos2, y2 - scale * sin2, x2, y2 );
     cnv.stroke();
+}
+
+
+function evenQ( n ){
+    "use strict";
+    return n % 2 === 0;
+}
+
+function oddQ( n ){
+    "use strict";
+    return !evenQ( n );
 }
