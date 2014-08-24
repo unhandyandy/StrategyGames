@@ -96,11 +96,11 @@ function sortMoves(pos, mvs) {
     mvs.sort( function(a,b){ 
 	var targa = pos.getSquare( a[1][0], a[1][1] ),
 	    targb = pos.getSquare( b[1][0], b[1][1] ),
-	    goal = pos.getGoalSq( pos.getPlayer() ),
-	    goalopp = pos.getGoalSq( opposite( pos.getPlayer() ) );
-	if ( a[1].equal( goal ) || a[1].equal( goalopp ) ){
+	    goal = pos.getGoalRow( pos.getPlayer() ),
+	    goalopp = pos.getGoalRow( opposite( pos.getPlayer() ) );
+	if ( a[1][0] === goal || a[1][0] === goalopp ){
 	    return -1; }
-	else if ( b[1].equal( goal ) || b[1].equal( goalopp ) ){
+	else if ( b[1][0] === goal || b[1][0] === goalopp ){
 	    return 1; }
 	else if ( targa === 0 && targb !== 0 ){
 	    return 1; }
@@ -131,15 +131,15 @@ var arithPos = {
 	    //pcval = Math.floor( (bdSize + 1)/2 ),
 	    //first = [ makeConstantArraySimp( newNumberPiece(pcval,1), bdSize ) ],
 	    first = [ [ newNumberPiece(pcval,topp) ].concat( 
-		makeConstantArraySimp( 0, rmax ) ) ],	    
+		makeConstantArraySimp( 0, rmax - 1 ).concat( newNumberPiece(pcval,topp) ) ) ],	    
 	    //last = [ makeConstantArraySimp( newNumberPiece(pcval,2), bdSize ) ],
-	    last = [ makeConstantArraySimp( 0, rmax ).concat( newNumberPiece(pcval,botp) ) ],
+	    last = [ [ newNumberPiece(pcval,botp) ].concat( makeConstantArraySimp( 0, rmax - 1 ).concat( newNumberPiece(pcval,botp) ) ) ],
 	    rowmid = makeConstantArraySimp( 0, bdSize ),
 	    middle = makeConstantArraySimp( rowmid, bdSize - 2 );
 	this.tab = first.concat( middle ).concat( last );
-	this.goalSqs.b = this.white ? [ rmax, rmax ] : [ 0, 0 ];
-	this.goalSqs.a = this.white ? [ 0, 0 ] : [ rmax, rmax ];
-	this.flags = { "a": 0, "b": 0 };
+	this.goalRows.b = this.white ? rmax : 0;
+	this.goalRows.a = this.white ? 0 : rmax;
+//	this.flags = { "a": 0, "b": 0 };
 	this.setPhase( 3 );
 	this.setMoves();
 	return this; },
@@ -156,23 +156,32 @@ var arithPos = {
 	"use strict";
 	var ph = this.getPhase();
 	this.setPhase( ph < 3 ? ph + 1 : 1 ); },
-    "flags": { "a": 0, "b": 0 },
-    "goalSqs": { },
-    "getGoalSq": function( p ){
+//    "flags": { "a": 0, "b": 0 },
+    "goalRows": { },
+    "getGoalRow": function( p ){
 	"use strict";
-	return ( p === 1 ) ? this.goalSqs.a : this.goalSqs.b; },
+	return ( p === 1 ) ? this.goalRows.a : this.goalRows.b; },
+    "numCorners": function( p ){
+	"use strict";
+	var rmax = bdSize - 1,
+	    row = this.getGoalRow( p ),
+	    p1 = this.getSquare( row, 0 ),
+	    p2 = this.getSquare( row, rmax ),
+	    g1 = p1 !== 0 && p1.getPlayer() === p ? 1 : 0,
+	    g2 = p2 !== 0 && p2.getPlayer() === p ? 1 : 0;
+	return g1 + g2; },
     "winForQ": function( p ){
 	"use strict";
-	return this.getFlag( p ) >= 4; },
-    "getFlag": function( p ){
-	"use strict";
-	return ( p === 1 ) ? this.flags.a : this.flags.b; },
-    "setFlag": function( p, v ){
-	"use strict";
-	if ( p === 1 ){
-	    this.flags.a = v; }
-	else{
-	    this.flags.b = v; } },
+	return this.numCorners( p ) === 2; },
+    // "getFlag": function( p ){
+    // 	"use strict";
+    // 	return ( p === 1 ) ? this.flags.a : this.flags.b; },
+    // "setFlag": function( p, v ){
+    // 	"use strict";
+    // 	if ( p === 1 ){
+    // 	    this.flags.a = v; }
+    // 	else{
+    // 	    this.flags.b = v; } },
     "white": false,
     "getPlayer": function(){
 	"use strict";
@@ -189,16 +198,16 @@ var arithPos = {
 	res.tab = this.tab.clone();
 	res.white = this.white;
 	res.moves = this.moves.clone();
-	res.flags = { "a": this.getFlag( 1 ), "b": this.getFlag( 2 ) };
-	res.goalSqs = this.goalSqs;
+//	res.flags = { "a": this.getFlag( 1 ), "b": this.getFlag( 2 ) };
+	res.goalRows = this.goalRows;
 	res.setPhase( this.getPhase() );
 	return res; },
     "equal": function(pos) {
         "use strict";
         return equalLp(this.getNumberTab(), pos.getNumberTab() ) && 
 	    this.getPlayer() === pos.getPlayer() &&
-	    this.getFlag( 1 ) === pos.getFlag( 1 ) &&
-	    this.getFlag( 2 ) === pos.getFlag( 2 ) &&
+	    //this.getFlag( 1 ) === pos.getFlag( 1 ) &&
+	    //this.getFlag( 2 ) === pos.getFlag( 2 ) &&
 	    this.getPhase() === pos.getPhase();
     },
     "getSquare": function( r, c ){
@@ -287,24 +296,23 @@ var arithPos = {
 	    r2 = mv[1][0],
 	    c2 = mv[1][1],
 	    plyr = this.getPlayer(),
-	    goal = this.getGoalSq( plyr ),
+	    //goal = this.getGoalSq( plyr ),
 	    source = this.getSquare( r1, c1 ),
 	    oldval = source.getValue(),
 	    target = this.getSquare( r2, c2 ),
 	    addQ = ( target !== 0 && target.getPlayer() === this.getPlayer() ),
 	    prod = (Math.abs(r1-r2)+1)*(Math.abs(c1-c2)+1),
-	    newval = prod + ( addQ ? target.getValue() : 0 ),
-	    goalpc;
+	    newval = prod + ( addQ ? target.getValue() : 0 );
 	this.setSquare( r2, c2, newNumberPiece( newval, plyr ) );
 	if ( prod === oldval ){
 	    this.setSquare( r1, c1, 0 ); }
 	else{
 	    this.setSquare( r1, c1, newNumberPiece( oldval - prod, plyr ) ); }
-	goalpc = this.getSquare( goal[0], goal[1] );
-	if ( goalpc !== 0 && goalpc.getPlayer() === plyr ){
-	    this.setFlag( plyr, this.getFlag( plyr ) + 1 ); }
-	else{
-	    this.setFlag( plyr, 0 ); }
+	//goalpc = this.getSquare( goal[0], goal[1] );
+	// if ( goalpc !== 0 && goalpc.getPlayer() === plyr ){
+	//     this.setFlag( plyr, this.getFlag( plyr ) + 1 ); }
+	// else{
+	//     this.setFlag( plyr, 0 ); }
 	this.setPlayer( opposite( plyr ) );
 	this.nextPhase();
 	this.setMoves(); },
@@ -434,8 +442,9 @@ function evalPosUncert(pos) {
     "use strict";
     var p = pos.getPlayer(),
 	q = opposite( p ),
-	flagCon = 1;
+	flagCon = 1,
+	flagConOpp = 0.5;
     return plyrSgn( p ) * scorePos( pos ) + 
-	flagCon * ( pos.getFlag( p ) - pos.getFlag( q ) );
+	flagCon * pos.numCorners( p ) - flagConOpp * pos.numCorners( q );
  }
 
