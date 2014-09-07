@@ -305,6 +305,8 @@ function compTurn(){
 	// };
 	newcalc = minimaxAB(posCur,desiredDepth,statusN);
 	mov = nextMove(newcalc);
+	// var val = moveValue( newcalc );
+	// console.log( "val = ", val );
 	updatePosCur(mov);
     }
     if(!pauseQ){

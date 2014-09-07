@@ -15,7 +15,7 @@
 
 pmDisabled = false;
 
-var desiredDepth = 7;
+var desiredDepth = 6;
 
 var bdSize = 6;
 
@@ -125,7 +125,8 @@ var arithPos = {
 	    //pcval = bdSize * ( bdSize + 1 ) / 2 + rmax,
 	    //pcval = 2 * bdSize + 1,
 	    //pcval = 3 * rmax,
-	    pcval = bdQuad + rmax,
+	    //pcval = bdQuad + 1,
+	    pcval = (bdMid2 - 1)*(bdMid2 - 1),
 	    topp = this.white ? 2 : 1,
 	    botp = opposite( topp ),
 	    //pcval = Math.floor( (bdSize + 1)/2 ),
