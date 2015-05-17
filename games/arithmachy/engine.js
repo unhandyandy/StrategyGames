@@ -1,6 +1,6 @@
 // -*-js2-*-
 
-// Life & death
+// Number Chess
 
 /*jslint browser: true, devel: true, es5: true */
 
@@ -448,4 +448,7 @@ function evalPosUncert(pos) {
     return plyrSgn( p ) * scorePos( pos ) + 
 	flagCon * pos.numCorners( p ) - flagConOpp * pos.numCorners( q );
  }
+
+
+
 
