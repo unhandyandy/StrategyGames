@@ -110,7 +110,52 @@ var owarePos = {
     "opposite": function( p ){
 	"use strict";
 	return ( p === "a" ) ? "b" : "a";
-	}
+    },
+    "next": function( old ){
+	"use strict";
+	var row = old[0],
+	    cup = old[1],
+	    newrow = row,
+	    newcup = cup,
+	    del;
+	del = ( row === "a" ) ? -1 : 1;
+	newcup += del;
+	if ( newcup < 0 || newcup >= numberCups ){
+	    newrow = this.opposite( row );
+	    newcup = ( 1 - del ) / 2 * numberCups; }
+	return [ row, cup ];
+    },
+    // "equalCup": function( c1, c2 ){
+    // 	"use strict";
+    // 	return c1[0] === c2[0] && c1[1] === c2[1];
+    // },
+    "getCup": function( cup ){
+	"use strict";
+	var row = cup[0],
+	    col = cup[1];
+	return this.cups[ row ][ col ];
+    },
+    "setCup": function( cup, num ){
+	"use strict";
+	var row = cup[0],
+	    col = cup[1];
+	this.cups[ row ][ col ] = num;
+    },
+    "sowAux": function( cup, num ){
+	"use strict";
+	var i, curcup = cup;
+	for ( i=0; i<num; i+=1 ){
+	    curcup = this.next( curcup );
+	    if ( equalLp( curcup, cup ) ){
+		curcup = this.next( curcup ); }
+	    this.setCup( curcup, this.getCup( curcup ) + 1 ); }
+	return curcup;
+    },
+    "sow": function ( cup ){
+	"use strict";
+	var numseeds = this.getCup( cup ),
+	    
+    }
 };
 
 var posInit = owarePos.clone();
@@ -230,25 +275,26 @@ function positionFromMove(mv,pos){
     "use strict";
     var pscp = pos.clone(), nm, i, p = pos.plyr, op, cap, mov;
     mov = buttToShort( mv , p );
-    if ( mov.length === 1 ){
-	if ( mov[0] !== "P" ){
-	    // nm = largest index whose cell is affected
-	    nm = mov[0] - 1;
-	    for ( i = 0; i < nm; i += 1 ){
-		pscp.cups[ p ][ i ] += 1;}
-	    pscp.cups[ p ][ nm ] = 0;
-	    pscp.pots[ p ] +=  1;}}
-    else {
-	// nm = smallest index affected
-	nm = numberCups - mov[1];
-	for ( i = numberCups - 1; i >= nm; i -= 1 ){
-	    pscp.cups[ p ][ i ] += 1;}
-	pscp.stacks[ p ] -= mov[1];
-	if ( 0 === pos.cups[ p ][ nm ] ){
-	    op = pscp.opposite( p );
-	    cap = pscp.cups[ op ][ oppCup( nm ) ];
-	    pscp.cups[ op ][ oppCup( nm ) ] = 0;
-	    pscp.pots[ p ] += cap;}}
+    //if ( mov.length === 1 ){
+    //if ( mov[0] !== "P" ){
+    // nm = largest index whose cell is affected
+    nm = mov[0] - 1;
+    for ( i = 0; i < nm; i += 1 ){
+	pscp.cups[ p ][ i ] += 1;}
+    pscp.cups[ p ][ nm ] = 0;
+    //pscp.pots[ p ] +=  1;
+    //}}
+    // else {
+    // 	// nm = smallest index affected
+    // 	nm = numberCups - mov[1];
+    // 	for ( i = numberCups - 1; i >= nm; i -= 1 ){
+    // 	    pscp.cups[ p ][ i ] += 1;}
+    // 	pscp.stacks[ p ] -= mov[1];
+    // 	if ( 0 === pos.cups[ p ][ nm ] ){
+    // 	    op = pscp.opposite( p );
+    // 	    cap = pscp.cups[ op ][ oppCup( nm ) ];
+    // 	    pscp.cups[ op ][ oppCup( nm ) ] = 0;
+    // 	    pscp.pots[ p ] += cap;}}
     pscp.plyr = pos.opposite( p );
     return pscp;
 }
