@@ -1,0 +1,148 @@
+<html>
+<head>
+
+<script>
+function getGameName(){
+    return "Oware";
+};
+</script>
+
+<script type="text/javascript" src="../../mydefs.js">
+</script>
+<script type="text/javascript" src="../../strategygames03.js">
+</script>
+
+
+<script type="text/javascript" src="./engine.js">
+</script>
+<style type="text/css">
+body
+{
+background-color: Green;
+background-image:url("./heic0901a_H1.jpg");
+}
+h1
+{
+color:white;
+text-align:center;
+}
+div
+{
+font-family:"Times New Roman";
+font-size:36px;
+color:#bcd;
+}
+select
+{
+width:"2em";
+font-size:32px;
+background-color:#abc;
+color:#640;
+}
+input
+{
+font-size:24px;
+background-color:#bca;
+color:#406;
+}
+span.bull {color:fff;font-weight:bold}
+span.cow  {color:ff0;font-weight:bold}
+
+#score 
+{
+margin-top:10px;
+padding-bottom:10px;
+font-weight:bold;
+}	
+#score-left
+{
+float:left;
+margin-left:0px;
+width:100px;
+}
+#score-right
+{
+float:left;
+margin-left:100px;
+width:100px;
+}
+h5
+{
+color:white;
+font-size:14px;
+}
+
+</style>
+</head>
+<body>
+<h1>Cups<br />
+<!-- <input type="button" value="Instructions" onclick="showinstructions()" /> -->
+<input type="button" value="New Game" onclick="initGame()" />
+<input type="button" value="Undo" onclick="undoFn()" />
+ </h1>
+<br />
+<br />
+<div id="optionsdiv">
+
+    <form>
+      
+    </form>
+
+</div>
+<br /><br />
+
+<div id="playdiv">
+<script>
+document.write(makePanel(initBdTab))
+</script>
+</div>
+
+<!-- <br /> -->
+<!-- <center> -->
+<!-- <input type="button" value="Pass" onclick="buttonFn('pass')" /> -->
+<!-- </center> -->
+
+<div id="messageDiv">
+Messages.
+</div>
+
+<br /><br />
+
+<h5>
+This variant of mancala was invented by Arthur and Walt Amberstone and first published in Sid
+Sackson's great collection "A Gamut of Games".  Opponents sit opposite
+and interact only with the containers on their own side.  Those
+containers are a stack, at bottom; a pot, at right; and a row of cups,
+in the center.  Only two kinds of move are possible: <br/>
+(1) sow beans from one cup, one bean at a time into the cups to its
+right, ending exactly in the pot.<br/>
+(2) sow beans from the stack, one into each cup starting with the
+left-most and working to the right, ending with any other cup;<br/>
+For move type (1) exactly the correct number of beans must be in the cup
+so that none are left over after reaching the pot.  For move type (2) if
+the final cup reached with the last bean had been empty the player
+captures the opponent's stones directly across from it, and these are
+placed in the player's pot.  If a player has no possible moves he must
+pass, and when both players have passed the game ends and the player
+with more beans in his pot wins.
+<br/><br/>
+In this implementation moves of type 1 are made by simply clicking on
+the cup you want to sow from.  Type 2 moves are made by first clicking
+on your stack, then on the cup you want to sow <i>to</i>, i.e. cup
+that gets the last stone.
+</h5>
+
+<!-- <div id="score"> -->
+<!-- Score -->
+<!-- </div> -->
+<!-- <div id="score-left"> -->
+<!-- Human: 0  -->
+<!-- </div> -->
+<!-- <div id="score-right"> -->
+<!-- Computer: 0  -->
+<!-- </div> -->
+
+
+</body>
+</html>
+

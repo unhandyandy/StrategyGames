@@ -1,6 +1,6 @@
 // -*-js-*-
 
-// Cups
+// Oware
 
 /*jslint browser: true, devel: true, es5: true */
 
@@ -15,15 +15,17 @@
 
 switchPlayers = false;
 
-var desiredDepth = 8;
+var desiredDepth = 4;
 
-var numberCups = 4;
+var numberCups = 3;
+
+var numberSeedsPerCup = 2;
 
 
 function makeInitBdTab(){
     "use strict";
     var res = [], i, row = [];
-    res.push( [ ["  ", [0,0], {'height' : 80, 'width' : 160, 'fontsize' : 16}] ] );
+    //res.push( [ ["  ", [0,0], {'height' : 80, 'width' : 160, 'fontsize' : 16}] ] );
     row.push( ["  ", [1,0], {'height' : 80, 'width' : 160, 'fontsize' : 16}] );
     for( i = 1; i <= numberCups; i++ ){
 	row.push(["  ", [1,i],{'height' : 80, 'width' : 80, 'fontsize' : 16}]);
@@ -38,8 +40,8 @@ function makeInitBdTab(){
 	}
     row.push( ["  ", [2, numberCups + 1 ], {'height' : 80, 'width' : 160, 'fontsize' : 16}] );
     res.push( row );
-    res.push( [ ["  ", [3,0], {'height' : 80, 'width' : 160, 'fontsize' : 16}] ] );
-    res.push( [ ["Pass", [4,0], {'height' : 80, 'width' : 80, 'fontsize' : 16}] ] );
+    //res.push( [ ["  ", [3,0], {'height' : 80, 'width' : 160, 'fontsize' : 16}] ] );
+    //res.push( [ ["Pass", [4,0], {'height' : 80, 'width' : 80, 'fontsize' : 16}] ] );
     return res;
 }
 
@@ -50,10 +52,10 @@ var initBdTab = makeInitBdTab();
 function poscurToDisplay(pos){
     "use strict";
     var bd = [];
-    bd.push( [ pos.stacks.a ] );
+    //bd.push( [ pos.stacks.a ] );
     bd.push( [ pos.pots.a ].concat( pos.cups.a.clone() ).concat( [ " " ] ) );
     bd.push( [ " " ].concat( pos.cups.b.clone().reverse() ).concat( [ pos.pots.b ] ) );
-    bd.push( [ pos.stacks.b ] );
+    //bd.push( [ pos.stacks.b ] );
     return bd;
 }
 
@@ -74,10 +76,10 @@ function spanList( lst ){
 var blankRow = makeConstantArraySimp( 0, numberCups );
 
 
-var cupsPos = {
+var owarePos = {
     "cups": { a: blankRow.clone(), b: blankRow.clone() },
     "pots": { a: 0, b: 0 },
-    "stacks": { a: 10*numberCups, b: 10*numberCups },
+    //"stacks": { a: 10*numberCups, b: 10*numberCups },
     "plyr": "a",
     "clone": function(){
 	"use strict";
@@ -89,11 +91,10 @@ var cupsPos = {
 	newob.pots = {};
 	newob.pots.a = this.pots.a;
 	newob.pots.b = this.pots.b;
-	newob.stacks = {};
-	newob.stacks.a = this.stacks.a;
-	newob.stacks.b = this.stacks.b;
+	//newob.stacks = {};
+	//newob.stacks.a = this.stacks.a;
+	//newob.stacks.b = this.stacks.b;
 	newob.plyr = this.plyr;
-	//newob = Object.clone( this );
 	return newob;
     },
    "equal": function( pos ){
@@ -102,8 +103,8 @@ var cupsPos = {
 	       equalLp( this.cups.b, pos.cups.b ) &&
 	       this.pots.a === pos.pots.a &&
 	       this.pots.b === pos.pots.b &&
-	       this.stacks.a === pos.stacks.a &&
-	       this.stacks.b === pos.stacks.b &&
+	       //this.stacks.a === pos.stacks.a &&
+	       //this.stacks.b === pos.stacks.b &&
                this.plyr === pos.plyr;
     },
     "opposite": function( p ){
@@ -112,16 +113,16 @@ var cupsPos = {
 	}
 };
 
-var posInit = cupsPos.clone();
-//posInit.plyr = cupsPos.opposite( posInit.plyr );
+var posInit = owarePos.clone();
+//posInit.plyr = owarePos.opposite( posInit.plyr );
 
 function makePosInit(){
     "use strict";
-    posInit.plyr = cupsPos.opposite( posInit.plyr );
+    posInit.plyr = owarePos.opposite( posInit.plyr );
     return posInit.clone();
 }
 
-numChoices = 12;
+numChoices = 6;
 
 //make list of all possible bean moves
 function makeAllMoves( n ){
@@ -129,10 +130,10 @@ function makeAllMoves( n ){
     var ones, twos;
     if ( n === undefined ){
 	n = numberCups;}
-    ones = matrixTranspose( [ numberSequence( 1, n )  ] );
-    twos = ones.map( function( l ){ 
-	return [ 0 ].concat( l );} );
-    return ones.concat( twos );
+    return matrixTranspose( [ numberSequence( 1, n )  ] );
+    // twos = ones.map( function( l ){ 
+    // 	return [ 0 ].concat( l );} );
+    // return ones.concat( twos );
 }
 
 var allMoves = makeAllMoves();
@@ -155,10 +156,10 @@ function moveSortVal(pos,mv){
 }
 
 //correspong cup number of opposite player
-function oppCup(n){
-    "use strict";
-    return numberCups - 1 - n;
-}
+// function oppCup(n){
+//     "use strict";
+//     return numberCups - 1 - n;
+//}
 
 function sortMoves(pos,mvs){
      "use strict";
@@ -169,10 +170,15 @@ function sortMoves(pos,mvs){
 //check whether a move is valid
 function checkMoveQ( mv, pos ){
     "use strict";
-    if ( mv.length === 1 ){
-	return mv[0] === pos.cups[ pos.plyr ][ mv[0] - 1 ];}
-    else {
-	return pos.stacks[ pos.plyr ] >= mv[1];}
+    // if ( mv.length === 1 ){
+    // 	return mv[0] === pos.cups[ pos.plyr ][ mv[0] - 1 ];}
+    // else {
+    // 	return pos.stacks[ pos.plyr ] >= mv[1];}
+    // check that moves leaves non zero seeds for opponent
+    var cupnum = mv[0],
+	numseeds = pos.cups[ pos.plyr ][ cupnum - 1 ];
+    return  numseeds > 0 && 
+	( pos.numseeds[ pos.plyr ] > 0 || numseeds >= cupnum );
 }
 
 //translate shorthand notation of move to button notation
