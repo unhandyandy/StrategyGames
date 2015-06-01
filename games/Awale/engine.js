@@ -264,8 +264,8 @@ function movesFromPos(pos){
         fun = function(m){ return checkMoveQ( m, pos ); };
     res = res.filter( fun );
     res = mapLp( res, function(m){ return shortToButt( m, p ); } );
-    if (res.length === 0 ){
-	res = [ [ [4,0] ] ];}
+    // if (res.length === 0 ){
+    // 	res = [ [ [4,0] ] ];}
     return res;
 }
 
