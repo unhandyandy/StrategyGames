@@ -113,13 +113,19 @@ var owarePos = {
     },
     "next": function( old ){
 	"use strict";
+	return this.neighbor( old, ( row === "a" ) ? 1 : -1 );
+    },
+    "previous": function( old ){
+	"use strict";
+	return this.neighbor( old, ( row === "b" ) ? 1 : -1 );
+    },
+    "neighbor": function( old, del ){
+	"use strict";
 	var row = old[0],
-	    cup = old[1],
+	    col = old[1],
 	    newrow = row,
-	    newcup = cup,
-	    del;
-	del = ( row === "a" ) ? -1 : 1;
-	newcup += del;
+	    newcol = col;
+	newcol += del;
 	if ( newcup < 0 || newcup >= numberCups ){
 	    newrow = this.opposite( row );
 	    newcup = ( 1 - del ) / 2 * numberCups; }
@@ -141,6 +147,20 @@ var owarePos = {
 	    col = cup[1];
 	this.cups[ row ][ col ] = num;
     },
+    "scoreMove": function( cup ){
+	"use strict";
+	var p = this.plyr,
+	    q = this.opposite( p ),
+	    row = cup[0],
+	    col = cup[1],
+	    curcup = cup;
+	if ( row !== q ){
+	    return(); }
+	while( curcup[0] === q && this.getCup( curcup ) > 1 && this.getCup( cup ) < 4 ){
+	    this.pot[p] += this.getCup( curcup );
+	    this.setCup( curcup, 0 );
+	    curcup = this.previous( curcup ); }
+    },
     "sowAux": function( cup, num ){
 	"use strict";
 	var i, curcup = cup;
@@ -154,7 +174,8 @@ var owarePos = {
     "sow": function ( cup ){
 	"use strict";
 	var numseeds = this.getCup( cup ),
-	    
+	    curcup = this.sowaux( cup, numseeds );
+	this.scoreMove( curcup );
     }
 };
 
