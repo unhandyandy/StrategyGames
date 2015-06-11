@@ -49,7 +49,7 @@ function makeInitBdTab() {
 
 var initBdTab = makeInitBdTab();
 
-var newNumberPiece;
+//var newNumberPiece;
 
 var numberPiece = {
     "plyr": 1,
@@ -140,24 +140,10 @@ var arithPos = {
 	this.tab = first.concat( middle ).concat( last );
 	this.goalRows.b = this.white ? rmax : 0;
 	this.goalRows.a = this.white ? 0 : rmax;
-//	this.flags = { "a": 0, "b": 0 };
-	this.setPhase( 3 );
 	this.setMoves();
 	return this; },
     "tab": makeConstantArraySimp(makeConstantArraySimp(0, bdSize ), bdSize ),
     "plyr": 1,
-    "phase": 3,
-    "setPhase": function( ph ){
-	"use strict";
-	this.phase = ph; },
-    "getPhase": function( ){
-	"use strict";
-	return this.phase; },
-    "nextPhase": function(){
-	"use strict";
-	var ph = this.getPhase();
-	this.setPhase( ph < 3 ? ph + 1 : 1 ); },
-//    "flags": { "a": 0, "b": 0 },
     "goalRows": { },
     "getGoalRow": function( p ){
 	"use strict";
@@ -174,15 +160,6 @@ var arithPos = {
     "winForQ": function( p ){
 	"use strict";
 	return this.numCorners( p ) === 2; },
-    // "getFlag": function( p ){
-    // 	"use strict";
-    // 	return ( p === 1 ) ? this.flags.a : this.flags.b; },
-    // "setFlag": function( p, v ){
-    // 	"use strict";
-    // 	if ( p === 1 ){
-    // 	    this.flags.a = v; }
-    // 	else{
-    // 	    this.flags.b = v; } },
     "white": false,
     "getPlayer": function(){
 	"use strict";
@@ -199,17 +176,12 @@ var arithPos = {
 	res.tab = this.tab.clone();
 	res.white = this.white;
 	res.moves = this.moves.clone();
-//	res.flags = { "a": this.getFlag( 1 ), "b": this.getFlag( 2 ) };
 	res.goalRows = this.goalRows;
-	res.setPhase( this.getPhase() );
 	return res; },
     "equal": function(pos) {
         "use strict";
         return equalLp(this.getNumberTab(), pos.getNumberTab() ) && 
-	    this.getPlayer() === pos.getPlayer() &&
-	    //this.getFlag( 1 ) === pos.getFlag( 1 ) &&
-	    //this.getFlag( 2 ) === pos.getFlag( 2 ) &&
-	    this.getPhase() === pos.getPhase();
+	    this.getPlayer() === pos.getPlayer();
     },
     "getSquare": function( r, c ){
 	"use strict";
@@ -255,8 +227,6 @@ var arithPos = {
 		fun( r, c, pc ); } ); } ); },
     "detMoves": function(){
 	"use strict";
-	if ( this.getPhase() === 2 ){
-	    return [ [ passSq ] ]; }
 	var res = [],
 	    thisplayer = this.getPlayer(),
 	    that = this;
@@ -288,7 +258,6 @@ var arithPos = {
     "updatePos": function( mv ){
 	"use strict";
 	if ( mv[0].equal( passSq )  ){
-	    this.nextPhase();
 	    this.setPlayer( opposite( this.getPlayer() ) );
 	    this.setMoves();
 	    return; }
@@ -315,7 +284,6 @@ var arithPos = {
 	// else{
 	//     this.setFlag( plyr, 0 ); }
 	this.setPlayer( opposite( plyr ) );
-	this.nextPhase();
 	this.setMoves(); },
     "getNumberTab": function(){
 	"use strict";
