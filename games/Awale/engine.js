@@ -169,7 +169,9 @@ var owarePos = {
 	    this.pots[p] += this.getCup( curcup );
 	    this.setCup( curcup, 0 );
 	    curcup = this.previous( curcup ); }
-	if ( this.getNumSeed( q ) === 0 ){
+	if ( this.getNumSeed( q ) === 0 &&
+	     this.getNumSeed( p ) !== 0  &&
+	     this.pots[p] <= numberCups * numberSeedsPerCup ){
 	    this.pots[p] = oldpot;
 	    this.cups[q] = oldrow; }
     },
