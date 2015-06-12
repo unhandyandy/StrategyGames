@@ -8,7 +8,7 @@
   movesFromLoc, flatten1, onBoardQ, makeConstantArraySimp, makeConstantArray, 
   numMvs, cartesianProd, matrixTranspose, postMessage, PositionGrouped, 
   setBGCols, setFGCols, rowLen, gameHistory, posCur, setButtonProps, mapLp, eachLp, equalLp,
-  switchPlayers:true, repetitionQ, numberSequence, setTagOpt, setTagSty, numChoices:true, cloneList, cartesianProduct, previousMov, pmDisabled:true, evenQ */
+  switchPlayers:true, repetitionQ, numberSequence, setTagOpt, setTagSty, numChoices:true, cloneList, cartesianProduct, previousMov, pmDisabled:true, evenQ, numberSeqSum */
 
 // This is a required variable.
 // It represents the default search depth.  
@@ -120,23 +120,24 @@ var arithPos = {
 	var rmax = bdSize - 1,
 	    bdMid = evenQ( bdSize ) ? bdSize / 2 : ( bdSize + 1 ) / 2,
 	    bdMid2 = evenQ( bdSize ) ? bdMid + 1 : bdMid,
-	    bdQuad = bdMid * bdMid2,
-	    //pcval = bdSize * bdSize - 1,
-	    //pcval = bdSize * ( bdSize + 1 ) / 2 + rmax,
-	    //pcval = 2 * bdSize + 1,
-	    //pcval = 3 * rmax,
-	    //pcval = bdQuad + 1,
-	    pcval = (bdMid2 - 1)*(bdMid2 - 1),
+	    totalval = (bdMid2 - 1)*(bdMid2 - 1) * 3,
 	    topp = this.white ? 2 : 1,
-	    botp = opposite( topp ),
-	    //pcval = Math.floor( (bdSize + 1)/2 ),
-	    //first = [ makeConstantArraySimp( newNumberPiece(pcval,1), bdSize ) ],
-	    first = [ [ newNumberPiece(pcval,topp) ].concat( 
-		makeConstantArraySimp( 0, rmax - 1 ).concat( newNumberPiece(pcval,topp) ) ) ],	    
-	    //last = [ makeConstantArraySimp( newNumberPiece(pcval,2), bdSize ) ],
-	    last = [ [ newNumberPiece(pcval,botp) ].concat( makeConstantArraySimp( 0, rmax - 1 ).concat( newNumberPiece(pcval,botp) ) ) ],
+            botp = opposite( topp ),
+	    first = [[],[]],
+	    last = [[],[]],
 	    rowmid = makeConstantArraySimp( 0, bdSize ),
-	    middle = makeConstantArraySimp( rowmid, bdSize - 2 );
+	    middle = makeConstantArraySimp( rowmid, bdSize - 4 ),
+	    i, j, seqiter, pcval;
+	seqiter = numberSeqSum.new( 2*bdSize, totalval );
+	for ( i=0; i<2; i+=1 ){
+	    for( j=0; j<bdSize; j+=1 ){
+		pcval = seqiter.next();
+		first[i].push( pcval===0 ? 0 : newNumberPiece( pcval, topp ) ); }}
+	seqiter = numberSeqSum.new( 2*bdSize, totalval );
+	for ( i = 0; i < 2; i += 1 ){
+	    for( j=0; j<bdSize; j+=1 ){
+		pcval = seqiter.next();
+		last[i].push( pcval===0 ? 0 : newNumberPiece( pcval, botp ) ); }}
 	this.tab = first.concat( middle ).concat( last );
 	this.goalRows.b = this.white ? rmax : 0;
 	this.goalRows.a = this.white ? 0 : rmax;
