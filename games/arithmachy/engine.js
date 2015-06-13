@@ -13,7 +13,7 @@
 // This is a required variable.
 // It represents the default search depth.  
 
-pmDisabled = false;
+pmDisabled = true;
 
 var desiredDepth = 6;
 
