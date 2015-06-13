@@ -96,11 +96,12 @@ function sortMoves(pos, mvs) {
     mvs.sort( function(a,b){ 
 	var targa = pos.getSquare( a[1][0], a[1][1] ),
 	    targb = pos.getSquare( b[1][0], b[1][1] ),
-	    goal = pos.getGoalRow( pos.getPlayer() ),
-	    goalopp = pos.getGoalRow( opposite( pos.getPlayer() ) );
-	if ( a[1][0] === goal || a[1][0] === goalopp ){
+	    rmax = bdSize - 1;
+	if ( ( a[1][0] === 0 || a[1][0] === rmax ) &&
+	     ( a[1][1] === 0 || a[1][1] === rmax ) ){
 	    return -1; }
-	else if ( b[1][0] === goal || b[1][0] === goalopp ){
+	else if ( ( b[1][0] === 0 || b[1][0] === rmax ) &&
+		  ( b[1][1] === 0 || b[1][1] === rmax ) ){
 	    return 1; }
 	else if ( targa === 0 && targb !== 0 ){
 	    return 1; }
