@@ -8,12 +8,14 @@
   movesFromLoc, flatten1, onBoardQ, makeConstantArraySimp, makeConstantArray, 
   numMvs, cartesianProd, matrixTranspose, postMessage, PositionGrouped, 
   setBGCols, setFGCols, rowLen, gameHistory, posCur, setButtonProps, mapLp, eachLp, equalLp,
-  switchPlayers:true, repetitionQ, numberSequence, setTagOpt, setTagSty, numChoices:true, cloneList, cartesianProduct, previousMov, pmDisabled:true, evenQ, numberSeqSum */
+  switchPlayers:true, repetitionQ, numberSequence, setTagOpt, setTagSty, numChoices:true, cloneList, cartesianProduct, previousMov, pmDisabled:true, noComp:true, evenQ, numberSeqSum */
 
 // This is a required variable.
 // It represents the default search depth.  
 
 pmDisabled = true;
+
+noComp = true;
 
 var desiredDepth = 6;
 
@@ -31,7 +33,7 @@ function makeInitBdTab() {
             row.push([ "", [ i, j ], {
                 'height': 80,
                 'width': 80,
-                'fontsize': 32
+                'fontsize': 48
             }]);
         }
         res.push(row);
@@ -117,7 +119,7 @@ function sortMoves(pos, mvs) {
 var arithPos = {
     "initTab": function(){
 	"use strict";
-	this.white = !this.white;
+	//this.white = !this.white;
 	var rmax = bdSize - 1,
 	    bdMid = evenQ( bdSize ) ? bdSize / 2 : ( bdSize + 1 ) / 2,
 	    bdMid2 = evenQ( bdSize ) ? bdMid + 1 : bdMid,
@@ -144,6 +146,19 @@ var arithPos = {
 	this.goalRows.a = this.white ? 0 : rmax;
 	this.setMoves();
 	return this; },
+    "spinTab": function(){
+	"use strict";
+	var row, i, res = [], rmax = bdSize - 1;
+	for ( i=0; i<bdSize; i+=1 ){
+	    row = this.tab.pop();
+	    row.reverse();
+	    res.push( row ); }
+	this.tab = res;
+	this.white = !this.white;
+	this.goalRows.b = this.white ? rmax : 0;
+	this.goalRows.a = this.white ? 0 : rmax;
+    	this.setPlayer( 1 );
+	this.setMoves(); },
     "tab": makeConstantArraySimp(makeConstantArraySimp(0, bdSize ), bdSize ),
     "plyr": 1,
     "goalRows": { },
@@ -162,7 +177,7 @@ var arithPos = {
     "winForQ": function( p ){
 	"use strict";
 	return this.numCorners( p ) === 2; },
-    "white": false,
+    "white": true,
     "getPlayer": function(){
 	"use strict";
 	return this.plyr; },
@@ -290,7 +305,7 @@ var arithPos = {
     "getNumberTab": function(){
 	"use strict";
 	var res = this.tab.map2( function( pc ){
-	    return ( pc === 0 ) ? " " : pc.getValue(); } );
+	    return ( pc === 0 ) ? " " : numberToSymbol( pc.getValue() ); } );
 	return res; },
     "makeHash": function(){
 	"use strict";
@@ -299,13 +314,49 @@ var arithPos = {
 	return [ this.getPlayer(), pos ]; }
 };
 
+function numberToSymbol( n ){
+    "use strict";
+    switch( n ){
+    case  1: return "\u2022";
+    case  2: return "ƨ";
+    case  3: return "\u25b7";
+    case  4: return "\u25A2";
+    case  5: return "\u2605";
+    case  6: return "\u2721";
+//    case  6: return "\u2744";
+    case  7: return "Z";
+    case  8: return "\u2bc3";
+    case  9: return "#";
+//    case 10: return "X";
+    case 10: return "\u2169";
+//    case 11: return "\u21C5";
+    case 11: return "\u296e";
+//    case 12: return "\uD83D\uDD55";
+    case 12: return "\u27F3";
+//    case 13: return "\uD835\uDD10";
+    case 13: return "𝖃";
+    case 14: return "\u2720";
+    default: return n; }
+}
+
+var previousPos = false;
 
 function makePosInit() {
     "use strict";
-    var previous = ( posCur === undefined ) ? arithPos : posCur;
-    previous.setPlayer( 1 );
-    return previous.clone().initTab();
+    if (comp === 2 && previousPos) {
+	previousPos.spinTab();
+        return previousPos;
+    }
+    previousPos = arithPos.clone().initTab();
+    return previousPos.clone();
 }
+
+// function makePosInit() {
+//     "use strict";
+//     var previous = ( posCur === undefined ) ? arithPos : posCur;
+//     previous.setPlayer( 1 );
+//     return previous.clone().initTab();
+// }
 
 function plyrSgn(n) {
     "use strict";

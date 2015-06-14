@@ -239,6 +239,8 @@ function minimaxABaux(pos,depth,player,useThresh,passThresh){
 
 var twoComps = false;
 
+var noComps = false;
+
 var postMortemCheck;
 
 function gameOverQ( mat, plyr ){
@@ -256,6 +258,7 @@ function updatePosCur(newmov){
     histButt = [];
     postPosition(posCur);
     statusN = opposite(statusN);
+    if(noComp){ comp = opposite( comp ); }
 
     if(winQ(posCur,statusN)){
 	postMessage(textWin(statusN));
@@ -416,6 +419,7 @@ var posInit;
 
 function setup(){
     "use strict";
+    var modeBtn;
     setPause(false);
     statusN = 1;
     gameHistory[0] = [];
@@ -426,9 +430,12 @@ function setup(){
     postPosition(posCur);
 
     comp = opposite(comp);
+    modeBtn = document.getElementById("numPlayers2");
+    noComp = modeBtn.getAttribute("checked");
     if(twoComps){
 	comp = statusN;
-    }
+    }else if (noComp){
+	comp = opposite( statusN ); }
     if(comp===statusN){
 	postMessage("Thinking...");
 	setTimeout(compTurn,100);

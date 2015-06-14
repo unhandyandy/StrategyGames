@@ -76,17 +76,25 @@ width:100px;
 </head>
 <body>
 <h1>Number Chess<br />
-<!-- <input type="button" value="Instructions" onclick="showinstructions()" /> -->
+  <!-- <input type="button" value="Instructions" onclick="showinstructions()" /> -->
+  <br /><br />
+  <form>
+  <fieldset>
+    <input type="radio" name="numPlayers" id="numPlayers1" value="1" checked = "checked" />
+<label for="numPlayers1">1 Player</label>
+  <input type="radio" name="numPlayers" id = "numPlayers2" value="2" />
+  <label for="numPlayers2">2 Players</label>
+  </form>
+<br /><br />
 <input type="button" value="New Game" onclick="initGame()" />
 <input type="button" value="Undo" onclick="undoFn()" />
  </h1>
 <br />
 <div id="optionsdiv">
 
-    <form>
-      
+ </fieldset>
     </form>
-
+      
 </div>
 
 <div id="playdiv">
