@@ -258,7 +258,7 @@ function updatePosCur(newmov){
     histButt = [];
     postPosition(posCur);
     statusN = opposite(statusN);
-    if(noComp){ comp = opposite( comp ); }
+    if(noComps){ comp = opposite( comp ); }
 
     if(winQ(posCur,statusN)){
 	postMessage(textWin(statusN));
@@ -431,10 +431,10 @@ function setup(){
 
     comp = opposite(comp);
     modeBtn = document.getElementById("numPlayers2");
-    noComp = modeBtn.getAttribute("checked");
+    noComps = modeBtn.getAttribute("checked");
     if(twoComps){
 	comp = statusN;
-    }else if (noComp){
+    }else if (noComps){
 	comp = opposite( statusN ); }
     if(comp===statusN){
 	postMessage("Thinking...");
