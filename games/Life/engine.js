@@ -279,15 +279,21 @@ function bgColor( loc ){
 	c = loc[1] + 1,
 	locp = posCur.getSquare( r, c ),
 	death = posCur.deatherQ( r, c, 1 ) || posCur.deatherQ( r, c, 2 ),
-	birth = posCur.birtherQ( r, c, 1 ) || posCur.birtherQ( r, c, 2 ),
+	birth1 = posCur.birtherQ( r, c, 1 ),
+	birth2 = posCur.birtherQ( r, c, 2 ),
 	res = "";
-    if ( death || birth ){
+    if ( death ){
 	if ( locp === 1 ){
 	    res += "lightblue"; }
 	else if ( locp === 2 ){
-	    res += "orange"; }
+	    res += "orange"; } }
+    else if ( birth1 ){
+	if ( !birth2 ){
+	    res += "#566c7b"; }
 	else{
 	    res += "darkgray"; } }
+    else if ( birth2 ){
+	    res += "#7f5200"; }
     else{
 	if ( locp === 1 ){
 	    res += "blue"; }
