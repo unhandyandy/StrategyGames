@@ -345,7 +345,8 @@ function numberToSymbol( n ){
 //    case 11: return "\u21C5";
     case 11: return "\u296e";
 //    case 12: return "\uD83D\uDD55";
-    case 12: return "\u27F3";
+//    case 12: return "\u27F3";
+    case 12: return "\u2600";
 //    case 13: return "\uD835\uDD10";
 	//    case 13: return "𝖃";
     case 13: return "\uD835\uDD83";
