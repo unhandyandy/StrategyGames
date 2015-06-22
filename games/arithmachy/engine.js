@@ -95,19 +95,32 @@ function newNumberPiece( v, p ){
 
 function sortMoves(pos, mvs) {
     "use strict";
+    var p,q,goalp,goalq;
+    p = pos.getPlayer();
+    q = opposite( p );
+    goalp = pos.getGoalRow( p );
+    goalq = pos.getGoalRow( q );
     mvs.sort( function(a,b){ 
 	var targa = pos.getSquare( a[1][0], a[1][1] ),
 	    targb = pos.getSquare( b[1][0], b[1][1] ),
 	    rmax = bdSize - 1;
-	if ( ( a[1][0] === 0 || a[1][0] === rmax ) &&
-	     ( a[1][1] === 0 || a[1][1] === rmax ) ){
+	if      ( a[1][0] === goalp &&
+	          ( a[1][1] === 0 || a[1][1] === rmax ) ){
 	    return -1; }
-	else if ( ( b[1][0] === 0 || b[1][0] === rmax ) &&
+	else if ( b[1][0] === goalp &&		  
 		  ( b[1][1] === 0 || b[1][1] === rmax ) ){
 	    return 1; }
-	else if ( targa === 0 && targb !== 0 ){
+	else if ( a[1][0] === goalq &&
+		  targa !== 0 && targa.getPlayer() === q &&
+		  ( a[1][1] === 0 || a[1][1] === rmax ) ){
+	    return -1; }
+	else if ( b[1][0] === goalq &&
+		  targb !== 0 && targb.getPlayer() === q &&
+		  ( b[1][1] === 0 || b[1][1] === rmax ) ){
 	    return 1; }
-	else if ( targa !== 0 && targb === 0 ){
+	else if ( targa === 0 && targb !== 0 && targb.getPlayer() === q ){
+	    return 1; }
+	else if ( targa !== 0 && targb === 0 && targa.getPlayer() === q ){
 	    return -1; }
 	else {
 	    return 0; } } );
@@ -318,14 +331,13 @@ function numberToSymbol( n ){
     "use strict";
     switch( n ){
     case  1: return "\u2022";
-    case  2: return "ƨ";
+    case  2: return "\u01a8";
     case  3: return "\u25b7";
     case  4: return "\u25A2";
     case  5: return "\u2605";
     case  6: return "\u2721";
 //    case  6: return "\u2744";
     case  7: return "Z";
-//    case  8: return "\u2bc3";
     case  8: return "\u2600";
     case  9: return "#";
 //    case 10: return "X";
@@ -333,12 +345,14 @@ function numberToSymbol( n ){
 //    case 11: return "\u21C5";
     case 11: return "\u296e";
 //    case 12: return "\uD83D\uDD55";
-//    case 12: return "\u2609";
+//    case 12: return "\u27F3";
     case 12: return "\u2739";
-//    case 12: return "\u2941";
 //    case 13: return "\uD835\uDD10";
-    case 13: return "𝖃";
+	//    case 13: return "𝖃";
+    case 13: return "\uD835\uDD83";
     case 14: return "\u2720";
+    case 15: return "\u272D";
+    case 16: return "\u2638";
     default: return n; }
 }
 
@@ -366,7 +380,7 @@ function plyrSgn(n) {
     return 3 - 2 * n;
 }
 
-numChoices = 12;
+numChoices = 10;
 
 
 function movesFromPos(pos, plyr) {
