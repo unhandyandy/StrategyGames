@@ -338,7 +338,7 @@ function numberToSymbol( n ){
     case  6: return "\u2721";
 //    case  6: return "\u2744";
     case  7: return "Z";
-    case  8: return "\u263C";
+    case  8: return "\u2600";
     case  9: return "#";
 //    case 10: return "X";
     case 10: return "\u2169";
@@ -346,11 +346,13 @@ function numberToSymbol( n ){
     case 11: return "\u296e";
 //    case 12: return "\uD83D\uDD55";
 //    case 12: return "\u27F3";
-    case 12: return "\u2600";
+    case 12: return "\u2739";
 //    case 13: return "\uD835\uDD10";
 	//    case 13: return "𝖃";
     case 13: return "\uD835\uDD83";
     case 14: return "\u2720";
+    case 15: return "\u272D";
+    case 16: return "\u2638";
     default: return n; }
 }
 
@@ -378,7 +380,7 @@ function plyrSgn(n) {
     return 3 - 2 * n;
 }
 
-numChoices = 12;
+numChoices = 10;
 
 
 function movesFromPos(pos, plyr) {
