@@ -380,7 +380,7 @@ function plyrSgn(n) {
     return 3 - 2 * n;
 }
 
-numChoices = 10;
+numChoices = 9;
 
 
 function movesFromPos(pos, plyr) {
@@ -444,14 +444,15 @@ function gameOverQ(pos, plyr) {
 function scorePos( pos ) {
     "use strict";
     var res1 = 0, 
-	res2 = 0;
+	res2 = 0,
+	sum = 0;
     function score( pc ){
-	if ( pc.piece.getPlayer() === 1 ){
-	    res1 += pc.piece.getValue(); }
-	else{
-	    res2 += pc.piece.getValue(); } }
+	    sum += pc.piece.getValue(); }
     pos.eachPiece( score, 1 );
+    res1 = sum;
+    sum = 0;
     pos.eachPiece( score, 2 );
+    res2 = sum;
     return res1 - res2; }
 
 // Score returned is always from player 1's viewpoint.
@@ -481,8 +482,8 @@ function evalPosUncert(pos) {
     "use strict";
     var p = pos.getPlayer(),
 	q = opposite( p ),
-	flagCon = 1,
-	flagConOpp = 0.5;
+	flagCon = 3,
+	flagConOpp = 1.5;
     return plyrSgn( p ) * scorePos( pos ) + 
 	flagCon * pos.numCorners( p ) - flagConOpp * pos.numCorners( q );
  }
