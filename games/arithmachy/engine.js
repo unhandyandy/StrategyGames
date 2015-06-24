@@ -38,14 +38,6 @@ function makeInitBdTab() {
         }
         res.push(row);
     }
-    res.push([
-        ["Pass", passSq, {
-            'height': 80,
-            'width': 160,
-            'fontsize': 24,
-    'bg': "white"
-        }]
-    ]);
     return res;
 }
 
