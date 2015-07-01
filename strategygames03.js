@@ -431,7 +431,10 @@ function setup(){
 
     comp = opposite(comp);
     modeBtn = document.getElementById("numPlayers2");
-    noComps = modeBtn.getAttribute("checked");
+    if ( modeBtn ){
+	noComps = modeBtn.getAttribute("checked"); }
+    else {
+	noComps = false; }
     if(twoComps){
 	comp = statusN;
     }else if (noComps){
