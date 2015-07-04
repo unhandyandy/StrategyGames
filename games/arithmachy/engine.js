@@ -324,7 +324,8 @@ function numberToSymbol( n ){
     switch( n ){
     case  1: return "\u2022";
 //    case  2: return "\u01a8";
-    case  2: return "ø";
+//    case  2: return "ø";
+    case  2: return "s";
     case  3: return "\u25b7";
 //    case  4: return "\u25A2";
     case  4: return "\u25A1";
