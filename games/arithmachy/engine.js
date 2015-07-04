@@ -323,17 +323,20 @@ function numberToSymbol( n ){
     "use strict";
     switch( n ){
     case  1: return "\u2022";
-    case  2: return "\u01a8";
+//    case  2: return "\u01a8";
+    case  2: return "ø";
     case  3: return "\u25b7";
 //    case  4: return "\u25A2";
     case  4: return "\u25A1";
 	//    case 4: return "<img src=http://www.fileformat.info/info/unicode/char/25a2/white_square_with_rounded_corners.png style='height:0.8em;' class=char />";
-    case  5: return "\u2605";
+//    case  5: return "\u2605";
+    case  5: return "Η";
 //    case  5: return "\u2B53";
     case  6: return "\u2721";
 //    case  6: return "\u2744";
     case  7: return "Z";
-    case  8: return "\u2600";
+//    case  8: return "\u2600";
+    case  8: return "҉";
     case  9: return "#";
 //    case 10: return "X";
     case 10: return "\u2169";
