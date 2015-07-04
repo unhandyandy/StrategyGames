@@ -336,7 +336,7 @@ function numberToSymbol( n ){
 //    case  6: return "\u2744";
     case  7: return "Z";
 //    case  8: return "\u2600";
-    case  8: return "u2734";
+    case  8: return "\u2734";
     case  9: return "#";
 //    case 10: return "X";
     case 10: return "\u2169";
