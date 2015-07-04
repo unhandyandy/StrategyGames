@@ -1,0 +1,3 @@
+[submodule "games/BullsAndCows"]
+	path = games/BullsAndCows
+	url = https://github.com/unhandyandy/BullsAndCows.git
