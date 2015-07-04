@@ -326,7 +326,7 @@ function numberToSymbol( n ){
     case  2: return "\u01a8";
     case  3: return "\u25b7";
     case  4: return "\u25A2";
-//    case 4: return "<img src=http://www.fileformat.info/info/unicode/char/25a2/white_square_with_rounded_corners.png style='height:0.8em;' class=char />";
+	//    case 4: return "<img src=http://www.fileformat.info/info/unicode/char/25a2/white_square_with_rounded_corners.png style='height:0.8em;' class=char />";
     case  5: return "\u2605";
     case  6: return "\u2721";
 //    case  6: return "\u2744";
@@ -476,7 +476,7 @@ function evalPosUncert(pos) {
     var p = pos.getPlayer(),
 	q = opposite( p ),
 	flagCon = 6,
-	flagConOpp = 3;
+	flagConOpp = 5;
     return plyrSgn( p ) * scorePos( pos ) + 
 	flagCon * pos.numCorners( p ) - flagConOpp * pos.numCorners( q );
  }
