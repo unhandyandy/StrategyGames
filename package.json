@@ -1,0 +1,7 @@
+{
+    "name": "StrategyGames",
+    "main": "index.html",
+    "scripts": {
+	"start": "nw"
+    }
+}
