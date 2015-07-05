@@ -331,7 +331,7 @@ function numberToSymbol( n ){
     case  4: return "\u25A1";
 	//    case 4: return "<img src=http://www.fileformat.info/info/unicode/char/25a2/white_square_with_rounded_corners.png style='height:0.8em;' class=char />";
 //    case  5: return "\u2605";
-    case  5: return "Η";
+    case  5: return "H";
 //    case  5: return "\u2B53";
     case  6: return "\u2721";
 //    case  6: return "\u2744";
@@ -350,7 +350,8 @@ function numberToSymbol( n ){
 //    case 13: return "\uD835\uDD10";
 	//    case 13: return "𝖃";
 //    case 13: return "\uD835\uDD83";
-    case 13: return "Ж";
+    case 13: return "}{";
+//    case 13: return "Ж";
     case 14: return "\u2720";
     case 15: return "\u272D";
     case 16: return "\u2638";
