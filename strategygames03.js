@@ -749,3 +749,85 @@ function setFGCols( colorFun ){
     };
     eachLp( locs, fun );
 }
+
+// p2p setup
+
+function makeP2PControls(){
+    "use strict";
+    var p2pControls, lbl1,lbl2,buttn,ta1,ta2;
+    ta1 = document.createElement('input');
+    ta1.type = 'text';
+    ta1.id = 'emailAddr';
+    lbl1 = document.createElement('label');
+    lbl1.appendChild(document.createTextNode("Email Address:"));
+    lbl1.appendChild(ta1);
+    ta2 = document.createElement('input');
+    ta2.type = 'text';
+    ta2.id = 'signal';
+    lbl2 = document.createElement('label');
+    lbl2.appendChild(document.createTextNode("Handshake:"));
+    lbl2.appendChild(ta2);
+    button = document.createElement('button');
+    button.type = 'submit';
+    button.appendChild(document.createTextNode('Signal'));
+    p2pControls = document.createElement('form');
+    p2pControls.appendChild(lbl1);
+    p2pControls.appendChild(button);
+    p2pControls.appendChild(lbl2);
+    return p2pControls; }
+
+function installP2PControls(){
+    "use strict";
+    var node, parent, pos;
+    node = makeP2PControls();
+    parent = document.getElementsByTagName('body')[0];
+    pos = parent.firstChild;
+    return pos.insertBefore( node, pos ); }
+
+var Peer = window.SimplePeer
+var p = new Peer({ initiator: location.hash === '#1', trickle: false })
+var invitation = ""
+
+p.on('error', function (err) { console.log('error', err) })
+
+function sendMail() {
+    var link = "mailto:" + escape(document.getElementById('emailAddr').value) +
+               "?subject=" + escape("Game Invitation") +
+               "&body=" + JSON.stringify(invitation);
+    window.location.href = link; }
+
+p.on('signal', function (data) {
+  invitation = JSON.stringify(data)
+  console.log('SIGNAL', invitation)
+})
+
+document.getElementById('signal').addEventListener('paste', function(e){
+    p.signal(JSON.parse(e.clipboardData.getData('text/plain')))
+})
+
+document.querySelector('form').addEventListener('submit', function (ev) {
+  ev.preventDefault()
+  sendMail()
+})
+
+function updateThread( text, color ){
+    document.querySelector('#thread').innerHTML += "<br/><br/>" + "<span style='color:" + color + "'>" + text + "</span>"
+}
+
+document.querySelector('#type').addEventListener('keypress', function (ev) {
+  if ( ev.keyCode === 13 ){ 
+    var ta = document.querySelector('#type')
+    var text = ta.value
+    ta.value = ""
+    updateThread( text, "black" )
+    p.send(text) }
+})
+
+p.on('connect', function () {
+  console.log('CONNECT')
+})
+
+p.on('data', function (data) {
+  console.log('data: ' + data)
+  updateThread( data, "blue" )
+})
