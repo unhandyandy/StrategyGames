@@ -21,6 +21,8 @@ var bdSize = 6;
 
 var passSq = [ bdSize, 1];
 
+var recycleQ = false;
+
 function makeInitBdTab() {
     "use strict";
     var res = [],
@@ -76,10 +78,12 @@ function fillBdRandom( pos, pieces ){
 		    pos.setSquare( r, c, curpc );
 		    break kindsLoop; } } } } }
 
-
+// necessary for p2p
+var typeList = ['lifePos' ];
 
 //  p = player number = 1 or 2
 var lifePos = {
+    "prototypeName": 'lifePos',
     "initTab": function(){
 	"use strict";
 	var numsqs = Math.pow( bdSize, 2 ),
@@ -170,10 +174,8 @@ var previousPos;
 
 function makePosInit() {
     "use strict";
-    if (comp === 2) {
-        return previousPos;
-    }
-    previousPos = lifePos.clone().initTab();
+    if ( !recycleQ ) {
+	previousPos = lifePos.clone().initTab(); }
     return previousPos.clone();
 }
 

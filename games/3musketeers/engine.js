@@ -19,6 +19,8 @@ var rectSize = 5;
 
 var numLocs = rectSize * rectSize;
 
+var recycleQ = false;
+
 function plyrSgn(n){
     "use strict";
     return 3 - 2*n;
@@ -48,9 +50,11 @@ function distFromLine( pos ){
     return Math.min( spanList( coords[0] ), spanList( coords[1] ) ); 
 }
 
-
+// necessary for p2p
+var typeList = ['muskPos' ];
 
 var muskPos = {
+    "prototypeName": 'muskPos',
     "tab": [],
     "a": [],
     "b": [],

@@ -77,6 +77,15 @@ font-size:14px;
 <body>
 <h1>Life &amp; <span style="color:Black">Death</span><br />
 <!-- <input type="button" value="Instructions" onclick="showinstructions()" /> -->
+  <br /><br />
+  <form>
+  <fieldset>
+    <input type="radio" name="numPlayers" id="numPlayers1" value="1" checked="true" onclick="numPlayersFun()" />
+<label for="numPlayers1">1 Player</label>
+  <input type="radio" name="numPlayers" id = "numPlayers2" value="2" onclick="numPlayersFun()" />
+  <label for="numPlayers2">2 Players</label>
+  </form>
+<br /><br />
 <input type="button" value="New Game" onclick="initGame()" />
 <input type="button" value="Undo" onclick="undoFn()" />
  </h1>

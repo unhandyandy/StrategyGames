@@ -161,19 +161,19 @@ var arithPos = {
 	this.goalRows.a = this.white ? 0 : rmax;
 	this.setMoves();
 	return this; },
-    "spinTab": function(){
-	"use strict";
-	var row, i, res = [], rmax = bdSize - 1, bdtab;
-	for ( i=0; i<bdSize; i+=1 ){
-	    row = this.tab.pop();
-	    row.reverse();
-	    res.push( row ); }
-	this.tab = res;
-	this.white = !this.white;
-	this.goalRows.b = this.white ? rmax : 0;
-	this.goalRows.a = this.white ? 0 : rmax;
-    	this.setPlayer( 1 );
-	this.setMoves(); },
+    // "spinTab": function(){
+    // 	"use strict";
+    // 	var row, i, res = [], rmax = bdSize - 1, bdtab;
+    // 	for ( i=0; i<bdSize; i+=1 ){
+    // 	    row = this.tab.pop();
+    // 	    row.reverse();
+    // 	    res.push( row ); }
+    // 	this.tab = res;
+    // 	this.white = !this.white;
+    // 	this.goalRows.b = this.white ? rmax : 0;
+    // 	this.goalRows.a = this.white ? 0 : rmax;
+    // 	this.setPlayer( 1 );
+    // 	this.setMoves(); },
     "tab": makeConstantArraySimp(makeConstantArraySimp(0, bdSize ), bdSize ),
     "plyr": 1,
     "goalRows": { },
@@ -369,11 +369,11 @@ function numberToSymbol( n ){
     default: return n; }
 }
 
-function setBdTab( flip ){
-    "use strict";
-    var bdtab;
-    bdtab = makeInitBdTab( flip );
-    document.getElementById('playdiv').innerHTML = makePanel( bdtab ); }
+// function setBdTab( flip ){
+//     "use strict";
+//     var bdtab;
+//     bdtab = makeInitBdTab( flip );
+//     document.getElementById('playdiv').innerHTML = makePanel( bdtab ); }
 
 var previousPos = false;
 
@@ -381,15 +381,15 @@ function makePosInit() {
     "use strict";
     var bdtab;
     //if ( !noComps && comp === 2 && previousPos ) {
-    if( recycleQ ){
-	previousPos.spinTab(); 
+    if( !recycleQ ){
+    // previousPos.spinTab(); 
     // else if ( noComps && comp === 2 ){
     // 	previousPos = arithPos.clone().initTab().spinTab();
     // 	setBdTab( true );
     // }else if( noComps && comp === 1 ){
     // 	previousPos = arithPos.clone().initTab(); 
     // 	setBdTab( false );
-    }else{
+    // }else{
 	previousPos = arithPos.clone().initTab(); }
     recycleQ = !recycleQ;
     return previousPos.clone();

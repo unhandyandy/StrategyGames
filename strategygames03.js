@@ -798,7 +798,7 @@ function makeP2PControls(){
     script.type = 'text/javascript';
     script.src = '../../simplepeer.js';
     p2pControls = document.createElement('form');
-    //p2pControls.appendChild(lbl1);
+    p2pControls.appendChild(lbl1);
     p2pControls.appendChild(button);
     p2pControls.appendChild(lbl2);
     p2pControls.appendChild(script);
@@ -934,3 +934,16 @@ function deFlatStringifyRec( obj ){
 	return res; 
     }else{
 	return obj; } }
+
+// function flipBdTab( tab ){
+//     "use strict";
+//     var len = tab.length,
+// 	row,
+// 	newtab = tab.clone(),
+// 	i,
+// 	res = [];
+//     for ( i=0; i< len; i+=1 ){
+// 	row = newtab.pop();
+// 	row.reverse();
+// 	res.push( row ); }
+//     return res; }
