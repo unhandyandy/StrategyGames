@@ -819,7 +819,7 @@ function installP2PControls(){
 	    createPeer(true); }
 	else{
 	    createPeer(false);
-	    peerbot.signal(JSON.parse(signal)); }
+	    setTimeout( peerbot.signal(JSON.parse(signal)), 200 ); }
 	setTimeout( sendMail, 200 );
     }; }
 
