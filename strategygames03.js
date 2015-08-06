@@ -30,6 +30,12 @@ var messageHist = ["","","","",""];
 
 var switchPlayers = true;
 
+var twoComps = false;
+
+var noComps = false;
+
+var postMortemCheck;
+
 
 function postMessage(txt){
     "use strict";
@@ -237,12 +243,6 @@ function minimaxABaux(pos,depth,player,useThresh,passThresh){
     }
 }
 
-var twoComps = false;
-
-var noComps = false;
-
-var postMortemCheck;
-
 function gameOverQ( mat, plyr ){
     "use strict";
     return winQ( mat, plyr ) ||  lossQ( mat, plyr )  || drawQ( mat, plyr );
@@ -258,7 +258,7 @@ function updatePosCur(newmov){
     histButt = [];
     postPosition(posCur);
     statusN = opposite(statusN);
-    if(noComps){ comp = opposite( comp ); }
+    //if(noComps){ comp = opposite( comp ); }
 
     if(winQ(posCur,statusN)){
 	postMessage(textWin(statusN));
@@ -290,44 +290,30 @@ function moveToString( mov ){
     return( mov.join() );
 }
 
-
 function compTurn(){
     "use strict";
-    var mvs = movesFromPos(posCur,statusN), mov, newcalc;
-
-    if(mvs.length===0){
-	postPosition(posCur);	
-    }
-    else if(mvs.length===1){
-	mov = mvs[0];
-	updatePosCur(mov);
-    }else{
-	// var newdep = getDepth(JSON.stringify(posCur),statusN);
-	// if(newdep<0){
-	//     newdep = desiredDepth;
-	// };
-	newcalc = minimaxAB(posCur,desiredDepth,statusN);
-	mov = nextMove(newcalc);
-	// var val = moveValue( newcalc );
-	// console.log( "val = ", val );
-	updatePosCur(mov);
-    }
-    if(!pauseQ){
-	postMessage( "Computer played " + moveToString( mov ) );
-	if(!twoComps){
-	    postMessage( "Your move." );
+    var mvs, mov, newcalc;
+    if ( !noComps ){
+	mvs = movesFromPos(posCur,statusN)
+	if(mvs.length===0){
+	    postPosition(posCur);	
+	}
+	else if(mvs.length===1){
+	    mov = mvs[0];
+	    //updatePosCur(mov);
 	}else{
-	    comp = opposite(comp);
-	    postMessage( "Thinking..." );
-	    setTimeout(compTurn,100);
-	}	
-    }
-}
-
-
-
-
-
+	    // var newdep = getDepth(JSON.stringify(posCur),statusN);
+	    // if(newdep<0){
+	    //     newdep = desiredDepth;
+	    // };
+	    newcalc = minimaxAB(posCur,desiredDepth,statusN);
+	    mov = nextMove(newcalc);
+	    // var val = moveValue( newcalc );
+	    // console.log( "val = ", val );
+	    //updatePosCur(mov);
+	}
+	postMove(mov,"opp");
+    } }
 
 
 
@@ -399,11 +385,11 @@ function defineMinimaxCache(){
 //initialize the scores
 function defineScores(){
     "use strict";
-     if( localStorage.hasOwnProperty( gameName + "_scores" ) ){
+    if( localStorage.hasOwnProperty( gameName + "_scores" ) ){
 	try {
 	    scores = JSON.parse(localStorage[gameName+"_scores"]);
 	} catch (x) {
-	     //scores = { "H": 0, "J": 0 };
+	    //scores = { "H": 0, "J": 0 };
 	}	
     }
 }
@@ -417,40 +403,55 @@ function clearAllCaches(){
 
 var posInit;
 
-function setup(){
+function setup( you, posInit ){
     "use strict";
-    var modeBtn;
+    var modeBtn, pyou;
+    pyou = (you === undefined) ? comp : you; 
     setPause(false);
     statusN = 1;
     gameHistory[0] = [];
     gameHistory[1] = [];
     histButt = [];
 
-    posCur = makePosInit();
-    postPosition(posCur);
+    posCur = ( posInit===undefined ) ? makePosInit() : posInit;
 
-    comp = opposite(comp);
-    modeBtn = document.getElementById("numPlayers2");
-    if ( modeBtn ){
-	noComps = modeBtn.getAttribute("checked"); }
-    else {
-	noComps = false; }
+    comp = opposite( pyou );
+
+    if (!noComps){
+	modeBtn = document.getElementById("numPlayers2");
+	if ( modeBtn !== undefined ){
+	    noComps = modeBtn.checked; }
+	else {
+	    noComps = false; }
+	if (noComps){
+	    peerbot.send( [ "initGame", comp, flatStringify(posCur) ] ); } }
+
+    if(noComps){
+	if( pyou === 1 ){
+	    document.getElementById('playdiv').innerHTML = makePanel( initBdTab, false ); }
+	else{
+	    document.getElementById('playdiv').innerHTML = makePanel( initBdTab, true ); } }
     if(twoComps){
-	comp = statusN;
-    }else if (noComps){
-	comp = opposite( statusN ); }
+	comp = statusN; }
+    // else if (noComps){
+    // 	comp = opposite( statusN ); }
+    postPosition(posCur);
     if(comp===statusN){
-	postMessage("Thinking...");
-	setTimeout(compTurn,100);
-    }
-}
+	if ( !noComps ){
+	    postMessage("Thinking...");
+	    setTimeout(compTurn,100);
+	}else{
+	    postMessage("Opponent's turn..."); } }
+} 
 
-function initGame(args){
+function initGame(compnum,posInit){
     "use strict";
+    var p, q;
+    p = (compnum === undefined) ? comp : compnum;
+    q = opposite( p );
     postMessage("New Game");
 
-    setup();
-}
+    setup(p,posInit); }
 
 function initEngine(){
     "use strict";
@@ -475,24 +476,39 @@ function buttonFn(arg){
     if( statusN === opposite(comp) && !pauseQ){
 	mvsposs = movesFromPos(posCur,statusN);
 	if(mvsposs.has(nwmv)){
-	    updatePosCur(nwmv);
-	    if(comp === statusN && !pauseQ){
-		postMessage("Thinking...");
-		setTimeout(compTurn,100);
-	    }
-	}
+	    postMove(nwmv,"you");
+	    if (noComps){
+		peerbot.send( JSON.stringify([ "postMove", nwmv, "opp" ]) ); } }
 	else{
-	    histButt = nwmv;
-	}
-    }
-}
+	    histButt = nwmv; } } }
+
+function postMove(mv,who){
+    "use strict";
+    var now, nxt;
+    now = ( who === "opp" ) ? "Opponent " : "You ";
+    now += "played " + moveToString( mv );
+    nxt = (who === "opp" ) ? "Your " : "Opponent's ";
+    nxt += "move";
+    nxt += (who === "opp" ) ? "" : "...";
+    if(!pauseQ){
+	updatePosCur(mv);
+	postMessage( now );
+	postMessage( nxt );
+	if (twoComps ){
+	    comp = opposite(comp);
+	    postMessage( "Thinking..." );
+	    setTimeout(compTurn,100);
+	}else if(comp === statusN && !pauseQ && !noComps){
+	    setTimeout(compTurn,100); }
+    } }
+
 
 function newFromPos(pos,plyr){
     "use strict";
     var mvsposs = movesFromPos(pos,plyr);
     return mvsposs.map(function(mv){
-			return positionFromMove(mv,pos,plyr);
-		    });
+	return positionFromMove(mv,pos,plyr);
+    });
 }
 
 
@@ -501,7 +517,7 @@ function undoFn(arg){
     var move = histButt, movls = gameHistory[0], posls = gameHistory[1];
 
     if(statusN !== comp){
-	if(move.length === 0 && movls.length > 1){
+	if(move.length === 0 && movls.length > 1 && !noComps){
 	    posCur = posls[1];
 	    postPosition(posCur);
 	    undoGameHistory( 2 );
@@ -533,12 +549,12 @@ function repetitionQaux(pos,plyr,hist,stt){
     par = (par === Math.floor(par));
     if(par){
 	return plyr !== stt ||
-	       repetitionQaux( pos, plyr, hist.slice( ind + 1 ), 
-			       opposite(stt) );
+	    repetitionQaux( pos, plyr, hist.slice( ind + 1 ), 
+			    opposite(stt) );
     }
     else{
 	return plyr === stt ||
-	       repetitionQaux( pos, plyr, hist.slice( ind + 1 ), stt ); 
+	    repetitionQaux( pos, plyr, hist.slice( ind + 1 ), stt ); 
     }
 }
 
@@ -581,7 +597,7 @@ function reEval(pscur,pslst,plyr,dep){
     newval = minimaxAB(pscur,curdep,plyr);
     newpos =  positionFromMove(nextMove(newval),pscur,plyr);
     if(moveValue(newval) < 0 || 
-      newpos.equal(pslst)){
+       newpos.equal(pslst)){
 	return false;
     }
     else{
@@ -662,19 +678,25 @@ function whichButton(btls){
 }
 
 
-function makeRow(vctlst){
+function makeRow(vctlst,flip){
     "use strict";
-    var res = vctlst.map(whichButton);
+    var res, revQ;
+    revQ = ( flip !== undefined ) ? flip : false;
+    if(revQ){ vctlst.reverse(); } 
+    res = vctlst.map(whichButton);
     return res.join(" ") + " <br />";    
 }
 
 
-function makePanel(vctmat){
+function makePanel( vctmat, flip ){
     "use strict";
-    var res = vctmat.map(makeRow);
+    var revQ, res;
+    revQ = ( flip !== undefined ) ? flip : false;
+    if(revQ){ vctmat.reverse(); } 
+    res = vctmat.map(function(x){
+	return makeRow(x,revQ);});	   
     return "<center>   "  + res.join(" ") + "   </center>";
 }
-
 
 var controls;
 
@@ -687,7 +709,7 @@ function makeButton(text,data,func,opts){
     var defaults = { 'bg' : "lightgray", 'fg' : "black", 'width' : 50 , 
 		     'height' : 50 , 'fontsize' : 12, 'marginTop': 10, 
 		     'disabled': false, 'border': "1px", 'boxShadow': "2px" }, 
-    ind, btn, dis;
+	ind, btn, dis;
     if(opts===undefined){
 	opts = {};
     }
@@ -699,11 +721,11 @@ function makeButton(text,data,func,opts){
 	    }}
     }
     btn = "<input type='button' value='" + text + "' onclick='" + 
-func + "(" + JSON.stringify(data) + ")' " + 
-"style=margin-top:" + opts.marginTop + ";align:center;width:" + opts.width+";height:"+
-opts.height+";background-color:" + opts.bg + ";color:" + opts.fg + ";background-image:" + opts.bgimg + ";font-size:" + opts.fontsize + 
+	func + "(" + JSON.stringify(data) + ")' " + 
+	"style=margin-top:" + opts.marginTop + ";align:center;width:" + opts.width+";height:"+
+	opts.height+";background-color:" + opts.bg + ";color:" + opts.fg + ";background-image:" + opts.bgimg + ";font-size:" + opts.fontsize + 
 	";border:" + opts.border + ";box-shadow:" + opts.boxShadow +
-"' id='" + data.join() + "'" + dis + " />";
+	"' id='" + data.join() + "'" + dis + " />";
     return btn;
 }
 
@@ -736,8 +758,8 @@ function setBGCols( colorFun ){
     "use strict";
     var locs = posCur.allLocs,
         fun = function(loc){
-	setButtonProps(loc,false,{'bgc' : colorFun(loc)});
-    };
+	    setButtonProps(loc,false,{'bgc' : colorFun(loc)});
+	};
     eachLp( locs, fun );
 }
 
@@ -745,8 +767,8 @@ function setFGCols( colorFun ){
     "use strict";
     var locs = posCur.allLocs,
         fun = function(loc){
-	setButtonProps(loc,false,{'fgc' : colorFun(loc)});
-    };
+	    setButtonProps(loc,false,{'fgc' : colorFun(loc)});
+	};
     eachLp( locs, fun );
 }
 
@@ -754,7 +776,7 @@ function setFGCols( colorFun ){
 
 function makeP2PControls(){
     "use strict";
-    var p2pControls, lbl1,lbl2,buttn,ta1,ta2;
+    var p2pControls, lbl1,lbl2,buttn,ta1,ta2,button,script;
     ta1 = document.createElement('input');
     ta1.type = 'text';
     ta1.id = 'emailAddr';
@@ -767,13 +789,19 @@ function makeP2PControls(){
     lbl2 = document.createElement('label');
     lbl2.appendChild(document.createTextNode("Handshake:"));
     lbl2.appendChild(ta2);
-    button = document.createElement('button');
-    button.type = 'submit';
-    button.appendChild(document.createTextNode('Signal'));
+    button = document.createElement('input');
+    button.type = 'button';
+    button.value = 'Signal';
+    button.id = 'signalButton';
+    //button.appendChild(document.createTextNode('Signal'));
+    script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = '../../simplepeer.js';
     p2pControls = document.createElement('form');
-    p2pControls.appendChild(lbl1);
+    //p2pControls.appendChild(lbl1);
     p2pControls.appendChild(button);
     p2pControls.appendChild(lbl2);
+    p2pControls.appendChild(script);
     return p2pControls; }
 
 function installP2PControls(){
@@ -781,53 +809,128 @@ function installP2PControls(){
     var node, parent, pos;
     node = makeP2PControls();
     parent = document.getElementsByTagName('body')[0];
-    pos = parent.firstChild;
-    return pos.insertBefore( node, pos ); }
+    //pos = parent.firstChild;
+    //pos.insertBefore( node, pos );
+    parent.appendChild( node );
+    document.getElementById('signalButton').onclick = function(ev){
+	var signal = document.getElementById('signal').value;
+	ev.preventDefault();
+	if ( signal === "" ){
+	    createPeer(true); }
+	else{
+	    createPeer(false);
+	    peerbot.signal(JSON.parse(signal)); }
+	setTimeout( sendMail, 200 );
+    }; }
 
-var Peer = window.SimplePeer
-var p = new Peer({ initiator: location.hash === '#1', trickle: false })
-var invitation = ""
+function numPlayersFun(){
+    "use strict";
+    var p2pQ = document.getElementById('numPlayers2').checked;
+    if (p2pQ){
+	installP2PControls(); } }	
 
-p.on('error', function (err) { console.log('error', err) })
+//var Peer;
+var peerbot;
+var invitation;
 
-function sendMail() {
-    var link = "mailto:" + escape(document.getElementById('emailAddr').value) +
-               "?subject=" + escape("Game Invitation") +
-               "&body=" + JSON.stringify(invitation);
-    window.location.href = link; }
+function createPeer(initQ){
+    "use strict";
+    var Peer = window.SimplePeer;
+    peerbot = new Peer({ initiator: initQ, trickle: false });
+    peerbot.on('error', function (err) { console.log('error', err); });
+    peerbot.on('signal', function (data) {
+	invitation = JSON.stringify(data);
+	console.log('SIGNAL', invitation);
+    });
 
-p.on('signal', function (data) {
-  invitation = JSON.stringify(data)
-  console.log('SIGNAL', invitation)
-})
+    document.getElementById('signal').addEventListener('paste', function(e){
+	peerbot.signal(JSON.parse(e.clipboardData.getData('text/plain')));
+    });
+    
+    // document.querySelector('#type').addEventListener('keypress', function (ev) {
+    // 	if ( ev.keyCode === 13 ){ 
+    // 	    var ta = document.querySelector('#type');
+    // 	    var text = ta.value;
+    // 	    ta.value = "";
+    // 	    updateThread( text, "black" );
+    // 	    peerbot.send(text); }
+    // });
 
-document.getElementById('signal').addEventListener('paste', function(e){
-    p.signal(JSON.parse(e.clipboardData.getData('text/plain')))
-})
+    peerbot.on('connect', function () {
+	console.log('CONNECT');
+    });
 
-document.querySelector('form').addEventListener('submit', function (ev) {
-  ev.preventDefault()
-  sendMail()
-})
-
-function updateThread( text, color ){
-    document.querySelector('#thread').innerHTML += "<br/><br/>" + "<span style='color:" + color + "'>" + text + "</span>"
+    peerbot.on('data', dataHandler );
 }
 
-document.querySelector('#type').addEventListener('keypress', function (ev) {
-  if ( ev.keyCode === 13 ){ 
-    var ta = document.querySelector('#type')
-    var text = ta.value
-    ta.value = ""
-    updateThread( text, "black" )
-    p.send(text) }
-})
+function sendMail(){
+    "use strict";
+    var link = "mailto:" + escape(document.getElementById('emailAddr').value) +
+        "?subject=" + escape("Game Invitation") +
+        "&body=" + JSON.stringify(invitation);
+    window.location.href = link; }
 
-p.on('connect', function () {
-  console.log('CONNECT')
-})
+// function updateThread( text, color ){
+//     document.querySelector('#thread').innerHTML += "<br/><br/>" + "<span style='color:" + color + "'>" + text + "</span>";
+// }
 
-p.on('data', function (data) {
-  console.log('data: ' + data)
-  updateThread( data, "blue" )
-})
+function dataHandler(data){
+    "use strict";
+    var head, tail, fun;
+    //parsed = JSON.parse( data );
+    head = data[0];
+    tail = data.slice(1);
+    switch (head){
+    case "initGame":
+	fun = initGame;
+	tail[1] = deFlatStringify( tail[1] );
+	break;
+    case "postMove":
+	fun = postMove;
+	//tail[0] = deFlatStringify( tail[0] );
+	break;
+    default:
+	fun = function(){};
+	break; }
+    fun.apply( this, tail ); }
+
+function flatStringify( obj ){
+    "use strict";
+    return JSON.stringify( flatStringifyRec( obj ) ); }
+
+function flatStringifyRec(x) {
+    "use strict";
+    var i, res = {};
+    if ( Array.isArray( x ) ){
+	return x.map( flatStringifyRec );
+    }else if ( typeof(x) === 'object' ){
+	for(i in x) {
+	    res[i] = flatStringifyRec( x[i] ); }
+	return res;
+    }else{
+	return x; } }
+
+function deFlatStringify( str ){
+    "use strict";
+    var res = JSON.parse( str );
+    return deFlatStringifyRec( res ); }
+
+function deFlatStringifyRec( obj ){
+    "use strict";
+    var res, proto, x, name;
+    if ( Array.isArray(obj) ){
+	return obj.map( deFlatStringifyRec );
+    }else if(typeof(obj) === 'object'){
+	name = obj.prototypeName;
+	res = {};
+	if ( name !== undefined && typeList.has( name ) ){
+	    proto = eval( name );
+	    res.__proto__ = proto; }
+	for (x in obj){
+	    if (typeof(obj[x]) === 'object'){
+		res[x] = deFlatStringifyRec(obj[x]);
+	    }else{
+		res[x] = obj[x]; } }
+	return res; 
+    }else{
+	return obj; } }

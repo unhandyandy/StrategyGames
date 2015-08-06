@@ -8,7 +8,8 @@
   movesFromLoc, flatten1, onBoardQ, makeConstantArraySimp, makeConstantArray, 
   numMvs, cartesianProd, matrixTranspose, postMessage, PositionGrouped, 
   setBGCols, setFGCols, rowLen, gameHistory, posCur, setButtonProps, mapLp, eachLp, equalLp,
-  switchPlayers:true, repetitionQ, numberSequence, setTagOpt, setTagSty, numChoices:true, cloneList, cartesianProduct, previousMov, pmDisabled:true, noComp:true, evenQ, numberSeqSum */
+  switchPlayers:true, repetitionQ, numberSequence, setTagOpt, setTagSty, numChoices:true, cloneList, cartesianProduct, previousMov, pmDisabled:true, noComp:true, evenQ, numberSeqSum, noComps,
+ makePanel */
 
 // This is a required variable.
 // It represents the default search depth.  
@@ -23,10 +24,13 @@ var bdSize = 6;
 
 var passSq = [ bdSize, 0 ];
 
-function makeInitBdTab() {
+var recycleQ = false;
+
+function makeInitBdTab(rev) {
     "use strict";
     var res = [],
-        i, j, row;
+        i, j, row, revQ;
+    revQ = ( rev === undefined ) ? false : rev;
     for (i = 0; i < bdSize; i++) {
         row = [];
         for (j = 0; j < bdSize; j += 1) {
@@ -36,8 +40,10 @@ function makeInitBdTab() {
                 'fontsize': 48
             }]);
         }
+	if (revQ){ row.reverse(); }
         res.push(row);
     }
+    if (revQ){ res.reverse(); }
     return res;
 }
 
@@ -46,6 +52,7 @@ var initBdTab = makeInitBdTab();
 //var newNumberPiece;
 
 var numberPiece = {
+    "prototypeName": 'numberPiece',
     "plyr": 1,
     "getPlayer": function(){
 	"use strict";
@@ -119,9 +126,12 @@ function sortMoves(pos, mvs) {
     return mvs;
 }
 
+// necessary for p2p
+var typeList = ['arithPos', 'numberPiece' ];
 
 //  p = player number = 1 or 2
 var arithPos = {
+    "prototypeName": 'arithPos',
     "initTab": function(){
 	"use strict";
 	//this.white = !this.white;
@@ -153,7 +163,7 @@ var arithPos = {
 	return this; },
     "spinTab": function(){
 	"use strict";
-	var row, i, res = [], rmax = bdSize - 1;
+	var row, i, res = [], rmax = bdSize - 1, bdtab;
 	for ( i=0; i<bdSize; i+=1 ){
 	    row = this.tab.pop();
 	    row.reverse();
@@ -359,15 +369,29 @@ function numberToSymbol( n ){
     default: return n; }
 }
 
+function setBdTab( flip ){
+    "use strict";
+    var bdtab;
+    bdtab = makeInitBdTab( flip );
+    document.getElementById('playdiv').innerHTML = makePanel( bdtab ); }
+
 var previousPos = false;
 
 function makePosInit() {
     "use strict";
-    if (comp === 2 && previousPos) {
-	previousPos.spinTab();
-        return previousPos;
-    }
-    previousPos = arithPos.clone().initTab();
+    var bdtab;
+    //if ( !noComps && comp === 2 && previousPos ) {
+    if( recycleQ ){
+	previousPos.spinTab(); 
+    // else if ( noComps && comp === 2 ){
+    // 	previousPos = arithPos.clone().initTab().spinTab();
+    // 	setBdTab( true );
+    // }else if( noComps && comp === 1 ){
+    // 	previousPos = arithPos.clone().initTab(); 
+    // 	setBdTab( false );
+    }else{
+	previousPos = arithPos.clone().initTab(); }
+    recycleQ = !recycleQ;
     return previousPos.clone();
 }
 
@@ -432,9 +456,13 @@ function fgColor( loc ){
 
 function poscurToDisplay(pos) {
     "use strict";
+    var res, bdtab, poscp;
+    poscp = pos.clone();
     setFGCols( fgColor );
     setBGCols( bgColor );
-    return pos.getNumberTab(); }
+    //if (noComps){ poscp.spinTab(); }
+    res = poscp.getNumberTab();
+    return res; }
 
 function gameOverQ(pos, plyr) {
     "use strict";
