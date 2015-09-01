@@ -185,7 +185,7 @@ function idList( lst ){
     return res;
 }
 
-emptySet = new smallSet();
+emptySet = Object.create(smallSet);
 
 // form smallSet union of regions named in list 
 function ssUnion( lst ){
