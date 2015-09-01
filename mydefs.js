@@ -840,6 +840,9 @@ function betterBezier( x1, y1, a1, a2, x2, y2, scale, cnv ){
     if ( !scale ){
 	scale = 40;
     }
+    if ( cnv === undefined ){
+	cnv = CANVAS;
+    }
     cos1 = Math.cos( a1 / 360 * 2 * Math.pi );
     sin1 = Math.sin( a1 / 360 * 2 * Math.pi ); 
     cos2 = Math.cos( a2 / 360 * 2 * Math.pi );

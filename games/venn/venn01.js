@@ -3,7 +3,7 @@
 /*jslint browser: true, devel: true, es5: true */
 /*global setDiv, makeTag, cartesianProduct, makeButton, setTagOpt, setTagSty, getDiv, makeValCheck, flatten1, compareNumbers, newButtonOpts, setClickHandler, setOnClick, betterBezier, smallSet, escape, unescape, drawVenn */
 
-/*global  cnv:true, cnvelm:true, wdth, hght, cntrHt, cntrWd, sideDev:true, upDev:true, dnDev:true, crcSep:true, mrgn:true, vmrgn:true */
+/*global  CANVAS:true, cnv:true, cnvelm:true, wdth, hght, cntrHt, cntrWd, sideDev:true, upDev:true, dnDev:true, crcSep:true, mrgn:true, vmrgn:true */
 /*global labelhtml:true, posLab:true, charLab, posCent:true, drawArc:true, pi, pieces:true, rad:true, posRect:true */
 /*global controlsHTML, bopts, curShadeClr:true, colors, colors, colors, colorOps */
 /*global numOffV, numOffH, sin30, cos30, sqrt3, mode:true, memStack, smllst:true, emptySet:true */
@@ -12,7 +12,7 @@
 /*global reDrawAll, rePrintSizesAll, reDrawAll, cnvArc */
 /*global drawSizeLine, ssUnion, checkIntQ, resetSizes, toggleMode, stackPop, stackPush, sizeFromSum, sizeFromDiff, toggleChooseMode, chooseMode, toggleWSPuz, writeSize, puzzleMode:true, numCircles:true, setPuzBut */
 
-var cnv, cnvelm;
+var cnv, cnvelm, CANVAS;
 
 numCircles = 3;
 
@@ -723,6 +723,8 @@ function initPage(  ){
 
     fillPassedValues();
     reDrawAll();
+
+  CANVAS = cnv;
 }
 
 setTimeout( initPage, 100 );
