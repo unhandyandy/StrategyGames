@@ -1,7 +1,24 @@
 {
-    "name": "StrategyGames",
-    "main": "index.html",
-    "scripts": {
-	"start": "nw"
-    }
+  "name": "Games",
+  "main": "index.html",
+    "description": "board game",
+  "version": "0.1.0",
+  "keywords": [ "game", "strategy" ],
+  "window": {
+    "title": "Strategy Games",
+    //"icon": "gerrymander.png",
+    "toolbar": false,
+    "frame": true,
+    "width": 1000,
+    "height": 1000,
+    "position": "mouse",
+    "min_width": 1000,
+    "min_height": 800,
+    "max_width": 1200,
+    "max_height": 1000
+  },
+  "webkit": {
+    "plugin": false,
+      "page-cache": true
+  }
 }

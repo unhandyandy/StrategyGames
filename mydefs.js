@@ -852,6 +852,7 @@ function betterBezier( x1, y1, a1, a2, x2, y2, scale, cnv ){
     cnv.moveTo( x1, y1 );
     cnv.bezierCurveTo( x1 + scale * cos1, y1 - scale * sin1, x2 + scale * cos2, y2 - scale * sin2, x2, y2 );
     cnv.stroke();
+    cnv.closePath();
 }
 
 

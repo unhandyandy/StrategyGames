@@ -419,7 +419,8 @@ function setup( you, posInit ){
 
     if (!noComps){
 	modeBtn = document.getElementById("numPlayers2");
-	if ( modeBtn !== undefined ){
+	//console.log(modeBtn);
+	if ( modeBtn !== null ){
 	    noComps = modeBtn.checked; }
 	else {
 	    noComps = false; }
