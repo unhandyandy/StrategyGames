@@ -1,0 +1,134 @@
+<html>
+<head>
+
+<script>
+function getGameName(){
+    return "Sea Battle";
+};
+</script>
+
+<script type="text/javascript" src="../../mydefs.js">
+</script>
+<script type="text/javascript" src="../../strategygames03.js">
+</script>
+
+
+<script type="text/javascript" src="./engine.js">
+</script>
+<style type="text/css">
+body
+{
+background-color: Green;
+background-image:url("./under-sea.png");
+}
+h1
+{
+color:white;
+text-align:center;
+}
+div
+{
+font-family:"Times New Roman";
+font-size:36px;
+color:#bcd;
+}
+select
+{
+width:"2em";
+font-size:32px;
+background-color:#abc;
+color:#640;
+}
+input
+{
+font-size:24px;
+background-color:#bca;
+color:#406;
+}
+span.bull {color:fff;font-weight:bold}
+span.cow  {color:ff0;font-weight:bold}
+
+#score 
+{
+margin-top:10px;
+padding-bottom:10px;
+font-weight:bold;
+}	
+#score-left
+{
+float:left;
+margin-left:0px;
+width:100px;
+}
+#score-right
+{
+float:left;
+margin-left:100px;
+width:100px;
+}
+h5
+{
+color:white;
+font-size:14px;
+}
+
+</style>
+</head>
+<body>
+<h1>Sea Battle<br />
+<!-- <input type="button" value="Instructions" onclick="showinstructions()" /> -->
+<input type="button" value="New Game" onclick="initGame()" />
+<input type="button" value="Undo" onclick="undoFn()" />
+ </h1>
+<br />
+<br />
+<div id="optionsdiv">
+
+    <form>
+      
+    </form>
+
+</div>
+<br /><br />
+
+<div id="playdiv">
+<script>
+document.write(makePanel(initBdTab))
+</script>
+</div>
+
+<!-- <br /> -->
+<!-- <center> -->
+<!-- <input type="button" value="Pass" onclick="buttonFn('pass')" /> -->
+<!-- </center> -->
+
+<div id="messageDiv">
+Messages.
+</div>
+
+<br /><br />
+
+<h5>
+This is a modern version of Hnefatafl which is both simple and well
+balanced.  White's goal is to get his king safely to edge of the
+board; Black's goal is to capture White's king.  All pieces move like
+chess rooks.  All pieces except the king are captured custodian-wise:
+by surrounding a single piece on two opposite sides, either
+horizontally or vertically. To capture the king it must be surrounded
+on all four sides.  That's it.
+</h5>
+
+<!-- <div id="score"> -->
+<!-- Score -->
+<!-- </div> -->
+<!-- <div id="score-left"> -->
+<!-- Human: 0  -->
+<!-- </div> -->
+<!-- <div id="score-right"> -->
+<!-- Computer: 0  -->
+<!-- </div> -->
+
+
+</body>
+</html>
+

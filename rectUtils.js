@@ -8,12 +8,13 @@
   setBGCols, rowLen, gameHistory, posCur, setButtonProps, numberSequence,
   mapLp */
 
-
+// check whether loc is a legal square
 function onBoardQ(loc,numRows,numCols){
     "use strict";
     return loc[0] >= 0 && loc[0]<numRows && loc[1] >= 0 && loc[1]<numCols;
 }
 
+// list of all legal moves in direction dir from given loc
 function oneLine(pos,loc,dir,numRows,numCols){
     "use strict";
     var res = [],
@@ -25,6 +26,7 @@ function oneLine(pos,loc,dir,numRows,numCols){
     return res;
 }
 
+// list of all empty squares in direction dir contiguous from loc 
 function oneLineFill(pos,loc,dir,numRows,numCols){
     "use strict";
     var res = [loc],
@@ -45,6 +47,7 @@ var halfDirs = [[1,0],[1,1],[0,1],[-1,1]];
 
 var allDirs = orthDirs.concat(diagDirs);
 
+// get nbr squares of loc
 function nbrs(loc,dirs,numRows,numCols){
     "use strict";
     var res = mapLp( dirs, function(d){
@@ -55,6 +58,7 @@ function nbrs(loc,dirs,numRows,numCols){
 		      });
 }
 
+// L-inf distance
 function diagDist(l1,l2){
     "use strict";
     var del = l1.vectorMinus(l2);
@@ -62,6 +66,7 @@ function diagDist(l1,l2){
     return Math.max.apply(null,del);
 }
 
+// list legal moves from loc along given dirs
 function movesFromLoc(pos,loc,dirs,numRows,numCols){
     "use strict";
     var res = dirs.map(function(dir){
@@ -70,6 +75,8 @@ function movesFromLoc(pos,loc,dirs,numRows,numCols){
     return flatten1(res);
 }
 
+// list legal destination squares from loc along given dirs,
+// grouped by dir
 function lineFillsFromLoc(pos,loc,dirs,numRows,numCols){
     "use strict";
     var res = mapLp( dirs, function(dir){
@@ -78,12 +85,13 @@ function lineFillsFromLoc(pos,loc,dirs,numRows,numCols){
     return res;
 }
 
-
+// list all locs
 function makeAllLocs(numRows,numCols){
     "use strict";
     return cartesianProd(numberSequence(0,numRows-1),numberSequence(0,numCols-1));
 }
 
+// list all lines of length at least len, grouped by dir
 function makeAllLines(numRows,numCols,len){
     "use strict";
     var locs = makeAllLocs(numRows,numCols),
