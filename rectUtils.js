@@ -69,7 +69,7 @@ function diagDist(l1,l2){
 // list legal moves from loc along given dirs
 function movesFromLoc(pos,loc,dirs,numRows,numCols){
     "use strict";
-    var res = dirs.map(function(dir){
+    var res = mapLp(dirs,function(dir){
 			      return oneLine(pos,loc,dir,numRows,numCols);
 			  });
     return flatten1(res);

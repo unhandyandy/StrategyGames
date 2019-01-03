@@ -78,12 +78,17 @@ function scoreGame( pos, plyr ){
     var res = { H: 0, J: 0 };
     if ( drawQ( pos,plyr ) ){
 	return res;}
-    if ( winQ( pos, plyr ) ){
+    if ( lossQ( pos, plyr ) ){
 	if ( plyr === comp ) {
 	    res.J = 1;}
 	else {
+	    res.H = 1;} }
+    if ( winQ( pos, plyr ) ){
+	if ( plyr === comp ) {
 	    res.H = 1;}
-	return res ;}
+	else {
+	    res.J = 1;} }
+    return res ;
 }
 
 

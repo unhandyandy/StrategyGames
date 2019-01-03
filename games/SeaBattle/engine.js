@@ -13,7 +13,7 @@ const cons={"handBird":16,
             "vuln":8,
             "isol":4,
             "safe":1,
-            "win":1000,
+            "win":1000000,
             //"loss":1000,
             "luft":4 };
 
@@ -48,9 +48,9 @@ function color(p){
 
 function scoreRow(r){
     "use strict";
-    var score=Object.clone(rowScore),
-        p=r[0];
-    return(scoreRowAux(r.slice(1,),score,p,false,false,false,p,0));
+    var score=Object.clone(rowScore);
+    //const p=r[0];
+    return(scoreRowAux(r,score,0,false,false,false,0,0));
 }
 
 function scoreRowAux(r,score,prev,lastvuln,prevlastvuln,lastisol,lastp,moves){
@@ -78,7 +78,7 @@ function scoreRowAux(r,score,prev,lastvuln,prevlastvuln,lastisol,lastp,moves){
         newmoves=0; }
     if(((p==="k")&&[0,"w"].has(prev))||((prev==="k")&&[0,"w"].has(p))){
         score.luft["w"]+=1; }
-    if((p==="k")&&([1,size].has(r.length))){
+    if((p==="k")&&[size,1].has(r.length)){
         score.win["w"]+=1; }
     // if(((lastp==="k")&&(p===0))||((p==="k")&&(lastp===0))){
     //     score.win.w+=1; }
@@ -133,20 +133,20 @@ function scoreFor(mat,c){
     if (score.luft.w===0){
         score.win.b+=1; }
     var s=0;
-    for (const k of keys){
-        s += cons.handBird*score[k][c]-score[k][oppColor(c)]; }
+    for (var k of keys){
+        s += cons[k]*(cons.handBird*score[k][c]-score[k][oppColor(c)]); }
     return(s); }
 
 
-//const pmDisabled = false;
+pmDisabled = true;
 
 //const noComp = true;
 
-var desiredDepth = 4;
+desiredDepth = 4;
 
-var bdSize = 9;
+numChoices = 2;
 
-var passSq = [ bdSize, 0 ];
+const bdSize = 9;
 
 const startMat = [[0,0,0,"b","b","b",0,0,0],
                  [0,0,0,0,"b",0,0,0,0],
@@ -175,15 +175,19 @@ const initBdTab = makeInitBdTab();
 const taflPos = {
     "prototypeName": 'taflPos',
     "mat":Object.clone(startMat),
-    "plyr":"w",
+    "plyr":1,
+    "color":"w",
     "equal":function(p){
         "use strict";
         return equalLp(this.mat,p.mat) &&
-            this.plyr===p.plyr; },
+            this.plyr===p.plyr &&
+            this.color===p.color; },
     "clone":function(){
+        "use strict";
         var newpos = Object.create(taflPos);
         newpos.mat = this.mat.clone();
         newpos.plyr = this.plyr;
+        newpos.color = this.color;
         return newpos; }
 }
 var posInit = taflPos.clone();
@@ -192,8 +196,7 @@ numchoices = 2;
 
 function makePosInit(){
     "use strict";
-    posInit.plyr = oppColor( posInit.plyr );
-    return posInit.clone();
+    return posInit;
 }
 
 function makeAllMoves( n ){
@@ -206,3 +209,84 @@ function makeAllMoves( n ){
 	return [ 0 ].concat( l );} );
     return ones.concat( twos );
 }
+
+function poscurToDisplay(pos){
+    "use strict";
+    var bd = pos.mat;
+    return bd.map2(function(p){return p===0 ? " " : p});
+}
+
+function movesFromPos(pos){
+    "use strict";
+    var res = [];
+    const mat = pos.mat
+    for (var i=0;i<size;i+=1){
+        for (var j=0;j<size;j+=1){
+            const loc = [i,j];
+            if(lookUp(mat,loc)!=0){
+                const mvs = movesFromLoc(mat,loc,orthDirs,size,size);
+                res = res.concat(mvs); } } }
+    const allmoves = res.filter(function(m){
+        return color(lookUp(mat,m[0]))===pos.color});
+    const sorted = allmoves.sort(function(a,b){
+	return sortOrder(positionFromMove(a,pos),
+                         positionFromMove(b,pos));
+		 });
+    return sorted;
+}
+
+function positionFromMove(mv,pos,pl){
+    "use strict";
+    var mat = pos.mat.clone();
+    const pce = lookUp(mat,mv[0]);
+    const plyr = pos.plyr;
+    const col = pos.color;
+    lookUpSet(mat,mv[0],0)
+    lookUpSet(mat,mv[1],pce)
+    const captures = checkCaptures(mat,mv[1],col);
+    for (const n of captures){
+        lookUpSet(mat,n,0); }
+    var newpos = taflPos.clone();
+    newpos.mat = mat;
+    newpos.plyr = opposite(plyr);
+    newpos.color = oppColor(col);
+    return newpos;
+}
+
+function checkCaptures(mat,loc,plyr){
+    "use strict";
+    if (lookUp(mat,loc)==="k"){
+        return []; }
+    const nbs = nbrs(loc,orthDirs,size,size);
+    return nbs.filter(function(n){
+        if  (lookUp(mat,n)!=oppColor(plyr)){
+            return false; }
+        const d = n.vector2Minus(loc);
+        const n2 = n.vector2Add(d);
+        return onBoardQ(n2,size,size) ? lookUp(mat,n2)===plyr : false; });
+}
+
+function lossQ(pos){
+    "use strict"
+    const score = scoreMat(pos.mat);
+    const q = oppColor(pos.color);
+    return score.win[q]>0; }
+function winQ(pos){
+    "use strict"
+    const score = scoreMat(pos.mat);
+    return score.win[pos.color]>0; }
+function drawQ(pos){
+    return false; }
+
+function evalPosUncert(pos,plyr){
+    "use strict"
+    return scoreFor(pos.mat,pos.color);
+}
+
+function sortOrder(pos1,pos2){
+    "use strict"
+    const s1 = scoreFor(pos1.mat,pos1.color);
+    const s2 =  scoreFor(pos2.mat,pos2.color);
+    return s1 - s2;
+};
+
