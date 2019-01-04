@@ -8,25 +8,33 @@
   setBGCols, rowLen, gameHistory, posCur, setButtonProps, numberSequence,
   mapLp */
 
-const cons={"handBird":16,
-            "moves":2,
+const cons={"moves":2,
+            "kingmoves":10,
             "vuln":8,
             "isol":4,
             "safe":1,
             "win":1000000,
             //"loss":1000,
-            "luft":4 };
+            "luft":4,
+            "thrus":100 };
 
-var size=9;
+const handBird = 16;
 
-const rowScore = {"moves":{"b":0,"w":0},
-                "vuln":{"b":0,"w":0},
-                "isol":{"b":0,"w":0},
-                "safe":{"b":0,"w":0},
-                "win":{"b":0,"w":0},
-//                "loss":{"b":0,"w":0},
-                "luft":{"b":0,"w":0}}
-const keys = ["moves","vuln","isol","safe","win","luft"];
+const size=9;
+
+var rowScore = {};
+for (k of Object.keys(cons)){
+    rowScore[k] = {"b":0,"w":0}; }
+
+// const rowScore = {"moves":{"b":0,"w":0},
+//                   "vuln":{"b":0,"w":0},
+//                   "isol":{"b":0,"w":0},
+//                   "safe":{"b":0,"w":0},
+//                   "win":{"b":0,"w":0},
+//                   //                "loss":{"b":0,"w":0},
+//                   "thrus":{"b":0,"w":0},
+//                   "luft":{"b":0,"w":0} };
+//const keys = ["moves","vuln","isol","safe","win","luft","thrus"];
 
 function opposed(p,q){
     "use strict";
@@ -46,58 +54,86 @@ function color(p){
     else return(0); }
            
 
-function scoreRow(r){
+function scoreRow(r,reach){
     "use strict";
     var score=Object.clone(rowScore);
     //const p=r[0];
-    return(scoreRowAux(r,score,0,false,false,false,0,0));
+    return(scoreRowAux(r,score,"e",false,false,false,"e",0,reach));
 }
 
-function scoreRowAux(r,score,prev,lastvuln,prevlastvuln,lastisol,lastp,moves){
+function scoreRowAux(r,score,prev,lastvuln,prevlastvuln,lastisol,lastp,moves,reach){
     "use strict";
+    if(reach===undefined){
+        reach = function(){return false}; }
     if(r.length===0){
         return(score); }
-    var p=r[0],
-        tail=r.slice(1,),
-        cp=color(p),
-        newmoves=moves,
-        clp=color(lastp);
+    const p=r[0],
+          q=r[1],
+          j = size - r.length,
+          tail=r.slice(1,),
+          cp=color(p),
+          clp=color(lastp);
+    var newmoves = moves;
     if((p===prev)&&(p!=0)){
         score.safe[cp]+=1; }
     if((p!=0)&&opposed(p,lastp)&&lastvuln&&(lastp!="k")){
         score.vuln[cp]+=1; }
+    if((p===0)&&["b","w"].has(prev)&&reach(j,oppColor(prev))){
+        score.vuln[oppColor(prev)] += 1; }
+    if((p===0)&&(prev==="k")&&reach(j,oppColor(prev))){
+        score.thrus.b += 1; }
+    if(["b","w"].has(p)&&(prev===0)&&(q===oppColor(p))&&reach(j-1,q)){
+        score.vuln[q] += 1; }
+    if((p==="k")&&(prev===0)&&(q==="b")&&reach(j-1,"b")){
+        score.thrus.b += 1; }
     if((p!=0)&&opposed(p,prev)&&prevlastvuln&&(lastp!="k")){
-        score.vuln[cp]+=1; }
+        score.vuln[cp] += 1; }
     if(["b","w"].has(lastp)&&(lastisol)&&(p===0)){
         score.isol[clp]+=1; }
     if((clp!=0)&&(p===0)){
         score.moves[clp]+=1;
+        if(lastp==="k"){
+            score.kingmoves.w += 1; } }
+    if(p===0){
         newmoves+=1;}
-    if((p!=prev)&&(prev===0)&&(clp!=0)){
-        score.moves[cp]+=newmoves;
-        newmoves=0; }
     if(((p==="k")&&[0,"w"].has(prev))||((prev==="k")&&[0,"w"].has(p))){
-        score.luft["w"]+=1; }
+        //score.luft.b -= 1; 
+        score.luft.w += 1;
+    }
+    if(((p==="k")&&(newmoves+r.length===size))||
+       ((lastp==="k")&&(r.length===1)&&(p===0))){
+        //score.thrus.b -= 1; 
+        score.thrus.w = 100 * (1 + score.thrus.w);
+    }
+    if((lastp==="k")&&(newmoves>0)&&(p==="b")){
+        score.thrus.b += 1; }
     if((p==="k")&&[size,1].has(r.length)){
         score.win["w"]+=1; }
     // if(((lastp==="k")&&(p===0))||((p==="k")&&(lastp===0))){
     //     score.win.w+=1; }
+    if(p!=0){
+        score.moves[cp]+=newmoves;
+        if(p==="k"){
+            score.kingmoves.w += newmoves; }
+        newmoves=0; }
+
     var newisol=((p!=0)&&(prev===0))||((p===0)&&lastisol);
-    return(scoreRowAux(r.slice(1,),
+    return(scoreRowAux(tail,
                        score,
                        p,
                        ((p!=0)&&opposed(p,prev))||((p===0)&&lastvuln),
                        newisol&&(p!=0),
                        newisol,
                        p===0 ? lastp : p,
-                       newmoves));
+                       newmoves,
+                       reach));
 }
 
 function addScores(s1,s2){
     "use strict";
     var res=Object.clone(rowScore);
     var k,c;
-    for (k of keys){
+    for (k of Object.keys(cons)){
         for (c of ["b","w"]){
             res[k][c]=s1[k][c]+s2[k][c]; } }
     return(res); }
@@ -109,12 +145,48 @@ function sumScores(scorelst){
         res = addScores(res,s); }
     return(res); }
     
-function scoreMat(mat){
+function scoreMat(mat,reachable){
     "use strict";
+    if(reachable===undefined){
+        reachable = function(i){return function(){return false}; }; }
     var lines=mat.concat(matrixTranspose(mat));
-    var scores = mapLp(lines,scoreRow);
-    return(sumScores(scores)); }
+    var scores = mapLp(lines,
+                       function(r,i){
+                           return scoreRow(r,reachable(i))});
+    var sum = sumScores(scores);
+    if(sum.luft.w===0){
+        sum.win.b += 1; }
+    return sum; }
 
+function canReach(pos,p,loc,mvs){
+    "use strict";
+    var poss = mvs.filter(function(m){return m[1].equal(loc)});
+    poss = poss.filter(function(m){return lookUp(pos.mat,m[0])===p});
+    return poss.length > 0; }
+
+function scoreFor(pos){
+    "use strict";
+    const c = pos.color;
+    const mat = pos.mat;
+    const reachable = function(i){
+        return function(j,p){
+            return canReach(pos,p,[i,j],movesFromPos(pos,false)); }; }
+    const score = scoreMat(mat,reachable);
+    if (score.luft.w===0){
+        score.win.b+=1; }
+    var s=0;
+    for (var k of Object.keys(cons)){        
+        s += cons[k]*(handBird*score[k][c]-score[k][oppColor(c)]); }
+    if(score.thrus.b>0&&score.luft.w===1){
+        s += c==="b" ? 10000 : -10000; }
+    return(s); }
+
+function scorePosSimp(pos){
+    "use strict";
+    const reachable = function(i){
+        return function(j,p){
+            return canReach(pos,p,[i,j],movesFromPos(pos,false)); }; }
+    return scoreMat(pos.mat,reachable); }
 
 // testing
 const testrow1=["b",0,0,"w",0,"b","b","k",0],
@@ -127,24 +199,13 @@ const testrow1=["b",0,0,"w",0,"b","b","k",0],
 //testing
 
 
-function scoreFor(mat,c){
-    "use strict";
-    const score = scoreMat(mat);
-    if (score.luft.w===0){
-        score.win.b+=1; }
-    var s=0;
-    for (var k of keys){
-        s += cons[k]*(cons.handBird*score[k][c]-score[k][oppColor(c)]); }
-    return(s); }
-
-
 pmDisabled = true;
 
 //const noComp = true;
 
 desiredDepth = 4;
 
-numChoices = 2;
+numChoices = 3;
 
 const bdSize = 9;
 
@@ -166,7 +227,9 @@ function makeInitBdTab() {
         for (j=0;j<bdSize;j+=1){
             var c = startMat[i][j];
             c = (c===0) ? " " : c;
-            row.push([c,[i,j],{'height' : 20, 'width' : 30, 'fontsize' : 12}] ); }
+            row.push([c,[i,j],
+                      {'height' : 30, 'width' : 40, 'fontsize' : 22,
+                       'bg':"#ccf",'fg':"black"}] ); }
         res.push(row); }
     return res;
 }
@@ -192,7 +255,7 @@ const taflPos = {
 }
 var posInit = taflPos.clone();
 
-numchoices = 2;
+numChoices = 2;
 
 function makePosInit(){
     "use strict";
@@ -213,11 +276,19 @@ function makeAllMoves( n ){
 function poscurToDisplay(pos){
     "use strict";
     var bd = pos.mat;
-    return bd.map2(function(p){return p===0 ? " " : p});
+    return bd.map2(function(p){
+        return p===0 ?
+            " " :
+            p==="k" ?
+            '\u2654' :
+            p==="b" ?
+            '\u265C' :
+            '\u2656'});
 }
 
-function movesFromPos(pos){
+function movesFromPos(pos,sortedQ){
     "use strict";
+    if (sortedQ===undefined){ sortedQ = true; }
     var res = [];
     const mat = pos.mat
     for (var i=0;i<size;i+=1){
@@ -228,10 +299,11 @@ function movesFromPos(pos){
                 res = res.concat(mvs); } } }
     const allmoves = res.filter(function(m){
         return color(lookUp(mat,m[0]))===pos.color});
-    const sorted = allmoves.sort(function(a,b){
-	return sortOrder(positionFromMove(a,pos),
-                         positionFromMove(b,pos));
-		 });
+    const sorted = sortedQ ?
+          allmoves.sort(function(a,b){
+	      return sortOrder(positionFromMove(a,pos),
+                               positionFromMove(b,pos)); }) :
+          allmoves;          
     return sorted;
 }
 
@@ -280,13 +352,14 @@ function drawQ(pos){
 
 function evalPosUncert(pos,plyr){
     "use strict"
-    return scoreFor(pos.mat,pos.color);
+    return scoreFor(pos);
 }
 
 function sortOrder(pos1,pos2){
     "use strict"
-    const s1 = scoreFor(pos1.mat,pos1.color);
-    const s2 =  scoreFor(pos2.mat,pos2.color);
+    const s1 = scoreFor(pos1);
+    const s2 =  scoreFor(pos2);
     return s1 - s2;
 };
 
+clearAllCaches();
