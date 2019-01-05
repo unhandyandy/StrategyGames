@@ -43,7 +43,7 @@ function opposed(p,q){
 
 function oppColor(c){
     "use strict";
-    return (c==="b") ? "w" : ((c==="w") ? "b" : 0); }
+    return (c==="b") ? "w" : (c===0) ? 0 : "b"; }
 
 function color(p){
     "use strict";
@@ -80,7 +80,9 @@ function scoreRowAux(r,score,prev,lastp,moves,reach){
     //     score.vuln[cp]+=1; }
     // if((p===0)&&["b","w"].has(prev)&&lastvuln&&reach(j,oppColor(prev))){
     //     score.vuln[oppColor(prev)] += 1; }
-    if((p===0)&&(prev==="k")&&reach(j,oppColor(prev))){
+    if((p===0)&&(prev==="k")&&reach(j,"b")){
+        score.thrus.b += 1; }
+    if((p==="k")&&(prev===0)&&reach(j-1,"b")){
         score.thrus.b += 1; }
     // vulnerabilities
     if(["b","w"].has(p)&&(prev===0)&&(q===oppColor(p))&&reach(j-1,q)){
@@ -88,8 +90,6 @@ function scoreRowAux(r,score,prev,lastp,moves,reach){
     if(["b","w"].has(p)&&(q===0)&&
        (prev===oppColor(p))&&reach(j+1,oppColor(p))){
         score.vuln[prev] += 1; }
-    if((p==="k")&&(prev===0)&&(q==="b")&&reach(j-1,"b")){
-        score.thrus.b += 1; }
     // if((p!=0)&&opposed(p,prev)&&lastvuln&&(lastp!="k")){
     //     score.vuln[cp] += 1; }
     // if(["b","w"].has(lastp)&&(lastisol)&&(p===0)){
@@ -109,7 +109,7 @@ function scoreRowAux(r,score,prev,lastp,moves,reach){
     if(((p==="k")&&(newmoves+r.length===size))||
        ((lastp==="k")&&(r.length===1)&&(p===0))){
         //score.thrus.b -= 1; 
-        score.thrus.w = 100 * (1 + score.thrus.w);
+        score.thrus.w = 900 * (1 + score.thrus.w);
     }
     if((lastp==="k")&&(newmoves>0)&&(p==="b")){
         score.thrus.b += 1; }
@@ -182,15 +182,11 @@ function scoreFor(pos){
         return function(j,p){
             return canReach(pos,p,[i,j],possMovesBoth(pos)); }; }
     const score = scoreMat(mat,reachable);
-    if (score.luft.w===0){
-        score.win.b+=1; }
-    if(repetitionQ(pos,pos.plyr)){
-        score.win.b += 1; }
     var s=0;
     for (var k of Object.keys(cons)){        
         s += cons[k]*(handBird*score[k][c]-score[k][oppColor(c)]); }
     if(score.thrus.b>0&&score.luft.w===1){
-        s += c==="b" ? 1000 : -1000; }
+        s += c==="b" ? 10000 : -10000; }
     return(s); }
 
 function scorePosSimp(pos){
@@ -362,11 +358,14 @@ function lossQ(pos){
     "use strict"
     const score = scoreMat(pos.mat);
     const q = oppColor(pos.color);
-    return score.win[q]>0; }
+    return score.win[q]>0||
+        (repetitionQ(pos,pos.plyr)&&(pos.col==="w")); }
+
 function winQ(pos){
     "use strict"
     const score = scoreMat(pos.mat);
-    return score.win[pos.color]>0; }
+    return score.win[pos.color]>0||
+        (repetitionQ(pos,pos.plyr)&&(pos.col==="b")); }
 function drawQ(pos){
     return false; }
 
