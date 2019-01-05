@@ -109,7 +109,7 @@ function scoreRowAux(r,score,prev,lastp,moves,reach){
     if(((p==="k")&&(newmoves+r.length===size))||
        ((lastp==="k")&&(r.length===1)&&(p===0))){
         //score.thrus.b -= 1; 
-        score.thrus.w = 900 * (1 + score.thrus.w);
+        score.thrus.w += 1);
     }
     if((lastp==="k")&&(newmoves>0)&&(p==="b")){
         score.thrus.b += 1; }
@@ -159,6 +159,7 @@ function scoreMat(mat,reachable){
     var sum = sumScores(scores);
     if(sum.luft.w===0){
         sum.win.b += 1; }
+    sum.thrus.w *= sum.thrus.w;
     return sum; }
 
 function canReach(pos,p,loc,mvs){
