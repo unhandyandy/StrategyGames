@@ -58,10 +58,10 @@ function scoreRow(r,reach){
     "use strict";
     var score=Object.clone(rowScore);
     //const p=r[0];
-    return(scoreRowAux(r,score,"e",false,false,false,"e",0,reach));
+    return(scoreRowAux(r,score,"e","e",0,reach));
 }
 
-function scoreRowAux(r,score,prev,lastvuln,prevlastvuln,lastisol,lastp,moves,reach){
+function scoreRowAux(r,score,prev,lastp,moves,reach){
     "use strict";
     if(reach===undefined){
         reach = function(){return false}; }
@@ -74,22 +74,28 @@ function scoreRowAux(r,score,prev,lastvuln,prevlastvuln,lastisol,lastp,moves,rea
           cp=color(p),
           clp=color(lastp);
     var newmoves = moves;
-    if((p===prev)&&(p!=0)){
+    if((color(p)===color(prev))&&(p!=0)){
         score.safe[cp]+=1; }
-    if((p!=0)&&opposed(p,lastp)&&lastvuln&&(lastp!="k")){
-        score.vuln[cp]+=1; }
-    if((p===0)&&["b","w"].has(prev)&&reach(j,oppColor(prev))){
-        score.vuln[oppColor(prev)] += 1; }
+    // if((p!=0)&&opposed(p,lastp)&&lastvuln&&(lastp!="k")){
+    //     score.vuln[cp]+=1; }
+    // if((p===0)&&["b","w"].has(prev)&&lastvuln&&reach(j,oppColor(prev))){
+    //     score.vuln[oppColor(prev)] += 1; }
     if((p===0)&&(prev==="k")&&reach(j,oppColor(prev))){
         score.thrus.b += 1; }
+    // vulnerabilities
     if(["b","w"].has(p)&&(prev===0)&&(q===oppColor(p))&&reach(j-1,q)){
         score.vuln[q] += 1; }
+    if(["b","w"].has(p)&&(q===0)&&
+       (prev===oppColor(p))&&reach(j+1,oppColor(p))){
+        score.vuln[prev] += 1; }
     if((p==="k")&&(prev===0)&&(q==="b")&&reach(j-1,"b")){
         score.thrus.b += 1; }
-    if((p!=0)&&opposed(p,prev)&&prevlastvuln&&(lastp!="k")){
-        score.vuln[cp] += 1; }
-    if(["b","w"].has(lastp)&&(lastisol)&&(p===0)){
-        score.isol[clp]+=1; }
+    // if((p!=0)&&opposed(p,prev)&&lastvuln&&(lastp!="k")){
+    //     score.vuln[cp] += 1; }
+    // if(["b","w"].has(lastp)&&(lastisol)&&(p===0)){
+    //     score.isol[clp]+=1; }
+    if(["b","w"].has(p)&&(prev===0)&&(q===0)){
+        score.isol[oppColor(cp)] += 1; }
     if((clp!=0)&&(p===0)){
         score.moves[clp]+=1;
         if(lastp==="k"){
@@ -117,13 +123,10 @@ function scoreRowAux(r,score,prev,lastvuln,prevlastvuln,lastisol,lastp,moves,rea
             score.kingmoves.w += newmoves; }
         newmoves=0; }
 
-    var newisol=((p!=0)&&(prev===0))||((p===0)&&lastisol);
+    // var newisol=((p!=0)&&(prev===0))||((p===0)&&lastisol);
     return(scoreRowAux(tail,
                        score,
                        p,
-                       ((p!=0)&&opposed(p,prev))||((p===0)&&lastvuln),
-                       newisol&&(p!=0),
-                       newisol,
                        p===0 ? lastp : p,
                        newmoves,
                        reach));
@@ -164,28 +167,38 @@ function canReach(pos,p,loc,mvs){
     poss = poss.filter(function(m){return lookUp(pos.mat,m[0])===p});
     return poss.length > 0; }
 
+function possMovesBoth(pos){
+    "use strict"
+    var res = movesFromPos(pos,false);
+    res = res.concat(movesFromPos(pos.flip(),false));
+    return res;
+}
+
 function scoreFor(pos){
     "use strict";
     const c = pos.color;
     const mat = pos.mat;
     const reachable = function(i){
         return function(j,p){
-            return canReach(pos,p,[i,j],movesFromPos(pos,false)); }; }
+            return canReach(pos,p,[i,j],possMovesBoth(pos)); }; }
     const score = scoreMat(mat,reachable);
     if (score.luft.w===0){
         score.win.b+=1; }
+    if(repetitionQ(pos,pos.plyr)){
+        score.win.b += 1; }
     var s=0;
     for (var k of Object.keys(cons)){        
         s += cons[k]*(handBird*score[k][c]-score[k][oppColor(c)]); }
     if(score.thrus.b>0&&score.luft.w===1){
-        s += c==="b" ? 10000 : -10000; }
+        s += c==="b" ? 1000 : -1000; }
     return(s); }
 
 function scorePosSimp(pos){
     "use strict";
     const reachable = function(i){
         return function(j,p){
-            return canReach(pos,p,[i,j],movesFromPos(pos,false)); }; }
+            const loc = (i<size) ? [i,j] : [j,i % size];
+            return canReach(pos,p,loc,possMovesBoth(pos)); }; }
     return scoreMat(pos.mat,reachable); }
 
 // testing
@@ -245,6 +258,13 @@ const taflPos = {
         return equalLp(this.mat,p.mat) &&
             this.plyr===p.plyr &&
             this.color===p.color; },
+    "flip":function(){
+        var newpos = Object.create(taflPos);
+        newpos.mat = this.mat.clone();
+        newpos.plyr = opposite(this.plyr);
+        newpos.color = oppColor(this.color);
+        return newpos;
+    },
     "clone":function(){
         "use strict";
         var newpos = Object.create(taflPos);
