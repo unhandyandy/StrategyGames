@@ -104,13 +104,11 @@ function scoreRowAux(r,score,prev,lastp,moves,reach){
         newmoves+=1;}
     if(((p==="k")&&[0,"w"].has(prev))||((prev==="k")&&[0,"w"].has(p))){
         //score.luft.b -= 1; 
-        score.luft.w += 1;
-    }
+        score.luft.w += 1; }
     if(((p==="k")&&(newmoves+r.length===size))||
        ((lastp==="k")&&(r.length===1)&&(p===0))){
         //score.thrus.b -= 1; 
-        score.thrus.w += 1);
-    }
+        score.thrus.w += 1; }
     if((lastp==="k")&&(newmoves>0)&&(p==="b")){
         score.thrus.b += 1; }
     if((p==="k")&&[size,1].has(r.length)){
@@ -124,12 +122,12 @@ function scoreRowAux(r,score,prev,lastp,moves,reach){
         newmoves=0; }
 
     // var newisol=((p!=0)&&(prev===0))||((p===0)&&lastisol);
-    return(scoreRowAux(tail,
+    return scoreRowAux(tail,
                        score,
                        p,
                        p===0 ? lastp : p,
                        newmoves,
-                       reach));
+                       reach);
 }
 
 function addScores(s1,s2){
