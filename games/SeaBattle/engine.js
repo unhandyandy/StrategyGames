@@ -107,7 +107,9 @@ function scoreRowAux(r,score,prev,lastp,moves,reach){
         newmoves+=1;}
     if(((p==="k")&&[0,"w"].has(prev))||((prev==="k")&&[0,"w"].has(p))){
         //score.luft.b -= 1; 
-        score.luft.w += 1; }
+        score.luft.w += 1;
+	if([p,prev].has("w")){
+	    score.luft.w += 1; } }
     if(((p==="k")&&(newmoves+r.length===size))||
        ((lastp==="k")&&(r.length===1)&&(p===0))){
         //score.thrus.b -= 1; 
