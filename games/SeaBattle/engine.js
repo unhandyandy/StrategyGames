@@ -9,9 +9,9 @@
   mapLp */
 
 const cons={"moves":2,
-            "kingmoves":10,
+            "kingmoves":6,
             "vuln":8,
-            "isol":4,
+            "isol":1,
             "safe":1,
             "win":1000000,
             //"loss":1000,
@@ -157,7 +157,6 @@ function scoreMat(mat,reachable){
     var sum = sumScores(scores);
     if(sum.luft.w===0){
         sum.win.b += 1; }
-    sum.thrus.w *= sum.thrus.w;
     return sum; }
 
 function canReach(pos,p,loc,mvs){
@@ -181,11 +180,13 @@ function scoreFor(pos){
         return function(j,p){
             return canReach(pos,p,[i,j],possMovesBoth(pos)); }; }
     const score = scoreMat(mat,reachable);
-    var s=0;
+    var prod={},s=0;
     for (var k of Object.keys(cons)){        
-        s += cons[k]*(handBird*score[k][c]-score[k][oppColor(c)]); }
+        prod[k] = cons[k]*(handBird*score[k][c]-score[k][oppColor(c)]);
+	s += prod[k]; }
     if(score.thrus.b>0&&score.luft.w===1){
-        s += c==="b" ? 10000 : -10000; }
+	s += c==="b" ? 10000 : -10000; }
+    s += prod.thrus**2 * (c==="w" ? 1 : -1);
     return(s); }
 
 function scorePosSimp(pos){
@@ -236,7 +237,7 @@ function makeInitBdTab() {
             var c = startMat[i][j];
             c = (c===0) ? " " : c;
             row.push([c,[i,j],
-                      {'height' : 30, 'width' : 40, 'fontsize' : 22,
+                      {'height' : 56, 'width' : 64, 'fontsize' : 48,
                        'bg':"#ccf",'fg':"black"}] ); }
         res.push(row); }
     return res;
