@@ -16,7 +16,8 @@ const cons={"moves":2,
             "win":1000000,
             //"loss":1000,
             "luft":4,
-            "thrus":100 };
+            "thrus":100,
+	    "pieces":8 };
 
 const handBird = 16;
 
@@ -74,6 +75,8 @@ function scoreRowAux(r,score,prev,lastp,moves,reach){
           cp=color(p),
           clp=color(lastp);
     var newmoves = moves;
+    if(p!=0){
+	score.pieces[cp] += 0.5; }
     if((color(p)===color(prev))&&(p!=0)){
         score.safe[cp]+=1; }
     // if((p!=0)&&opposed(p,lastp)&&lastvuln&&(lastp!="k")){
