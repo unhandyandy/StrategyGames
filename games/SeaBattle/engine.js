@@ -180,13 +180,12 @@ function scoreFor(pos){
         return function(j,p){
             return canReach(pos,p,[i,j],possMovesBoth(pos)); }; }
     const score = scoreMat(mat,reachable);
-    var prod={},s=0;
+    var s = 0;
     for (var k of Object.keys(cons)){        
-        prod[k] = cons[k]*(handBird*score[k][c]-score[k][oppColor(c)]);
-	s += prod[k]; }
+	s += cons[k]*(handBird*score[k][c]-score[k][oppColor(c)]); }
     if(score.thrus.b>0&&score.luft.w===1){
 	s += c==="b" ? 10000 : -10000; }
-    s += prod.thrus**2 * (c==="w" ? 1 : -1);
+    s += cons.thrus**score.thrus.w * (c==="w" ? 1 : -1);
     return(s); }
 
 function scorePosSimp(pos){
@@ -198,14 +197,14 @@ function scorePosSimp(pos){
     return scoreMat(pos.mat,reachable); }
 
 // testing
-const testrow1=["b",0,0,"w",0,"b","b","k",0],
-      testrow2=["b",0,0,"w",0,"b",0,"k",0],
-      testrow3=["b",0,0,"w",0,"b",0,0,"k"],
-      score1=scoreRow(testrow1),
-      score2=scoreRow(testrow2),
-      score3=scoreRow(testrow3),
-      testmat1=[testrow1,testrow2,testrow3,testrow1,testrow2,testrow3,testrow1,testrow2,testrow3]
-//testing
+// const testrow1=["b",0,0,"w",0,"b","b","k",0],
+//       testrow2=["b",0,0,"w",0,"b",0,"k",0],
+//       testrow3=["b",0,0,"w",0,"b",0,0,"k"],
+//       score1=scoreRow(testrow1),
+//       score2=scoreRow(testrow2),
+//       score3=scoreRow(testrow3),
+//       testmat1=[testrow1,testrow2,testrow3,testrow1,testrow2,testrow3,testrow1,testrow2,testrow3]
+// testing
 
 
 pmDisabled = true;
@@ -377,7 +376,7 @@ function evalPosUncert(pos,plyr){
 function sortOrder(pos1,pos2){
     "use strict"
     const s1 = scoreFor(pos1);
-    const s2 =  scoreFor(pos2);
+    const s2 = scoreFor(pos2);
     return s1 - s2;
 };
 
