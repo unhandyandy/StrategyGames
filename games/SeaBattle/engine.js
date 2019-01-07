@@ -385,4 +385,42 @@ function sortOrder(pos1,pos2){
     return s1 - s2;
 };
 
+function destsFrom(loc,mvs,pos){
+    "use strict"
+    if(mvs==="fill"){
+        mvs = movesFromPos(pos,false); }
+    const mvssel = mvs.filter(
+        function(m){
+            return m[0].equal(loc); } )
+    return mapLp(mvssel,function(m){return m[1];}); }
+
+function rank(loc,mvs,mat){
+    "use strict"
+    if(mvs==="fill"){
+        const pos = taflPos.clone();
+        const posmat = Object.clone(mat);
+        lookUpSet(posmat,loc,"w");
+        pos.mat=posmat;
+        mvs = movesFromPos(pos); }
+    const dests = destsFrom(loc,mvs);
+    var vals = mapLp(dests,function(l){return lookUp(mat,l)});
+    return 1 + Math.max.apply(null,vals);
+}
+
+function makeRankInit(){
+    "use strict"
+    var mat = Array(size);
+    mat = mapLp(mat,function(){return Array(size)});
+    for(var i=0;i<size;i+=1){
+        for(var j=0;j<size;j+=1){
+            if(i===0||i===size-1||j===0||j===size-1){
+                lookUpSet(mat,[i,j],1); }
+            else{
+                lookUpSet(mat,[i,j],0); } } }
+    return mat;
+}
+
+const rankInit = makeRankInit();
+const allLocs = makeAllLocs(size,size);
+
 clearAllCaches();
