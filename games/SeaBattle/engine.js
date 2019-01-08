@@ -404,7 +404,8 @@ function rank(loc,mvs,mat){
         mvs = movesFromPos(pos); }
     const dests = destsFrom(loc,mvs);
     var vals = mapLp(dests,function(l){return lookUp(mat,l)});
-    return 1 + Math.max.apply(null,vals);
+    vals = vals.filter(function(v){return v>0});
+    return vals.length>0 ? 1 + Math.min.apply(null,vals) : Infinity;
 }
 
 function makeRankInit(){
