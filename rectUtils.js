@@ -15,14 +15,18 @@ function onBoardQ(loc,numRows,numCols){
 }
 
 // list of all legal moves in direction dir from given loc
-function oneLine(pos,loc,dir,numRows,numCols){
+function oneLine(pos,loc,dir,numRows,numCols,captureQ){
     "use strict";
+    if(captureQ===undefined){
+        captureQ=false; }
     var res = [],
         fin = loc.vector2Add(dir);
     while(onBoardQ(fin,numRows,numCols) && lookUp(pos,fin)===0){
 	res.push([loc,fin]);
 	fin = fin.vector2Add(dir);
     }
+    if(captureQ && onBoardQ(fin,numRows,numCols)){
+        res.push([loc,fin]); }
     return res;
 }
 
@@ -67,10 +71,12 @@ function diagDist(l1,l2){
 }
 
 // list legal moves from loc along given dirs
-function movesFromLoc(pos,loc,dirs,numRows,numCols){
+function movesFromLoc(pos,loc,dirs,numRows,numCols,captureQ){
     "use strict";
+    if(captureQ===undefined){
+        captureQ=false; }
     var res = mapLp(dirs,function(dir){
-			      return oneLine(pos,loc,dir,numRows,numCols);
+	return oneLine(pos,loc,dir,numRows,numCols,captureQ);
 			  });
     return flatten1(res);
 }

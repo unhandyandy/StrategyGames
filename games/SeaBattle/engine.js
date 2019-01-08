@@ -191,6 +191,9 @@ function scoreFor(pos){
     if(score.thrus.b>0&&score.luft.w===1){
 	s += c==="b" ? 10000 : -10000; }
     s += cons.thrus**score.thrus.w * (c==="w" ? 1 : -1);
+    const ranks = rankMat(pos.mat);
+    const dist = lookUp(ranks,pos.kingLoc) - 1;
+    s += 10000 / dist * (c==="w" ? 1 : -1); 
     return(s); }
 
 function scorePosSimp(pos){
@@ -253,16 +256,19 @@ const taflPos = {
     "mat":Object.clone(startMat),
     "plyr":1,
     "color":"w",
+    "kingLoc":[4,4],
     "equal":function(p){
         "use strict";
         return equalLp(this.mat,p.mat) &&
             this.plyr===p.plyr &&
             this.color===p.color; },
     "flip":function(){
+        "use strict";
         var newpos = Object.create(taflPos);
         newpos.mat = this.mat.clone();
         newpos.plyr = opposite(this.plyr);
         newpos.color = oppColor(this.color);
+        newpos.kingLoc = this.kingLoc;
         return newpos;
     },
     "clone":function(){
@@ -271,6 +277,7 @@ const taflPos = {
         newpos.mat = this.mat.clone();
         newpos.plyr = this.plyr;
         newpos.color = this.color;
+        newpos.kingLoc = this.kingLoc;
         return newpos; }
 }
 var posInit = taflPos.clone();
@@ -342,6 +349,10 @@ function positionFromMove(mv,pos,pl){
     newpos.mat = mat;
     newpos.plyr = opposite(plyr);
     newpos.color = oppColor(col);
+    if(pce==="k"){
+        newpos.kingLoc=mv[1]; }
+    else{
+        newpos.kingLoc=pos.kingLoc; }
     return newpos;
 }
 
@@ -385,27 +396,46 @@ function sortOrder(pos1,pos2){
     return s1 - s2;
 };
 
-function destsFrom(loc,mvs,pos){
+function destsFrom(loc,mat){
     "use strict"
-    if(mvs==="fill"){
-        mvs = movesFromPos(pos,false); }
-    const mvssel = mvs.filter(
-        function(m){
-            return m[0].equal(loc); } )
-    return mapLp(mvssel,function(m){return m[1];}); }
+//    const mat = mat0.clone();
+    const mvs = movesFromLoc(mat,loc,orthDirs,size,size,true);
+    return mapLp(mvs,function(m){return m[1];}); }
 
-function rank(loc,mvs,mat){
+function rankLoc(loc,mat,distances){
     "use strict"
-    if(mvs==="fill"){
-        const pos = taflPos.clone();
-        const posmat = Object.clone(mat);
-        lookUpSet(posmat,loc,"w");
-        pos.mat=posmat;
-        mvs = movesFromPos(pos); }
-    const dests = destsFrom(loc,mvs);
-    var vals = mapLp(dests,function(l){return lookUp(mat,l)});
+    const dold = lookUp(distances,loc);
+    if(dold>0){
+        return dold; }
+    const dests = destsFrom(loc,mat);
+    var vals = mapLp(dests,function(l){return lookUp(distances,l)});
     vals = vals.filter(function(v){return v>0});
-    return vals.length>0 ? 1 + Math.min.apply(null,vals) : Infinity;
+    const newv =  vals.length>0 ?
+          1 + Math.min.apply(null,vals) :
+          0;
+    const pce = lookUp(mat,loc);
+    return (pce==="w") ? newv + 1 :
+        (pce==="b") ? Infinity :
+        newv;
+}
+
+function rankNext(mat,ranks){
+    "use strict"
+    const nextranks = ranks.clone();
+    mapLp(allLocs,function(l){
+        lookUpSet(nextranks,l,rankLoc(l,mat,ranks)); });
+    return nextranks;
+}
+
+function rankMat(mat){
+    "use strict"
+    var ranks = makeRankInit();
+    do{ const lastr = ranks.clone();        
+        ranks = rankNext(mat,ranks);
+        if(ranks.equal(lastr)){
+            break; }
+    }while(true)
+    return ranks;
 }
 
 function makeRankInit(){
@@ -417,11 +447,11 @@ function makeRankInit(){
             if(i===0||i===size-1||j===0||j===size-1){
                 lookUpSet(mat,[i,j],1); }
             else{
-                lookUpSet(mat,[i,j],0); } } }
+            lookUpSet(mat,[i,j],0); } } }
     return mat;
 }
 
-const rankInit = makeRankInit();
+//const rankInit = makeRankInit(posInit.mat);
 const allLocs = makeAllLocs(size,size);
 
 clearAllCaches();
