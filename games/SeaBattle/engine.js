@@ -8,18 +8,21 @@
   setBGCols, rowLen, gameHistory, posCur, setButtonProps, numberSequence,
   mapLp */
 
-const cons={"moves":2,
-            "kingmoves":3,
+const cons={"moves":1,
+            "kingmoves":2,
             "vuln":8,
             "isol":1,
             "safe":1,
             "win":1000000,
             //"loss":1000,
             "luft":4,
-            "thrus":100,
+            "thrus":3,
 	    "pieces":16 };
 
-const handBird = 16;
+const handBird = 16,
+      consthrusw = 100,
+      consrank = 4000,
+      consBwin = 10000;
 
 const size=9;
 
@@ -189,11 +192,11 @@ function scoreFor(pos){
     for (var k of Object.keys(cons)){        
 	s += cons[k]*(handBird*score[k][c]-score[k][oppColor(c)]); }
     if(score.thrus.b>0&&score.luft.w===1){
-	s += c==="b" ? 10000 : -10000; }
-    s += cons.thrus**score.thrus.w * (c==="w" ? 1 : -1);
+	s += consBwin * (c==="b" ? 1 : -1); }
+    s += consthrusw**score.thrus.w * (c==="w" ? 1 : -1);
     const ranks = rankMat(pos.mat);
     const dist = lookUp(ranks,pos.kingLoc) - 1;
-    s += 2000 / dist * (c==="w" ? 1 : -1); 
+    s += consrank / dist * (c==="w" ? 1 : -1); 
     return(s); }
 
 function scorePosSimp(pos){
@@ -414,7 +417,7 @@ function rankLoc(loc,mat,distances){
           1 + Math.min.apply(null,vals) :
           0;
     const pce = lookUp(mat,loc);
-    return (pce==="w") ? newv + 1 :
+    return (pce==="w") ? (newv>0 ? newv + 1 : 0) :
         (pce==="b") ? Infinity :
         newv;
 }
