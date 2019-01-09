@@ -9,7 +9,7 @@
   mapLp */
 
 const cons={"moves":2,
-            "kingmoves":6,
+            "kingmoves":3,
             "vuln":8,
             "isol":1,
             "safe":1,
@@ -17,7 +17,7 @@ const cons={"moves":2,
             //"loss":1000,
             "luft":4,
             "thrus":100,
-	    "pieces":8 };
+	    "pieces":16 };
 
 const handBird = 16;
 
@@ -193,7 +193,7 @@ function scoreFor(pos){
     s += cons.thrus**score.thrus.w * (c==="w" ? 1 : -1);
     const ranks = rankMat(pos.mat);
     const dist = lookUp(ranks,pos.kingLoc) - 1;
-    s += 10000 / dist * (c==="w" ? 1 : -1); 
+    s += 2000 / dist * (c==="w" ? 1 : -1); 
     return(s); }
 
 function scorePosSimp(pos){
