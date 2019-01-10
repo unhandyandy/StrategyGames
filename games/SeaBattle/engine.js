@@ -10,10 +10,10 @@
 
 const cons={"moves":1,
             "kingmoves":2,
-            "vuln":8,
+            "vuln":16,
             "isol":1,
             "safe":1,
-            "win":1000000,
+            "win":1000000000,
             //"loss":1000,
             "luft":4,
             "thrus":3,
@@ -22,7 +22,8 @@ const cons={"moves":1,
 const handBird = 16,
       consthrusw = 100,
       consrank = 4000,
-      consBwin = 10000;
+      consBwin = 10000,
+      sandwich = 8;
 
 const size=9;
 
@@ -128,6 +129,8 @@ function scoreRowAux(r,score,prev,lastp,moves,reach){
         if(p==="k"){
             score.kingmoves.w += newmoves; }
         newmoves=0; }
+    if((p!="k")&&(q===oppColor(p))&&(q===prev)){
+        score.vuln[q] += 1; }
 
     // var newisol=((p!=0)&&(prev===0))||((p===0)&&lastisol);
     return scoreRowAux(tail,
@@ -295,7 +298,7 @@ const taflPos = {
         newpos.plyr = this.plyr;
         newpos.color = this.color;
         newpos.kingLoc = this.kingLoc;
-	newpos.history = makeHistory(this);
+	newpos.history = this.history.clone();
         return newpos; }
 }
 var posInit = taflPos.clone();
@@ -432,15 +435,39 @@ function rankLoc(loc,mat,distances){
     if(dold>0){
         return dold; }
     const dests = destsFrom(loc,mat);
-    var vals = mapLp(dests,function(l){return lookUp(distances,l)});
-    vals = vals.filter(function(v){return v>0});
-    const newv =  vals.length>0 ?
-          1 + Math.min.apply(null,vals) :
-          0;
+    var destdict = {};
+    mapLp(dests,function(l){destdict[l] = lookUp(distances,l)});
+    for(let k of Object.keys(destdict)){
+            if(!destdict[k]>0){
+                delete destdict[k]; }}
+    let newv;
+    const ks = Object.keys(destdict);
+    if(ks.length===0){
+        newv = 0; }
+    else if(ks.length===1){
+        newv = 1 + Object.values(destdict)[0]; }
+    else{
+        newv = multiplePaths(destdict,loc,mat); }
     const pce = lookUp(mat,loc);
     return (pce==="w") ? (newv>0 ? newv + 1 : 0) :
         (pce==="b") ? Infinity :
         newv;
+}
+
+function multiplePaths(dict,loc,mat){
+    "use strict"
+    const best = Math.min(...Object.values(dict));
+    const starts = Object.keys(dict).filter(k => dict[k]===best);
+    var num = 0;
+    for(let d of orthDirs){
+        if(oneLineFill(mat,loc,d,size,size,true).some(
+            e => starts.has(e.join()))){
+            num += 1;
+            if(num > 1){break}; } }
+    if(num===1){
+        return 1 + best; }
+    else{
+        return best; }
 }
 
 function rankNext(mat,ranks){
@@ -453,7 +480,7 @@ function rankNext(mat,ranks){
 
 function rankMat(mat){
     "use strict"
-    var ranks = makeRankInit();
+    var ranks = makeRankInit(mat);
     do{ const lastr = ranks.clone();        
         ranks = rankNext(mat,ranks);
         if(ranks.equal(lastr)){
@@ -462,14 +489,17 @@ function rankMat(mat){
     return ranks;
 }
 
-function makeRankInit(){
+function makeRankInit(posmat){
     "use strict"
     var mat = Array(size);
     mat = mapLp(mat,function(){return Array(size)});
     for(var i=0;i<size;i+=1){
         for(var j=0;j<size;j+=1){
             if(i===0||i===size-1||j===0||j===size-1){
-                lookUpSet(mat,[i,j],1); }
+                if(lookUp(posmat,[i,j])===0){
+                    lookUpSet(mat,[i,j],1); }
+                else{
+                    lookUpSet(mat,[i,j],2); } }
             else{
             lookUpSet(mat,[i,j],0); } } }
     return mat;

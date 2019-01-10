@@ -647,12 +647,9 @@ Array.prototype.intersection = function( lst ) {
     return res.filter( common );
 };
 
-Array.prototype.connected = function( lst, rel ){
+Array.prototype.meets = function( lst ){
     "use strict";
-    function fun( el ){
-	return lst.some( function ( e ){ return rel( e, el ); });
-    }
-    return this.some( fun );
+    return this.some(e => lst.has(e));
 };
 
 // converts list of strings to single string with space between each element 

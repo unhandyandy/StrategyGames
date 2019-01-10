@@ -31,14 +31,18 @@ function oneLine(pos,loc,dir,numRows,numCols,captureQ){
 }
 
 // list of all empty squares in direction dir contiguous from loc 
-function oneLineFill(pos,loc,dir,numRows,numCols){
+function oneLineFill(pos,loc,dir,numRows,numCols,captureQ){
     "use strict";
+    if(captureQ===undefined){
+        captureQ=false; }
     var res = [loc],
         fin = loc.vector2Add(dir);
     while(onBoardQ(fin,numRows,numCols) && lookUp(pos,fin)===0){
 	res.push(fin);
 	fin = fin.vector2Add(dir);
     }
+    if(captureQ && onBoardQ(fin,numRows,numCols)){
+        res.push(fin); }
     return res;
 }
 
