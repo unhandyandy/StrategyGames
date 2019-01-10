@@ -196,7 +196,9 @@ function scoreFor(pos){
     s += consthrusw**score.thrus.w * (c==="w" ? 1 : -1);
     const ranks = rankMat(pos.mat);
     const dist = lookUp(ranks,pos.kingLoc) - 1;
-    s += consrank / dist * (c==="w" ? 1 : -1); 
+    s += consrank / dist * (c==="w" ? 1 : -1);
+    if(repQ(pos)){
+	s += cons.win * (c==="b" ? 1 : -1); }
     return(s); }
 
 function scorePosSimp(pos){
@@ -254,12 +256,23 @@ function makeInitBdTab() {
 }
 const initBdTab = makeInitBdTab();
 
+function minID(pos){
+    "use strict"
+    return [pos.mat,pos.color]; }
+
+function makeHistory(pos){
+    "use strict"
+    const newhist = pos.history.clone();
+    newhist.push(minID(pos));
+    return newhist; }
+
 const taflPos = {
     "prototypeName": 'taflPos',
     "mat":Object.clone(startMat),
     "plyr":1,
     "color":"w",
     "kingLoc":[4,4],
+    "history":[],
     "equal":function(p){
         "use strict";
         return equalLp(this.mat,p.mat) &&
@@ -272,6 +285,7 @@ const taflPos = {
         newpos.plyr = opposite(this.plyr);
         newpos.color = oppColor(this.color);
         newpos.kingLoc = this.kingLoc;
+	newpos.history = [];
         return newpos;
     },
     "clone":function(){
@@ -281,6 +295,7 @@ const taflPos = {
         newpos.plyr = this.plyr;
         newpos.color = this.color;
         newpos.kingLoc = this.kingLoc;
+	newpos.history = makeHistory(this);
         return newpos; }
 }
 var posInit = taflPos.clone();
@@ -352,6 +367,7 @@ function positionFromMove(mv,pos,pl){
     newpos.mat = mat;
     newpos.plyr = opposite(plyr);
     newpos.color = oppColor(col);
+    newpos.history = makeHistory(pos);
     if(pce==="k"){
         newpos.kingLoc=mv[1]; }
     else{
@@ -372,18 +388,23 @@ function checkCaptures(mat,loc,plyr){
         return onBoardQ(n2,size,size) ? lookUp(mat,n2)===plyr : false; });
 }
 
+function repQ(pos){
+    "use strict"
+    return pos.history.has([pos.mat,pos.color]); 
+}
+
 function lossQ(pos){
     "use strict"
     const score = scoreMat(pos.mat);
     const q = oppColor(pos.color);
     return score.win[q]>0||
-        (repetitionQ(pos,pos.plyr)&&(pos.col==="w")); }
+        (repQ(pos)&&(pos.color==="w")); }
 
 function winQ(pos){
     "use strict"
     const score = scoreMat(pos.mat);
     return score.win[pos.color]>0||
-        (repetitionQ(pos,pos.plyr)&&(pos.col==="b")); }
+        (repQ(pos)&&(pos.color==="b")); }
 function drawQ(pos){
     return false; }
 

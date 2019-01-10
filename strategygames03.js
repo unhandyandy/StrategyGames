@@ -170,15 +170,20 @@ function undoGameHistory( n ){
 
 var minimaxABcache, minimaxABaux;
 
+function minID(pos){
+    "use strict";
+    return pos; }
+
 function minimaxAB(pos,depth,player){
     "use strict";
     var res, 
-        newdep = Math.max(depth,getDepth(pos,player)), 
-        cchval = minimaxABcache[[JSON.stringify(pos),newdep,player]];
+        newdep = Math.max(depth,getDepth(pos,player)),
+	posID = minID(pos),
+        cchval = minimaxABcache[[JSON.stringify(posID),newdep,player]];
     if(cchval===undefined){
 	res = minimaxABaux(pos,newdep,player,maxVal,-maxVal);
-	minimaxABcache[[JSON.stringify(pos),newdep,player]] = res;
-	depthTable[[JSON.stringify(pos),player]] = newdep;
+	minimaxABcache[[JSON.stringify(posID),newdep,player]] = res;
+	depthTable[[JSON.stringify(posID),player]] = newdep;
     }
     else{
 	res = cchval;
