@@ -337,7 +337,7 @@ function poscurToDisplay(pos){
 function movesFromPos(pos,sortedQ){
     "use strict";
     if (sortedQ===undefined){ sortedQ = true; }
-    var res = [];
+    let res = [];
     const mat = pos.mat
     for (var i=0;i<size;i+=1){
         for (var j=0;j<size;j+=1){
@@ -347,12 +347,17 @@ function movesFromPos(pos,sortedQ){
                 res = res.concat(mvs); } } }
     const allmoves = res.filter(function(m){
         return color(lookUp(mat,m[0]))===pos.color});
-    const sorted = sortedQ ?
-          allmoves.sort(function(a,b){
-	      return sortOrder(positionFromMove(a,pos),
-                               positionFromMove(b,pos)); }) :
-          allmoves;          
-    return sorted;
+    if(!sortedQ){
+        return res; }
+    else{
+        const sorted = partiallyOrderedList.clone(numChoices);
+        const vals = mapLp(allmoves,
+                           m => [m,scoreFor(positionFromMove(m,pos))]);
+        sorted.concat(vals);
+        return sorted.getList(); }
+          // allmoves.sort(function(a,b){
+	  //     return sortOrder(positionFromMove(a,pos),
+          //                      positionFromMove(b,pos)); })
 }
 
 function positionFromMove(mv,pos,pl){
