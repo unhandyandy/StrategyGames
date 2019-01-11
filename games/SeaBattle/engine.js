@@ -21,7 +21,7 @@ const cons={"moves":1,
 
 const handBird = 16,
       consthrusw = 100,
-      consrank = 4000,
+      consrank = 1000,
       consBwin = 10000,
       sandwich = 8;
 
@@ -198,7 +198,7 @@ function scoreFor(pos){
 	s += consBwin * (c==="b" ? 1 : -1); }
     s += consthrusw**score.thrus.w * (c==="w" ? 1 : -1);
     const ranks = rankMat(pos.mat);
-    const dist = lookUp(ranks,pos.kingLoc) - 1;
+    const dist = lookUp(ranks,pos.kingLoc);
     s += consrank / dist * (c==="w" ? 1 : -1);
     if(repQ(pos)){
 	s += cons.win * (c==="b" ? 1 : -1); }
@@ -432,24 +432,24 @@ function destsFrom(loc,mat){
 function rankLoc(loc,mat,distances){
     "use strict"
     const dold = lookUp(distances,loc);
-    if(dold>0){
+    if(dold<Infinity){
         return dold; }
     const dests = destsFrom(loc,mat);
     var destdict = {};
     mapLp(dests,function(l){destdict[l] = lookUp(distances,l)});
-    for(let k of Object.keys(destdict)){
-            if(!destdict[k]>0){
-                delete destdict[k]; }}
+    // for(let k of Object.keys(destdict)){
+    //         if(!destdict[k]>0){
+    //             delete destdict[k]; }}
     let newv;
     const ks = Object.keys(destdict);
     if(ks.length===0){
-        newv = 0; }
+        newv = Infinity; }
     else if(ks.length===1){
-        newv = 1 + Object.values(destdict)[0]; }
+        newv = Object.values(destdict)[0]; }
     else{
         newv = multiplePaths(destdict,loc,mat); }
     const pce = lookUp(mat,loc);
-    return (pce==="w") ? (newv>0 ? newv + 1 : 0) :
+    return (pce==="w") ? newv + 1 :
         (pce==="b") ? Infinity :
         newv;
 }
@@ -464,10 +464,11 @@ function multiplePaths(dict,loc,mat){
             e => starts.has(e.join()))){
             num += 1;
             if(num > 1){break}; } }
-    if(num===1){
-        return 1 + best; }
-    else{
-        return best; }
+    // if(num===1){
+    //     return 1 + best; }
+    // else{
+    //     return best; }
+    return Math.max(0,best + 2 - num);
 }
 
 function rankNext(mat,ranks){
@@ -497,11 +498,11 @@ function makeRankInit(posmat){
         for(var j=0;j<size;j+=1){
             if(i===0||i===size-1||j===0||j===size-1){
                 if(lookUp(posmat,[i,j])===0){
-                    lookUpSet(mat,[i,j],1); }
+                    lookUpSet(mat,[i,j],0); }
                 else{
-                    lookUpSet(mat,[i,j],2); } }
+                    lookUpSet(mat,[i,j],Infinity); } }
             else{
-            lookUpSet(mat,[i,j],0); } } }
+            lookUpSet(mat,[i,j],Infinity); } } }
     return mat;
 }
 
