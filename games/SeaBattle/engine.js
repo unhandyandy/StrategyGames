@@ -259,15 +259,15 @@ function makeInitBdTab() {
 }
 const initBdTab = makeInitBdTab();
 
-function minID(pos){
-    "use strict"
-    return [pos.mat,pos.color]; }
+// function posID(pos){
+//     "use strict"
+//     return [pos.mat,pos.color]; }
 
-function makeHistory(pos){
-    "use strict"
-    const newhist = pos.history.clone();
-    newhist.push(minID(pos));
-    return newhist; }
+// function makeHistory(pos){
+//     "use strict"
+//     const newhist = pos.history.clone();
+//     newhist.push(posID(pos));
+//     return newhist; }
 
 const taflPos = {
     "prototypeName": 'taflPos',
@@ -275,7 +275,7 @@ const taflPos = {
     "plyr":1,
     "color":"w",
     "kingLoc":[4,4],
-    "history":[],
+    //"history":[],
     "equal":function(p){
         "use strict";
         return equalLp(this.mat,p.mat) &&
@@ -288,7 +288,7 @@ const taflPos = {
         newpos.plyr = opposite(this.plyr);
         newpos.color = oppColor(this.color);
         newpos.kingLoc = this.kingLoc;
-	newpos.history = [];
+	//newpos.history = [];
         return newpos;
     },
     "clone":function(){
@@ -298,12 +298,10 @@ const taflPos = {
         newpos.plyr = this.plyr;
         newpos.color = this.color;
         newpos.kingLoc = this.kingLoc;
-	newpos.history = this.history.clone();
+	//newpos.history = this.history.clone();
         return newpos; }
 }
 var posInit = taflPos.clone();
-
-numChoices = 2;
 
 function makePosInit(){
     "use strict";
@@ -375,7 +373,7 @@ function positionFromMove(mv,pos,pl){
     newpos.mat = mat;
     newpos.plyr = opposite(plyr);
     newpos.color = oppColor(col);
-    newpos.history = makeHistory(pos);
+    //newpos.history = makeHistory(pos);
     if(pce==="k"){
         newpos.kingLoc=mv[1]; }
     else{
@@ -398,7 +396,7 @@ function checkCaptures(mat,loc,plyr){
 
 function repQ(pos){
     "use strict"
-    return pos.history.has([pos.mat,pos.color]); 
+    return repetitionQ(pos,pos.plyr); 
 }
 
 function lossQ(pos){
@@ -446,23 +444,27 @@ function rankLoc(loc,mat,distances){
     //         if(!destdict[k]>0){
     //             delete destdict[k]; }}
     let newv;
+    const pce = lookUp(mat,loc);
     const ks = Object.keys(destdict);
     if(ks.length===0){
         newv = Infinity; }
     else if(ks.length===1){
-        newv = Object.values(destdict)[0]; }
+        newv = Object.values(destdict)[0] + 1; }
+    else if(pce==="w"){
+	newv = Math.min(...Object.values(destdict)) + 1; }
+    else if(pce==="b"){
+	newv = Math.min(...Object.values(destdict)) + 2; }
     else{
         newv = multiplePaths(destdict,loc,mat); }
-    const pce = lookUp(mat,loc);
-    return (pce==="w") ? newv + 1 :
-        (pce==="b") ? Infinity :
-        newv;
+    return newv;
 }
 
 function multiplePaths(dict,loc,mat){
     "use strict"
     const best = Math.min(...Object.values(dict));
     const starts = Object.keys(dict).filter(k => dict[k]===best);
+    if(starts.length===1){
+	return best + 1; }
     var num = 0;
     for(let d of orthDirs){
         if(oneLineFill(mat,loc,d,size,size,true).some(
@@ -473,7 +475,7 @@ function multiplePaths(dict,loc,mat){
     //     return 1 + best; }
     // else{
     //     return best; }
-    return Math.max(0,best + 2 - num);
+    return best + 2 - num;
 }
 
 function rankNext(mat,ranks){
@@ -486,7 +488,7 @@ function rankNext(mat,ranks){
 
 function rankMat(mat){
     "use strict"
-    var ranks = makeRankInit(mat);
+    let ranks = makeRankInit(mat);
     do{ const lastr = ranks.clone();        
         ranks = rankNext(mat,ranks);
         if(ranks.equal(lastr)){

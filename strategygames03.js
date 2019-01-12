@@ -78,16 +78,17 @@ function scoreGame( pos, plyr ){
     var res = { H: 0, J: 0 };
     if ( drawQ( pos,plyr ) ){
 	return res;}
-    if ( lossQ( pos, plyr ) ){
-	if ( plyr === comp ) {
-	    res.J = 1;}
-	else {
-	    res.H = 1;} }
-    if ( winQ( pos, plyr ) ){
-	if ( plyr === comp ) {
-	    res.H = 1;}
-	else {
-	    res.J = 1;} }
+    //    if ( lossQ( pos, plyr ) ){
+    if ( plyr === comp ) {
+	res.J = 1;}
+    else {
+	res.H = 1;}
+    //}
+    // if ( winQ( pos, plyr ) ){
+    // 	if ( plyr === comp ) {
+    // 	    res.H = 1;}
+    // 	else {
+    // 	    res.J = 1;} }
     return res ;
 }
 
@@ -555,9 +556,9 @@ function repetitionQaux(pos,plyr,hist,stt){
     if(ind<0){
 	return false;
     }
-    par = ind/2;
-    par = (par === Math.floor(par));
-    if(par){
+    // par = ind/2;
+    // par = (par === Math.floor(par));
+    if(evenQ(ind)){
 	return plyr !== stt ||
 	    repetitionQaux( pos, plyr, hist.slice( ind + 1 ), 
 			    opposite(stt) );
