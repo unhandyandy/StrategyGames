@@ -10,18 +10,18 @@
 
 const cons={"moves":1,
             "kingmoves":2,
-            "vuln":16,
             "isol":1,
             "safe":1,
             "win":1000000000,
             //"loss":1000,
             "luft":4,
             "thrus":3,
-	    "pieces":16 };
+            "vuln":256,
+	    "pieces":256 };
 
 const handBird = 16,
       consthrusw = 100,
-      consrank = 1000,
+      consrank = 2000,
       consBwin = 10000,
       sandwich = 8;
 
@@ -227,7 +227,7 @@ pmDisabled = true;
 
 //const noComp = true;
 
-desiredDepth = 4;
+desiredDepth = 6;
 
 numChoices = 3;
 
@@ -453,7 +453,7 @@ function rankLoc(loc,mat,distances){
     else if(pce==="w"){
 	newv = Math.min(...Object.values(destdict)) + 1; }
     else if(pce==="b"){
-	newv = Math.min(...Object.values(destdict)) + 2; }
+	newv = Math.min(...Object.values(destdict)) + 1.2; }
     else{
         newv = multiplePaths(destdict,loc,mat); }
     return newv;
