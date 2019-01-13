@@ -200,7 +200,7 @@ function minimaxABaux(pos,depth,player,useThresh,passThresh){
 	return minimaxAB(pos,deptab,player);
     }
     if(depth===0){
-	return makeStr(staticPos(pos,player),[]);
+	return makeStr(Math.min(maxVal,Math.max(-maxVal,staticPos(pos,player))),[]);
     }
     newmvs = movesFromPos(pos,player);
     if(newmvs.length>numChoices){
@@ -216,13 +216,13 @@ function minimaxABaux(pos,depth,player,useThresh,passThresh){
     }
     else{
 	quit = false;
-	s = successors;
+	s = successors.reverse();
 	do{
 	    succ = s.pop();
 	    //console.debug("succ = %s",succ.join());
 	    //console.debug("pos = %s",pos.join());
 	    newpos = positionFromMove(succ,pos,player);
-	    updateGameHistory( succ, newpos );
+	    updateGameHistory( "mmAB", pos );
 	    //console.debug("newpos computed");
 	    newplayer = opposite(player);
 	    if(winQ(newpos,newplayer)){
