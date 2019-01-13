@@ -181,6 +181,7 @@ function minimaxAB(pos,depth,player){
         newdep = Math.max(depth,getDepth(pos,player)),
 	posID = minID(pos),
         cchval = minimaxABcache[[JSON.stringify(posID),newdep,player]];
+    //console.log("cchval: ",cchval);
     if(cchval===undefined){
 	res = minimaxABaux(pos,newdep,player,maxVal,-maxVal);
 	minimaxABcache[[JSON.stringify(posID),newdep,player]] = res;
@@ -318,6 +319,7 @@ function compTurn(){
 	    //     newdep = desiredDepth;
 	    // };
 	    newcalc = minimaxAB(posCur,desiredDepth,statusN);
+	    //console.log(newcalc);
 	    mov = nextMove(newcalc);
 	    // var val = moveValue( newcalc );
 	    // console.log( "val = ", val );

@@ -8,20 +8,20 @@
   setBGCols, rowLen, gameHistory, posCur, setButtonProps, numberSequence,
   mapLp */
 
-const cons={"moves":1,
-            "kingmoves":2,
+const cons={"moves":8,
+            "kingmoves":16,
             "isol":1,
             "safe":1,
             "win":1000000000,
             //"loss":1000,
             "luft":4,
             "thrus":3,
-            "vuln":256,
-	    "pieces":256 };
+            "vuln":128,
+	    "pieces":128 };
 
-const handBird = 16,
+const handBird = 2,
       consthrusw = 100,
-      consrank = 2000,
+      consrank = 1000,
       consBwin = 10000,
       sandwich = 8;
 
@@ -199,7 +199,7 @@ function scoreFor(pos){
     s += consthrusw**score.thrus.w * (c==="w" ? 1 : -1);
     const ranks = rankMat(pos.mat);
     const dist = lookUp(ranks,pos.kingLoc);
-    s += consrank / dist * (c==="w" ? 1 : -1);
+    s += (c==="w" ? 1 : -1) * consrank / (20 ** (dist - 1));
     if(repQ(pos)){
 	s += cons.win * (c==="b" ? 1 : -1); }
     return(s); }
@@ -475,7 +475,7 @@ function multiplePaths(dict,loc,mat){
     //     return 1 + best; }
     // else{
     //     return best; }
-    return best + 2 - num;
+    return num===1 ? best + 1 : best===Infinity ? Infinity : best + best/(best+1);;
 }
 
 function rankNext(mat,ranks){
