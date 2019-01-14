@@ -78,61 +78,54 @@ function scoreRowAux(r,score,prev,lastp,moves,reach){
           tail=r.slice(1,),
           cp=color(p),
           clp=color(lastp);
-    var newmoves = moves;
-    if(p!=0){
-	score.pieces[cp] += 0.5; }
-    if((color(p)===color(prev))&&(p!=0)){
-        score.safe[cp]+=1; }
-    // if((p!=0)&&opposed(p,lastp)&&lastvuln&&(lastp!="k")){
-    //     score.vuln[cp]+=1; }
-    // if((p===0)&&["b","w"].has(prev)&&lastvuln&&reach(j,oppColor(prev))){
-    //     score.vuln[oppColor(prev)] += 1; }
-    if((p===0)&&(prev==="k")&&reach(j,"b")){
-        score.thrus.b += 1; }
-    if((p==="k")&&(prev===0)&&reach(j-1,"b")){
-        score.thrus.b += 1; }
-    // vulnerabilities
-    if(["b","w"].has(p)&&(prev===0)&&(q===oppColor(p))&&reach(j-1,q)){
-        score.vuln[q] += 1; }
-    if(["b","w"].has(p)&&(q===0)&&
-       (prev===oppColor(p))&&reach(j+1,oppColor(p))){
-        score.vuln[prev] += 1; }
-    // if((p!=0)&&opposed(p,prev)&&lastvuln&&(lastp!="k")){
-    //     score.vuln[cp] += 1; }
-    // if(["b","w"].has(lastp)&&(lastisol)&&(p===0)){
-    //     score.isol[clp]+=1; }
-    if(["b","w"].has(p)&&(prev===0)&&(q===0)){
-        score.isol[oppColor(cp)] += 1; }
-    if((clp!=0)&&(p===0)){
-        score.moves[clp]+=1;
-        if(lastp==="k"){
-            score.kingmoves.w += 1; } }
+    let newmoves = moves;
     if(p===0){
-        newmoves+=1;}
-    if(((p==="k")&&[0,"w"].has(prev))||((prev==="k")&&[0,"w"].has(p))){
-        //score.luft.b -= 1; 
-        score.luft.w += 1;
-	if([p,prev].has("w")){
-	    score.luft.w += 1; } }
-    if(((p==="k")&&(newmoves+r.length===size))||
-       ((lastp==="k")&&(r.length===1)&&(p===0))){
-        //score.thrus.b -= 1; 
-        score.thrus.w += 1; }
-    if((lastp==="k")&&(newmoves>0)&&(p==="b")){
-        score.thrus.b += 1; }
-    if((p==="k")&&[size,1].has(r.length)){
-        score.win["w"]+=1; }
-    // if(((lastp==="k")&&(p===0))||((p==="k")&&(lastp===0))){
-    //     score.win.w+=1; }
-    if(p!=0){
+        newmoves+=1;
+        if((prev==="k")&&reach(j,"b")){
+            score.thrus.b += 1; }
+        if(clp!=0){
+            score.moves[clp]+=1;
+            if(lastp==="k"){
+                score.kingmoves.w += 1; } }
+        if((lastp==="k")&&(r.length===1)){
+            score.thrus.w += 1; }
+    }else{
+        score.pieces[cp] += 0.5;
         score.moves[cp]+=newmoves;
         if(p==="k"){
             score.kingmoves.w += newmoves; }
-        newmoves=0; }
-    if((p!="k")&&(q===oppColor(p))&&(q===prev)){
-        score.vuln[q] += 1; }
+        newmoves=0;
+        if((color(p)===color(prev))){
+            score.safe[cp]+=1; }
+    }
+    if(p==="k"){
+        if((prev===0)&&reach(j-1,"b")){
+            score.thrus.b += 1; }
+        if([0,"w"].has(prev)){
+            score.luft.w += (prev==="w") ? 2 : 1; }
+        if(newmoves+r.length===size){
+            score.thrus.w += 1; }
+        if([size,1].has(r.length)){
+            score.win["w"]+=1; }
+    }else{
+        if((q===oppColor(p))&&(q===prev)){
+            score.vuln[q] += 1; }
+    }
+    if(["b","w"].has(p)){
+        if((prev===0)&&(q===oppColor(p))&&reach(j-1,q)){
+            score.vuln[q] += 1; }
+        if((q===0)&&
+           (prev===oppColor(p))&&
+           reach(j+1,oppColor(p))){
+            score.vuln[prev] += 1; }
+        if((prev===0)&&(q===0)){
+            score.isol[oppColor(cp)] += 1; }
+    }
+    if((prev==="k")&&[0,"w"].has(p)){
+        score.luft.w += (p==="w") ? 2 : 1; }
+    if((lastp==="k")&&(newmoves>0)&&(p==="b")){
+        score.thrus.b += 1; }
 
-    // var newisol=((p!=0)&&(prev===0))||((p===0)&&lastisol);
     return scoreRowAux(tail,
                        score,
                        p,
@@ -140,6 +133,84 @@ function scoreRowAux(r,score,prev,lastp,moves,reach){
                        newmoves,
                        reach);
 }
+
+
+
+// function scoreRowAux(r,score,prev,lastp,moves,reach){
+//     "use strict";
+//     if(reach===undefined){
+//         reach = function(){return false}; }
+//     if(r.length===0){
+//         return(score); }
+//     const p=r[0],
+//           q=r[1],
+//           j = size - r.length,
+//           tail=r.slice(1,),
+//           cp=color(p),
+//           clp=color(lastp);
+    
+//     var newmoves = moves;
+//     if(p!=0){
+// 	score.pieces[cp] += 0.5; }
+//     if((color(p)===color(prev))&&(p!=0)){
+//         score.safe[cp]+=1; }
+//     // if((p!=0)&&opposed(p,lastp)&&lastvuln&&(lastp!="k")){
+//     //     score.vuln[cp]+=1; }
+//     // if((p===0)&&["b","w"].has(prev)&&lastvuln&&reach(j,oppColor(prev))){
+//     //     score.vuln[oppColor(prev)] += 1; }
+//     if((p===0)&&(prev==="k")&&reach(j,"b")){
+//         score.thrus.b += 1; }
+//     if((p==="k")&&(prev===0)&&reach(j-1,"b")){
+//         score.thrus.b += 1; }
+//     // vulnerabilities
+//     if(["b","w"].has(p)&&(prev===0)&&(q===oppColor(p))&&reach(j-1,q)){
+//         score.vuln[q] += 1; }
+//     if(["b","w"].has(p)&&(q===0)&&
+//        (prev===oppColor(p))&&reach(j+1,oppColor(p))){
+//         score.vuln[prev] += 1; }
+//     // if((p!=0)&&opposed(p,prev)&&lastvuln&&(lastp!="k")){
+//     //     score.vuln[cp] += 1; }
+//     // if(["b","w"].has(lastp)&&(lastisol)&&(p===0)){
+//     //     score.isol[clp]+=1; }
+//     if(["b","w"].has(p)&&(prev===0)&&(q===0)){
+//         score.isol[oppColor(cp)] += 1; }
+//     if((clp!=0)&&(p===0)){
+//         score.moves[clp]+=1;
+//         if(lastp==="k"){
+//             score.kingmoves.w += 1; } }
+//     if(p===0){
+//         newmoves+=1;}
+//     if(((p==="k")&&[0,"w"].has(prev))||((prev==="k")&&[0,"w"].has(p))){
+//         //score.luft.b -= 1; 
+//         score.luft.w += 1;
+// 	if([p,prev].has("w")){
+// 	    score.luft.w += 1; } }
+//     if(((p==="k")&&(newmoves+r.length===size))||
+//        ((lastp==="k")&&(r.length===1)&&(p===0))){
+//         //score.thrus.b -= 1; 
+//         score.thrus.w += 1; }
+//     if((lastp==="k")&&(newmoves>0)&&(p==="b")){
+//         score.thrus.b += 1; }
+//     if((p==="k")&&[size,1].has(r.length)){
+//         score.win["w"]+=1; }
+//     // if(((lastp==="k")&&(p===0))||((p==="k")&&(lastp===0))){
+//     //     score.win.w+=1; }
+//     if(p!=0){
+//         score.moves[cp]+=newmoves;
+//         if(p==="k"){
+//             score.kingmoves.w += newmoves; }
+//         newmoves=0; }
+//     if((p!="k")&&(q===oppColor(p))&&(q===prev)){
+//         score.vuln[q] += 1; }
+
+//     // var newisol=((p!=0)&&(prev===0))||((p===0)&&lastisol);
+//     return scoreRowAux(tail,
+//                        score,
+//                        p,
+//                        p===0 ? lastp : p,
+//                        newmoves,
+//                        reach);
+// }
 
 function addScores(s1,s2){
     "use strict";
@@ -223,13 +294,13 @@ function scorePosSimp(pos){
 // testing
 
 
-pmDisabled = true;
+//pmDisabled = true;
 
 //const noComp = true;
 
 desiredDepth = 6;
 
-numChoices = 4;
+numChoices = 5;
 
 const bdSize = 9;
 
@@ -334,6 +405,14 @@ function poscurToDisplay(pos){
 
 function movesFromPos(pos,sortedQ){
     "use strict";
+    if(pos.equal(posInit)&&comp===1){
+        return [[[4,5],[3,5]],
+                [[4,6],[2,6]],
+                [[4,5],[1,5]],
+                [[4,6],[0,6]],
+                [[4,6],[1,6]],
+                [[4,5],[2,5]],
+                [[4,6],[3,6]]]; }
     if (sortedQ===undefined){ sortedQ = true; }
     let res = [];
     const mat = pos.mat
@@ -430,7 +509,7 @@ function destsFrom(loc,mat){
     "use strict"
 //    const mat = mat0.clone();
     const mvs = movesFromLoc(mat,loc,orthDirs,size,size,true);
-    return mapLp(mvs,function(m){return m[1];}); }
+    return mapLp(mvs,m => m[1]); }
 
 function rankLoc(loc,mat,distances){
     "use strict"
