@@ -227,9 +227,9 @@ pmDisabled = true;
 
 //const noComp = true;
 
-desiredDepth = 4;
+desiredDepth = 6;
 
-numChoices = 5;
+numChoices = 4;
 
 const bdSize = 9;
 
@@ -348,7 +348,7 @@ function movesFromPos(pos,sortedQ){
     if(!sortedQ){
         return res; }
     else{
-        const sorted = partiallyOrderedList.clone(numChoices);
+        const sorted = partiallyOrderedList.create(numChoices);
         const vals = mapLp(allmoves,
                            m => [m,scoreFor(positionFromMove(m,pos))]);
         sorted.concat(vals);

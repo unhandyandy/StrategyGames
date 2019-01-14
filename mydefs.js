@@ -896,32 +896,40 @@ var numberSeqSum = {
 const partiallyOrderedList = {
     "top":0,
     "list":[],
+    "cut":Infinity,
     "add":function(el,v){
         "use strict";
         let added = false;
-        for(let i=0; i<this.top; i+=1){
-            const cur = this.list[i];
-            if(cur===undefined){
-                this.list.push([v,el]);
-                added = true;
-                break;  }
-            if(v<cur[0]){
-                const front = this.list.slice(0,i);
-                front.push([v,el]);
-                const back = this.list.slice(i,);
-                this.list = front.concat(back);
-                added = true;
-                break; } };
-        if(!added){
-            this.list.push([v,el]); } },
+	if(v>=this.cut){
+	    this.list.push([v,el]); }
+	else{
+            for(let i=0; i<this.top; i+=1){
+		const cur = this.list[i];
+		if(cur===undefined){
+                    this.list.push([v,el]);
+                    added = true;
+                    break;  }
+		if(v<cur[0]){
+                    const front = this.list.slice(0,i);
+                    front.push([v,el]);
+                    const back = this.list.slice(i,);
+                    this.list = front.concat(back);
+                    added = true;
+                    break; } };
+            if(added){
+	    	if(this.list.length>=this.top){
+		    this.cut=this.list[this.top-1][0]; } }
+	    else{
+		this.list.push([v,el]); } } },
     "getList":function(){
         "use strict";
         return mapLp(this.list,e => e[1]); },
-    "clone":function(top){
+    "create":function(top){
         "use strict";
         const newpol = Object.create(partiallyOrderedList);
         newpol.top = top;
         newpol.list = [];
+	newpol.cut=Infinity;
         return newpol; },
     "concat":function(newlist){
         "use strict";
