@@ -506,7 +506,7 @@ function postMove(mv,who){
     if(!pauseQ){
 	updatePosCur(mv);
 	postMessage( now );
-	postMessage( nxt );
+	if(!gameOverQ(posCur,statusN){postMessage( nxt );}
 	if (twoComps ){
 	    comp = opposite(comp);
 	    postMessage( "Thinking..." );
