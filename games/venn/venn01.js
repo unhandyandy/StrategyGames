@@ -12,7 +12,7 @@
 /*global reDrawAll, rePrintSizesAll, reDrawAll, cnvArc */
 /*global drawSizeLine, ssUnion, checkIntQ, resetSizes, toggleMode, stackPop, stackPush, sizeFromSum, sizeFromDiff, toggleChooseMode, chooseMode, toggleWSPuz, writeSize, puzzleMode:true, numCircles:true, setPuzBut */
 
-var cnv, cnvelm, CANVAS;
+var cnv, cnvelm;
 
 numCircles = 3;
 
@@ -24,6 +24,7 @@ sideDev = crcSep / 2;
 mrgn = wdth / 10;
 vmrgn = hght / 10;
 posLab = {};
+posRect = { "x": mrgn, "y": vmrgn, "width": wdth - 2 * mrgn, "height": hght - 2 * vmrgn };
 posLab.A = { x: 2 * mrgn, y: 2 * vmrgn };
 posLab.B = { x: wdth - 2.2 * mrgn, y: 2 * vmrgn };
 posLab.C = { x: wdth * 0.30, y: hght - 1.5 * vmrgn };
@@ -31,7 +32,6 @@ posCent = {};
 posCent.A = { x: cntrWd - sideDev, y: cntrHt - upDev };
 posCent.B = { x: cntrWd + sideDev, y: cntrHt - upDev };
 posCent.C = { x: cntrWd, y: cntrHt + dnDev };
-posRect = { "x": mrgn, "y": vmrgn, "width": wdth - 2 * mrgn, "height": hght - 2 * vmrgn };
 
 
 labelhtml = "<hbox><input id='labA' class='lab' type='text' size='2'></input>\
@@ -685,7 +685,7 @@ function fillPassedValues( ){
 function initPage(  ){
     "use strict";
 
-    var cnvStr = "<canvas id='vd' width=" + wdth + " height=" + hght + ">Your browser doesn't support the canvas element.</canvas>";
+    let cnvStr = "<canvas id='vd' width=" + wdth + " height=" + hght + ">Your browser doesn't support the canvas element.</canvas>";
 
     setDiv( "canvasDiv", cnvStr );
 
@@ -724,7 +724,7 @@ function initPage(  ){
     fillPassedValues();
     reDrawAll();
 
-  CANVAS = cnv;
+    //CANVAS = cnv;
 }
 
 setTimeout( initPage, 100 );

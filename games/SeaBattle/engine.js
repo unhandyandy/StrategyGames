@@ -270,7 +270,7 @@ function scoreFor(pos){
     s += consthrusw**score.thrus.w * (c==="w" ? 1 : -1);
     const ranks = rankMat(pos.mat);
     const dist = lookUp(ranks,pos.kingLoc);
-    s += (c==="w" ? 1 : -0.1) * consrank / (10 ** (dist - 1));
+    s += (c==="w" ? 1 : -0.4) * consrank / (4 ** (dist - 1));
     if(repQ(pos)){
 	s += cons.win * (c==="b" ? 1 : -1); }
     return(s); }

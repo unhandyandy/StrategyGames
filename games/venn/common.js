@@ -1,7 +1,7 @@
 //-*- js-mode -*-
 
 /*jslint browser: true, devel: true, es5: true */
-/*global setDiv, makeTag, cartesianProduct, makeButton, setTagOpt, setTagSty, getDiv, makeValCheck, flatten1, compareNumbers, newButtonOpts, setClickHandler, setOnClick, betterBezier, smallSet, unescape, cnv, cnvelm, repeatTxt, makeButt, Matrix, detSize */
+/*global setDiv, makeTag, cartesianProduct, makeButton, setTagOpt, setTagSty, getDiv, makeValCheck, flatten1, compareNumbers, newButtonOpts, setClickHandler, setOnClick, smallSet, unescape, cnv, cnvelm, repeatTxt, makeButt, Matrix, detSize */
 
 var wdth, hght, cntrHt, cntrWd, sideDev, upDev, dnDev, crcSep, mrgn, vmrgn;
 var labelhtml, posLab, charLab, posCent, drawArc, pi, pieces, rad, posRect;
@@ -286,6 +286,7 @@ function drawSizeLine( x1, y1, x2, y2 ){
     cnv.moveTo( x1, y1 );
     cnv.lineTo( x2, y2 );
     cnv.stroke();
+    cnv.closePath();
 }
 
 
@@ -566,3 +567,4 @@ function toggleWSPuz(){
     drawInkInd();
     if ( puzzleMode ){ initPuzzle(); }
 }
+

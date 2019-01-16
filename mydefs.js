@@ -829,21 +829,19 @@ if (typeof Object.prototype.forEach !== 'function') {
     };
 }
 
-
-
-function betterBezier( x1, y1, a1, a2, x2, y2, scale, cnv ){
+function betterBezier( x1, y1, a1, a2, x2, y2, scale){
     "use strict";
     var cos1, sin1, cos2, sin2;
     if ( !scale ){
 	scale = 40;
     }
-    if ( cnv === undefined ){
-	cnv = CANVAS;
-    }
-    cos1 = Math.cos( a1 / 360 * 2 * Math.pi );
-    sin1 = Math.sin( a1 / 360 * 2 * Math.pi ); 
-    cos2 = Math.cos( a2 / 360 * 2 * Math.pi );
-    sin2 = Math.sin( a2 / 360 * 2 * Math.pi ); 
+    // if ( cnv === undefined ){
+    //     cnv = CANVAS;
+    // }
+    cos1 = Math.cos( a1 / 360 * 2 * Math.PI );
+    sin1 = Math.sin( a1 / 360 * 2 * Math.PI ); 
+    cos2 = Math.cos( a2 / 360 * 2 * Math.PI );
+    sin2 = Math.sin( a2 / 360 * 2 * Math.PI ); 
     cnv.beginPath();
     cnv.strokeStyle = "Blue";
     cnv.moveTo( x1, y1 );
