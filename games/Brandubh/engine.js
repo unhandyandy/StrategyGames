@@ -30,15 +30,6 @@ var rowScore = {};
 for (k of Object.keys(cons)){
     rowScore[k] = {"b":0,"w":0}; }
 
-const rowScore = {"moves":{"b":0,"w":0},
-                  "vuln":{"b":0,"w":0},
-                  "isol":{"b":0,"w":0},
-                  "safe":{"b":0,"w":0},
-                  "win":{"b":0,"w":0},
-                  "thrus":{"b":0,"w":0}
-//                  "luft":{"b":0,"w":0}
-		 };
-
 function opposed(p,q){
     "use strict";
     return (p==="b") ? (q==="w"||q==="k") : (
@@ -57,14 +48,14 @@ function color(p){
     else return(0); }
            
 
-function scoreRow(r,reach,edgeQ){
+function scoreRow(r,reach,i){
     "use strict";
     var score=Object.clone(rowScore);
     //const p=r[0];
-    return(scoreRowAux(r,score,"e","e",0,reach,edgeQ));
+    return(scoreRowAux(r,score,"e","e",0,reach,i));
 }
 
-function scoreRowAux(r,score,prev,lastp,moves,reach,edgeQ){
+function scoreRowAux(r,score,prev,lastp,moves,reach,i){
     "use strict";
     if(reach===undefined){
         reach = function(){return false}; }
@@ -80,13 +71,13 @@ function scoreRowAux(r,score,prev,lastp,moves,reach,edgeQ){
     let newmoves = moves;
     if(p===0){
         newmoves+=1;
-        if((prev==="k")&&reach(j,"b")){
-            score.thrus.b += 1; }
+        // if((prev==="k")&&reach(j,"b")){
+        //     score.thrus.b += 1; }
         if(clp!=0){
             score.moves[clp]+=1;
             if(lastp==="k"){
                 score.kingmoves.w += 1; } }
-        if(edgeQ&&(lastp==="k")&&(r.length===1)){
+        if(corners.has([i,j])&&(lastp==="k")){
             score.thrus.w += 1; }
     }else{
         score.pieces[cp] += 0.5;
@@ -96,22 +87,22 @@ function scoreRowAux(r,score,prev,lastp,moves,reach,edgeQ){
         newmoves=0;
         if((cp===color(prev))){
             score.safe[cp]+=1; }
-	if(((prev===0)&&(q===co)&&reach(j-1,q)) ||
-	   ((q===0)&&(prev===co)&&reach(j+1,co))){
+	if(((prev===0)&&(q===co || (q===0&&corncent.has([i,j+1])))&&reach(j-1,co)) ||
+	   ((q===0)&&(prev===co || (prev===0&&corncent.has([i,j-1])))&&reach(j+1,co))){
 	    if(p==="k"){
 		score.thrus.b += 1; }
 	    else{
 		score.vuln[co] += 1; } }
     }
     if(p==="k"){
-        if((prev===0)&&reach(j-1,"b")){
-            score.thrus.b += 1; }
+        // if((prev===0)&&reach(j-1,"b")){
+        //     score.thrus.b += 1; }
         // if([0,"w"].has(prev)){
         //     score.luft.w += (prev==="w") ? 2 : 1; }
-        if(edgeQ&&(newmoves+r.length===size)){
+        if((i===0||i===size-1)&&(newmoves+r.length===size)){
             score.thrus.w += 1; }
-        if(edgeQ&&[size,1].has(r.length)){
-            score.win["w"]+=0.5; }
+        if(corners.has([i,j])){
+            score.win.w += 0.5; }
     }else{
         if((q===oppColor(p))&&(q===prev)){
             score.vuln[q] += 1; }
@@ -122,8 +113,8 @@ function scoreRowAux(r,score,prev,lastp,moves,reach,edgeQ){
     }
     // if((prev==="k")&&[0,"w"].has(p)){
     //     score.luft.w += (p==="w") ? 2 : 1; }
-    if((lastp==="k")&&(newmoves>0)&&(p==="b")){
-        score.thrus.b += 1; }
+    // if((lastp==="k")&&(newmoves>0)&&(p==="b")){
+    //     score.thrus.b += 1; }
 
     return scoreRowAux(tail,
                        score,
@@ -131,86 +122,8 @@ function scoreRowAux(r,score,prev,lastp,moves,reach,edgeQ){
                        p===0 ? lastp : p,
                        newmoves,
                        reach,
-		       edgeQ);
+		       i);
 }
-
-
-
-// function scoreRowAux(r,score,prev,lastp,moves,reach){
-//     "use strict";
-//     if(reach===undefined){
-//         reach = function(){return false}; }
-//     if(r.length===0){
-//         return(score); }
-//     const p=r[0],
-//           q=r[1],
-//           j = size - r.length,
-//           tail=r.slice(1,),
-//           cp=color(p),
-//           clp=color(lastp);
-    
-//     var newmoves = moves;
-//     if(p!=0){
-// 	score.pieces[cp] += 0.5; }
-//     if((color(p)===color(prev))&&(p!=0)){
-//         score.safe[cp]+=1; }
-//     // if((p!=0)&&opposed(p,lastp)&&lastvuln&&(lastp!="k")){
-//     //     score.vuln[cp]+=1; }
-//     // if((p===0)&&["b","w"].has(prev)&&lastvuln&&reach(j,oppColor(prev))){
-//     //     score.vuln[oppColor(prev)] += 1; }
-//     if((p===0)&&(prev==="k")&&reach(j,"b")){
-//         score.thrus.b += 1; }
-//     if((p==="k")&&(prev===0)&&reach(j-1,"b")){
-//         score.thrus.b += 1; }
-//     // vulnerabilities
-//     if(["b","w"].has(p)&&(prev===0)&&(q===oppColor(p))&&reach(j-1,q)){
-//         score.vuln[q] += 1; }
-//     if(["b","w"].has(p)&&(q===0)&&
-//        (prev===oppColor(p))&&reach(j+1,oppColor(p))){
-//         score.vuln[prev] += 1; }
-//     // if((p!=0)&&opposed(p,prev)&&lastvuln&&(lastp!="k")){
-//     //     score.vuln[cp] += 1; }
-//     // if(["b","w"].has(lastp)&&(lastisol)&&(p===0)){
-//     //     score.isol[clp]+=1; }
-//     if(["b","w"].has(p)&&(prev===0)&&(q===0)){
-//         score.isol[oppColor(cp)] += 1; }
-//     if((clp!=0)&&(p===0)){
-//         score.moves[clp]+=1;
-//         if(lastp==="k"){
-//             score.kingmoves.w += 1; } }
-//     if(p===0){
-//         newmoves+=1;}
-//     if(((p==="k")&&[0,"w"].has(prev))||((prev==="k")&&[0,"w"].has(p))){
-//         //score.luft.b -= 1; 
-//         score.luft.w += 1;
-// 	if([p,prev].has("w")){
-// 	    score.luft.w += 1; } }
-//     if(((p==="k")&&(newmoves+r.length===size))||
-//        ((lastp==="k")&&(r.length===1)&&(p===0))){
-//         //score.thrus.b -= 1; 
-//         score.thrus.w += 1; }
-//     if((lastp==="k")&&(newmoves>0)&&(p==="b")){
-//         score.thrus.b += 1; }
-//     if((p==="k")&&[size,1].has(r.length)){
-//         score.win["w"]+=1; }
-//     // if(((lastp==="k")&&(p===0))||((p==="k")&&(lastp===0))){
-//     //     score.win.w+=1; }
-//     if(p!=0){
-//         score.moves[cp]+=newmoves;
-//         if(p==="k"){
-//             score.kingmoves.w += newmoves; }
-//         newmoves=0; }
-//     if((p!="k")&&(q===oppColor(p))&&(q===prev)){
-//         score.vuln[q] += 1; }
-
-//     // var newisol=((p!=0)&&(prev===0))||((p===0)&&lastisol);
-//     return scoreRowAux(tail,
-//                        score,
-//                        p,
-//                        p===0 ? lastp : p,
-//                        newmoves,
-//                        reach);
-// }
 
 function addScores(s1,s2){
     "use strict";
@@ -221,30 +134,28 @@ function addScores(s1,s2){
             res[k][c]=s1[k][c]+s2[k][c]; } }
     return(res); }
 
-function sumScores(scorelst){
-    "use strict";
-    var res=Object.clone(rowScore);
-    for (const s of scorelst){
-        res = addScores(res,s); }
-    return(res); }
+// function sumScores(scorelst){
+//     "use strict";
+//     var res=Object.clone(rowScore);
+//     for (const s of scorelst){
+//         res = addScores(res,s); }
+//     return(res); }
     
 function scoreMat(mat,reachable){
     "use strict";
     if(reachable===undefined){
         reachable = function(i){return function(){return false}; }; }
-    let sum = rowScore.clone();
+    let sum = Object.clone(rowScore);
     for(let i=0; i<size; i+=1){
-	const eQ = i===0 || i===(size - 1);
-	const newrowscore = scoreRow(mat[i],reachable(i),eQ);
+	const newrowscore = scoreRow(mat[i],reachable(i),i);
 	sum = addScores(sum,newrowscore); }
     var trans = matrixTranspose(mat);
     for(let i=0; i<size; i+=1){
-	const eQ = i===0 || i===(size - 1);
-	const newrowscore = scoreRow(trans[i],reachable(i+size),eQ);
+	const newrowscore = scoreRow(trans[i],reachable(i+size),i);
 	sum = addScores(sum,newrowscore); }
     // !!Check if king has been captured!!
-    if(){
-        sum.win.b += 1; }
+    // if(){
+    //     sum.win.b += 1; }
     return sum; }
 
 function canReach(pos,p,loc,mvs){
@@ -271,14 +182,18 @@ function scoreFor(pos){
     var s = 0;
     for (var k of Object.keys(cons)){        
 	s += cons[k]*(handBird*score[k][c]-score[k][oppColor(c)]); }
-    if(score.thrus.b>0&&score.luft.w===1){
-	s += consBwin * (c==="b" ? 1 : -1); }
+    if(score.thrus.b>0){
+        s += consBwin * (c==="b" ? 1 : -1); }
     s += consthrusw**score.thrus.w * (c==="w" ? 1 : -1);
     const ranks = rankMat(pos.mat);
-    const dist = lookUp(ranks,pos.kingLoc);
+    const dist = (!pos.kingLoc.equal([-1,-1])) ?
+          lookUp(ranks,pos.kingLoc) :
+          Infinity;
     s += (c==="w" ? 1 : -0.1) * consrank / (10 ** (dist - 1));
     if(repQ(pos)){
 	s += cons.win * (c==="b" ? 1 : -1); }
+    if(pos.kingLoc.equal([-1,-1])){
+        s += cons.win * (c==="b" ? 1 : -1); }
     return(s); }
 
 function scorePosSimp(pos){
@@ -287,7 +202,10 @@ function scorePosSimp(pos){
         return function(j,p){
             const loc = (i<size) ? [i,j] : [j,i % size];
             return canReach(pos,p,loc,possMovesBoth(pos)); }; }
-    return scoreMat(pos.mat,reachable); }
+    const score = scoreMat(pos.mat,reachable);
+    if(pos.kingLoc.equal([-1,-1])){
+        score.win.b += 1; }
+    return score; }
 
 // testing
 // const testrow1=["b",0,0,"w",0,"b","b","k",0],
@@ -300,25 +218,27 @@ function scorePosSimp(pos){
 // testing
 
 
-//pmDisabled = true;
+pmDisabled = true;
 
 //const noComp = true;
 
-desiredDepth = 6;
+desiredDepth = 4;
 
-numChoices = 5;
+numChoices = 3;
 
-const bdSize = 9;
+const bdSize = 7;
 
-const startMat = [[0,0,0,"b","b","b",0,0,0],
-                 [0,0,0,0,"b",0,0,0,0],
-                 [0,0,0,0,"w",0,0,0,0],
-                 ["b",0,0,0,"w",0,0,0,"b"],
-                 ["b","b","w","w","k","w","w","b","b"],
-                 ["b",0,0,0,"w",0,0,0,"b"],
-                 [0,0,0,0,"w",0,0,0,0],
-                 [0,0,0,0,"b",0,0,0,0],
-                  [0,0,0,"b","b","b",0,0,0]];
+const startMat = [[0,0,0,"b",0,0,0],
+                 [0,0,0,"b",0,0,0],
+                 [0,0,0,"w",0,0,0],
+                 ["b","b","w","k","w","b","b"],
+                 [0,0,0,"w",0,0,0],
+                 [0,0,0,"b",0,0,0],
+                  [0,0,0,"b",0,0,0]];
+
+const corners = [[0,0],[0,size-1],[size-1,0],[size-1,size-1]];
+const corncent = [[0,0],[0,size-1],[size-1,0],[size-1,size-1],
+                  [(size-1)/2,(size-1)/2]];
 
 function makeInitBdTab() {
     "use strict";
@@ -328,9 +248,10 @@ function makeInitBdTab() {
         for (j=0;j<bdSize;j+=1){
             var c = startMat[i][j];
             c = (c===0) ? " " : c;
+            const bgcol = corncent.has([i,j]) ? "#7f5" : "#5f7";
             row.push([c,[i,j],
                       {'height' : 56, 'width' : 64, 'fontsize' : 48,
-                       'bg':"#ccf",'fg':"black"}] ); }
+                       'bg':bgcol,'fg':"black"}] ); }
         res.push(row); }
     return res;
 }
@@ -350,8 +271,8 @@ const taflPos = {
     "prototypeName": 'taflPos',
     "mat":Object.clone(startMat),
     "plyr":1,
-    "color":"w",
-    "kingLoc":[4,4],
+    "color":"b",
+    "kingLoc":[3,3],
     //"history":[],
     "equal":function(p){
         "use strict";
@@ -412,29 +333,32 @@ function poscurToDisplay(pos){
 function movesFromPos(pos,sortedQ){
     "use strict";
     if(pos.equal(posInit)&&comp===1){
-        return [[[4,5],[3,5]],
-                [[4,6],[2,6]],
-                [[4,5],[1,5]],
-                [[4,6],[0,6]],
-                [[4,6],[1,6]],
-                [[4,5],[2,5]],
-                [[4,6],[3,6]]]; }
+        return [[[1,3],[1,2]],
+                [[1,3],[1,1]],
+                [[1,3],[1,0]],
+                [[0,3],[0,2]],
+                [[0,3],[0,1]]]; }
     if (sortedQ===undefined){ sortedQ = true; }
     let res = [];
-    const mat = pos.mat
+    const mat = pos.mat;
     for (var i=0;i<size;i+=1){
         for (var j=0;j<size;j+=1){
             const loc = [i,j];
             if(lookUp(mat,loc)!=0){
                 const mvs = movesFromLoc(mat,loc,orthDirs,size,size);
                 res = res.concat(mvs); } } }
-    const allmoves = res.filter(function(m){
-        return color(lookUp(mat,m[0]))===pos.color});
+    res = res.filter(function(m){
+        return color(lookUp(mat,m[0]))===pos.color; });
+    if(pos.color==="b"){
+        res = res.filter(m => !corners.has(m[1])); }
+    res = res.filter(m => lookUp(mat,m[0])==="k" ||
+                                 !(m[1].equal([3,3]) ||
+                                   corners.has(m[1])));
     if(!sortedQ){
         return res; }
     else{
         const sorted = partiallyOrderedList.create(numChoices);
-        const vals = mapLp(allmoves,
+        const vals = mapLp(res,
                            m => [m,scoreFor(positionFromMove(m,pos))]);
         sorted.concat(vals);
         return sorted.getList(); }
@@ -452,31 +376,36 @@ function positionFromMove(mv,pos,pl){
     lookUpSet(mat,mv[0],0)
     lookUpSet(mat,mv[1],pce)
     const captures = checkCaptures(mat,mv[1],col);
+    const newpos = taflPos.clone();
+    newpos.kingLoc=pos.kingLoc;
     for (const n of captures){
+        if(lookUp(mat,n)==="k"){
+            newpos.kingLoc=[-1,-1]; }
         lookUpSet(mat,n,0); }
-    var newpos = taflPos.clone();
     newpos.mat = mat;
     newpos.plyr = opposite(plyr);
     newpos.color = oppColor(col);
     //newpos.history = makeHistory(pos);
     if(pce==="k"){
         newpos.kingLoc=mv[1]; }
-    else{
-        newpos.kingLoc=pos.kingLoc; }
     return newpos;
 }
 
-function checkCaptures(mat,loc,plyr){
+function checkCaptures(mat,loc,col){
     "use strict";
-    if (lookUp(mat,loc)==="k"){
-        return []; }
     const nbs = nbrs(loc,orthDirs,size,size);
     return nbs.filter(function(n){
-        if(lookUp(mat,n)!=oppColor(plyr)){
+        const pce1 = lookUp(mat,n);
+        if(color(pce1)!=oppColor(col)){
             return false; }
         const d = n.vector2Minus(loc);
         const n2 = n.vector2Add(d);
-        return onBoardQ(n2,size,size) ? lookUp(mat,n2)===plyr : false; });
+        if(!onBoardQ(n2,size,size)){
+            return false; }
+        const pce2 = lookUp(mat,n2);
+        return color(pce2)===col ||
+             (n2.equal([3,3]) && pce2===0 && pce1!="k") ||
+            corners.has(n2); });
 }
 
 function repQ(pos){
@@ -488,14 +417,17 @@ function lossQ(pos){
     "use strict"
     const score = scoreMat(pos.mat);
     const q = oppColor(pos.color);
-    return score.win[q]>0||
-        (repQ(pos)&&(pos.color==="w")); }
+    return score.win[q]>0 ||
+        (repQ(pos)&&(pos.color==="w")) ||
+        pos.kingLoc.equal([-1,-1])&&pos.color==="w"; }
 
 function winQ(pos){
     "use strict"
     const score = scoreMat(pos.mat);
-    return score.win[pos.color]>0||
-        (repQ(pos)&&(pos.color==="b")); }
+    return score.win[pos.color]>0 ||
+        (repQ(pos)&&(pos.color==="b")) ||
+        pos.kingLoc.equal([-1,-1])&&pos.color==="b"; }
+
 function drawQ(pos){
     return false; }
 
@@ -588,17 +520,14 @@ function makeRankInit(posmat){
     mat = mapLp(mat,function(){return Array(size)});
     for(var i=0;i<size;i+=1){
         for(var j=0;j<size;j+=1){
-            if(i===0||i===size-1||j===0||j===size-1){
-                if(lookUp(posmat,[i,j])===0){
+            if((i===0||i===size-1)&&(j===0||j===size-1)){
                     lookUpSet(mat,[i,j],0); }
-                else{
-                    lookUpSet(mat,[i,j],Infinity); } }
             else{
-            lookUpSet(mat,[i,j],Infinity); } } }
+                lookUpSet(mat,[i,j],Infinity); } } }
     return mat;
 }
 
 //const rankInit = makeRankInit(posInit.mat);
 const allLocs = makeAllLocs(size,size);
 
-//clearAllCaches();
+clearAllCaches();
