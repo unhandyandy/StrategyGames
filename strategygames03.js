@@ -183,7 +183,7 @@ function minimaxAB(pos,depth,player){
         cchval = minimaxABcache[[JSON.stringify(posID),newdep,player]];
     //console.log("cchval: ",cchval);
     if(cchval===undefined){
-	res = minimaxABaux(pos,newdep,player,maxVal,-maxVal);
+	res = minimaxABaux(pos,newdep,player,Infinity,-Infinity);
 	minimaxABcache[[JSON.stringify(posID),newdep,player]] = res;
 	depthTable[[JSON.stringify(posID),player]] = newdep;
     }
@@ -209,12 +209,12 @@ function minimaxABaux(pos,depth,player,useThresh,passThresh){
     else{
 	successors = newmvs;
     }
-    bestPath = [successors[0]];
 
     if(successors.length === 0){
 	return makeStr(staticPos(pos,player),[]);
     }
     else{
+	bestPath = [successors[0]];
 	quit = false;
 	s = successors.reverse();
 	do{
@@ -244,7 +244,8 @@ function minimaxABaux(pos,depth,player,useThresh,passThresh){
 	    
 	    if(newValue > passThresh){
 		passThresh = newValue;
-		bestPath = [succ].concat(path(resSucc));
+		if(resSucc!=undefined){
+		    bestPath = [succ].concat(path(resSucc)); }
 	    }
 	    if(passThresh >= useThresh){
 		quit = true;
@@ -319,7 +320,7 @@ function compTurn(){
 	    //     newdep = desiredDepth;
 	    // };
 	    newcalc = minimaxAB(posCur,desiredDepth,statusN);
-	    //console.log(newcalc);
+	    console.log(newcalc);
 	    mov = nextMove(newcalc);
 	    // var val = moveValue( newcalc );
 	    // console.log( "val = ", val );

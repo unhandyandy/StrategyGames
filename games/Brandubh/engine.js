@@ -147,11 +147,11 @@ function scoreMat(mat,reachable){
         reachable = function(i){return function(){return false}; }; }
     let sum = Object.clone(rowScore);
     for(let i=0; i<size; i+=1){
-	const newrowscore = scoreRow(mat[i],reachable(i),i);
+	const newrowscore = scoreRow(mat[i],reachable(i,false),i);
 	sum = addScores(sum,newrowscore); }
     var trans = matrixTranspose(mat);
     for(let i=0; i<size; i+=1){
-	const newrowscore = scoreRow(trans[i],reachable(i+size),i);
+	const newrowscore = scoreRow(trans[i],reachable(i,true),i);
 	sum = addScores(sum,newrowscore); }
     // !!Check if king has been captured!!
     // if(){
@@ -175,9 +175,10 @@ function scoreFor(pos){
     "use strict";
     const c = pos.color;
     const mat = pos.mat;
-    const reachable = function(i){
+    const reachable = function(i,tQ){
         return function(j,p){
-            return canReach(pos,p,[i,j],possMovesBoth(pos)); }; }
+	    const loc = tQ ? [j,i] : [i,j];
+            return canReach(pos,p,loc,possMovesBoth(pos)); }; }
     const score = scoreMat(mat,reachable);
     var s = 0;
     for (var k of Object.keys(cons)){        
@@ -222,9 +223,9 @@ pmDisabled = true;
 
 //const noComp = true;
 
-desiredDepth = 4;
+desiredDepth = 6;
 
-numChoices = 3;
+numChoices = 5;
 
 const bdSize = 7;
 
@@ -248,7 +249,7 @@ function makeInitBdTab() {
         for (j=0;j<bdSize;j+=1){
             var c = startMat[i][j];
             c = (c===0) ? " " : c;
-            const bgcol = corncent.has([i,j]) ? "#7f5" : "#5f7";
+            const bgcol = corncent.has([i,j]) ? "#8f4" : "#5f7";
             row.push([c,[i,j],
                       {'height' : 56, 'width' : 64, 'fontsize' : 48,
                        'bg':bgcol,'fg':"black"}] ); }
