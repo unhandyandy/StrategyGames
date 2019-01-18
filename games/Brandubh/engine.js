@@ -89,7 +89,7 @@ function scoreRowAux(r,score,prev,lastp,moves,reach,i){
             score.safe[cp]+=1; }
 	if(((prev===0)&&(q===co || (q===0&&corncent.has([i,j+1])))&&reach(j-1,co)) ||
 	   ((q===0)&&(prev===co || (prev===0&&corncent.has([i,j-1])))&&reach(j+1,co))){
-	    if(p==="k"){
+	    if(p==="k" && ![prev,q].has([3,3])){
 		score.thrus.b += 1; }
 	    else{
 		score.vuln[co] += 1; } }
