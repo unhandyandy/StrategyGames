@@ -22,7 +22,8 @@ const cons={"moves":8,
 const handBird = 4,
       consthrusw = 400,
       consrank = 1000,
-      consBwin = 400;
+      consBwin = 400,
+      consRankLocB = 1.5;
 
 const size=7;
 
@@ -89,8 +90,9 @@ function scoreRowAux(r,score,prev,lastp,moves,reach,i){
             score.safe[cp]+=1; }
 	if(((prev===0)&&(q===co || (q===0&&corncent.has([i,j+1])))&&reach(j-1,co)) ||
 	   ((q===0)&&(prev===co || (prev===0&&corncent.has([i,j-1])))&&reach(j+1,co))){
-	    if(p==="k" && !(i===3 && [2,4].has(j))){
-		score.thrus.b += 1; }
+	    if(p==="k"){
+                if(i!=3 || ![2,4].has(j)){
+		    score.thrus.b += 1; } }
 	    else{
 		score.vuln[co] += 1; } }
     }
@@ -219,7 +221,7 @@ function scorePosSimp(pos){
 // testing
 
 
-pmDisabled = true;
+//pmDisabled = true;
 
 //const noComp = true;
 
@@ -471,7 +473,7 @@ function rankLoc(loc,mat,distances){
     else if(pce==="w"){
 	newv = Math.min(...Object.values(destdict)) + 1; }
     else if(pce==="b"){
-	newv = Math.min(...Object.values(destdict)) + 1.2; }
+	newv = Math.min(...Object.values(destdict)) + consRankLocB; }
     else{
         newv = multiplePaths(destdict,loc,mat); }
     return newv;
@@ -531,4 +533,4 @@ function makeRankInit(posmat){
 //const rankInit = makeRankInit(posInit.mat);
 const allLocs = makeAllLocs(size,size);
 
-clearAllCaches();
+//clearAllCaches();
