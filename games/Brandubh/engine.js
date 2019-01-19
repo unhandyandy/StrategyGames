@@ -19,10 +19,10 @@ const cons={"moves":8,
             "vuln":128,
 	    "pieces":128 };
 
-const handBird = 2,
-      consthrusw = 100,
+const handBird = 4,
+      consthrusw = 400,
       consrank = 1000,
-      consBwin = 10000;
+      consBwin = 400;
 
 const size=7;
 
@@ -89,7 +89,7 @@ function scoreRowAux(r,score,prev,lastp,moves,reach,i){
             score.safe[cp]+=1; }
 	if(((prev===0)&&(q===co || (q===0&&corncent.has([i,j+1])))&&reach(j-1,co)) ||
 	   ((q===0)&&(prev===co || (prev===0&&corncent.has([i,j-1])))&&reach(j+1,co))){
-	    if(p==="k" && ![prev,q].has([3,3])){
+	    if(p==="k" && !(i===3 && [2,4].has(j))){
 		score.thrus.b += 1; }
 	    else{
 		score.vuln[co] += 1; } }
@@ -184,8 +184,8 @@ function scoreFor(pos){
     for (var k of Object.keys(cons)){        
 	s += cons[k]*(handBird*score[k][c]-score[k][oppColor(c)]); }
     if(score.thrus.b>0){
-        s += consBwin * (c==="b" ? 1 : -1); }
-    s += consthrusw**score.thrus.w * (c==="w" ? 1 : -1);
+        s += consBwin * (c==="b" ? 1 : -0.1); }
+    s += consthrusw**score.thrus.w * (c==="w" ? 1 : -0.1);
     const ranks = rankMat(pos.mat);
     const dist = (!pos.kingLoc.equal([-1,-1])) ?
           lookUp(ranks,pos.kingLoc) :
