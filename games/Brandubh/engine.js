@@ -20,6 +20,7 @@ const cons={"moves":8,
 	    "pieces":128 };
 
 const handBird = 4,
+      thruBird = 0.5,
       consthrusw = 400,
       consrank = 1000,
       consBwin = 400,
@@ -186,13 +187,13 @@ function scoreFor(pos){
     for (var k of Object.keys(cons)){        
 	s += cons[k]*(handBird*score[k][c]-score[k][oppColor(c)]); }
     if(score.thrus.b>0){
-        s += consBwin * (c==="b" ? 1 : -0.1); }
-    s += consthrusw**score.thrus.w * (c==="w" ? 1 : -0.1);
+        s += consBwin * (c==="b" ? 1 : -thruBird); }
+    s += consthrusw**score.thrus.w * (c==="w" ? 1 : -thruBird);
     const ranks = rankMat(pos.mat);
     const dist = (!pos.kingLoc.equal([-1,-1])) ?
           lookUp(ranks,pos.kingLoc) :
           Infinity;
-    s += (c==="w" ? 1 : -0.1) * consrank / (10 ** (dist - 1));
+    s += (c==="w" ? 1 : -thruBird) * consrank / (10 ** (dist - 1));
     if(repQ(pos)){
 	s += cons.win * (c==="b" ? 1 : -1); }
     if(pos.kingLoc.equal([-1,-1])){
