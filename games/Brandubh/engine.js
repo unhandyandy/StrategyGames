@@ -8,28 +8,36 @@
   setBGCols, rowLen, gameHistory, posCur, setButtonProps, numberSequence,
   mapLp */
 
-const cons={"moves":8,
-            "kingmoves":16,
-            "isol":1,
-            "safe":1,
-            "win":1000000000,
-            //"loss":1000,
-            //"luft":4,
-            "thrus":3,
-            "vuln":128,
-	    "pieces":128 };
+const cons={ "scoob":{"moves":8,
+                      "kingmoves":16,
+                      "isol":1,
+                      "safe":1,
+                      "win":1000000000,
+                      "thrus":3,
+                      "vuln":128,
+	              "pieces":128 },
+             "handBird":4,
+             "thruBird":0.5,
+             "thrusw":400,
+             "rank":1000,
+             "Bwin":400,
+             "RankLocB":1.0,
+             "RankLocW":0.5,
+             "RankBase":10 };
 
-const handBird = 4,
-      thruBird = 0.5,
-      consthrusw = 400,
-      consrank = 1000,
-      consBwin = 400,
-      consRankLocB = 1.5;
+// const handBird = 4,
+//       thruBird = 0.5,
+//       consthrusw = 400,
+//       consrank = 1000,
+//       consBwin = 400,
+//       consRankLocB = 1.0,
+//       consRankLocW = 0.5,
+//       consRankBase = 10;
 
 const size=7;
 
 var rowScore = {};
-for (k of Object.keys(cons)){
+for (k of Object.keys(cons.scoob)){
     rowScore[k] = {"b":0,"w":0}; }
 
 function opposed(p,q){
@@ -49,7 +57,6 @@ function color(p){
         return("b"); }
     else return(0); }
            
-
 function scoreRow(r,reach,i){
     "use strict";
     var score=Object.clone(rowScore);
@@ -132,7 +139,7 @@ function addScores(s1,s2){
     "use strict";
     var res=Object.clone(rowScore);
     var k,c;
-    for (k of Object.keys(cons)){
+    for (k of Object.keys(cons.scoob)){
         for (c of ["b","w"]){
             res[k][c]=s1[k][c]+s2[k][c]; } }
     return(res); }
@@ -184,20 +191,21 @@ function scoreFor(pos){
             return canReach(pos,p,loc,possMovesBoth(pos)); }; }
     const score = scoreMat(mat,reachable);
     var s = 0;
-    for (var k of Object.keys(cons)){        
-	s += cons[k]*(handBird*score[k][c]-score[k][oppColor(c)]); }
+    for (var k of Object.keys(cons.scoob)){        
+	s += cons.scoob[k]*(cons.handBird*score[k][c]-score[k][oppColor(c)]); }
     if(score.thrus.b>0){
-        s += consBwin * (c==="b" ? 1 : -thruBird); }
-    s += consthrusw**score.thrus.w * (c==="w" ? 1 : -thruBird);
+        s += cons.Bwin * (c==="b" ? 1 : -cons.thruBird); }
+    s += cons.thrusw**score.thrus.w * (c==="w" ? 1 : -cons.thruBird);
     const ranks = rankMat(pos.mat);
     const dist = (!pos.kingLoc.equal([-1,-1])) ?
           lookUp(ranks,pos.kingLoc) :
           Infinity;
-    s += (c==="w" ? 1 : -thruBird) * consrank / (10 ** (dist - 1));
+    s += (c==="w" ? 1 : -cons.thruBird) *
+        cons.rank / (cons.RankBase ** (dist - 1));
     if(repQ(pos)){
-	s += cons.win * (c==="b" ? 1 : -1); }
+	s += cons.scoob.win * (c==="b" ? 1 : -1); }
     if(pos.kingLoc.equal([-1,-1])){
-        s += cons.win * (c==="b" ? 1 : -1); }
+        s += cons.scoob.win * (c==="b" ? 1 : -1); }
     return(s); }
 
 function scorePosSimp(pos){
@@ -224,11 +232,13 @@ function scorePosSimp(pos){
 
 //pmDisabled = true;
 
+pmFactor = 2;
+
 //const noComp = true;
 
-desiredDepth = 6;
+desiredDepth = 8;
 
-numChoices = 5;
+numChoices = 3;
 
 const bdSize = 7;
 
@@ -472,9 +482,9 @@ function rankLoc(loc,mat,distances){
     else if(ks.length===1){
         newv = Object.values(destdict)[0] + 1; }
     else if(pce==="w"){
-	newv = Math.min(...Object.values(destdict)) + 1; }
+	newv = Math.min(...Object.values(destdict)) + 1 + cons.RankLocW; }
     else if(pce==="b"){
-	newv = Math.min(...Object.values(destdict)) + consRankLocB; }
+	newv = Math.min(...Object.values(destdict)) + 1 + cons.RankLocB; }
     else{
         newv = multiplePaths(destdict,loc,mat); }
     return newv;

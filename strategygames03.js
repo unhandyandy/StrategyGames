@@ -620,9 +620,11 @@ function reEval(pscur,pslst,plyr,dep){
     }
 }
 
+var pmFactor = 1;
+
 function postMortem(hist,plyr){
     "use strict";
-    var fct = 1, pscur, pslst, hstrmn, dep, hsttot;
+    var fct = pmFactor, pscur, pslst, hstrmn, dep, hsttot;
     numChoices = fct*numChoices;
     hsttot = hist[1];
     hsttot = [posCur.clone()].concat(hsttot);
