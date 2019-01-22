@@ -320,7 +320,7 @@ function compTurn(){
 	    //     newdep = desiredDepth;
 	    // };
 	    newcalc = minimaxAB(posCur,desiredDepth,statusN);
-	    //console.log(newcalc);
+	    console.log(newcalc);
 	    mov = nextMove(newcalc);
 	    // var val = moveValue( newcalc );
 	    // console.log( "val = ", val );

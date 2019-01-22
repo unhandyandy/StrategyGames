@@ -25,6 +25,23 @@ const cons={ "scoob":{"moves":8,
              "RankLocW":0.5,
              "RankBase":10 };
 
+const consDelta={ "scoob":{"moves":0.3,
+                      "kingmoves":0.5,
+                      "isol":0.1,
+                      "safe":0.1,
+                      "win":0,
+                      "thrus":0.1,
+                      "vuln":4,
+	              "pieces":4 },
+             "handBird":0.1,
+             "thruBird":0.02,
+             "thrusw":10,
+             "rank":100,
+             "Bwin":10,
+             "RankLocB":0.1,
+             "RankLocW":0.02,
+             "RankBase":0.2 };
+
 // const handBird = 4,
 //       thruBird = 0.5,
 //       consthrusw = 400,
@@ -432,6 +449,7 @@ function lossQ(pos){
     const score = scoreMat(pos.mat);
     const q = oppColor(pos.color);
     return score.win[q]>0 ||
+        score.pieces[pos.color]===0 ||
         (repQ(pos)&&(pos.color==="w")) ||
         pos.kingLoc.equal([-1,-1])&&pos.color==="w"; }
 

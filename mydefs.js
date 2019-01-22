@@ -733,6 +733,10 @@ Array.prototype.dot = function( lst ){
     c2 = lst.clone();
     return dotD( c1, c2 );
 };
+Array.prototype.sum = function(){
+    "use strict";
+    return this.reduce((a,n)=>a+n);;
+};
 
 
 // return best item in lst according to preference func prf 
@@ -941,7 +945,36 @@ function addObjs(o1,o2){
     if(typeof(o1)==='number'){
         return o1 + o2; }
     else{
-        res = o1.clone();
+        res = Object.clone(o1);
         for(let k of Object.keys(o1)){
             res[k] = addObjs(o1[k],o2[k]); } }
     return res; }
+
+function randChoice(lst,wts){
+    "use strict";
+    const sum = wts.sum();
+    const r=Math.random();
+    let i=-1,cum=0;
+    do{
+        i += 1;
+        cum += wts[i]/sum;
+    }while(cum<r)
+    return lst[i];
+}
+
+function randBool(p){
+    "use strict";
+    if(p===undefined){
+        p = 0.5; }
+    return Math.random() < p;
+}
+
+function copyValsToObj(obj,vals){
+    "use strict";
+    if(typeof(obj)==='number'){
+        return vals; }
+    else{
+        for(let k of Object.keys(obj)){
+           obj[k] = copyValsToObj(obj[k],vals[k]); } }
+    return obj;
+}
