@@ -68,11 +68,13 @@ function changeSignsRand(obj){
 
 function mcIter(){
     "use strict";
-    const newps = addObjs(parameterA,changeSignsRand(deltaA));
-    const scr = playMatch(parameterA,newps);
+    const dels = changeSignsRand(deltaA);
+    const ps1 = addObjs(parameterA,dels);
+    const ps2 = addObjs(parameterA,multObj(-1,dels));
+    const scr = playMatch(ps1,ps2);
     const p = scr[0]/(scr.sum());
-    if(!randBool(p)){
-        parameterA = newps; }
+    const winner = !randBool(p) ? ps1 : ps2;
+    copyValsToObj(parameterA,winner);
     return parameterA;
 }
 

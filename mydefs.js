@@ -949,6 +949,16 @@ function addObjs(o1,o2){
         for(let k of Object.keys(o1)){
             res[k] = addObjs(o1[k],o2[k]); } }
     return res; }
+function multObj(s,o){
+    "use strict";
+    let res;
+    if(typeof(o)==='number'){
+        return s * o; }
+    else{
+        res = Object.clone(o);
+        for(let k of Object.keys(o)){
+            res[k] = multObj(s,o[k]); } }
+    return res; }
 
 function randChoice(lst,wts){
     "use strict";

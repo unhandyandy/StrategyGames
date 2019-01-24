@@ -8,39 +8,43 @@
   setBGCols, rowLen, gameHistory, posCur, setButtonProps, numberSequence,
   mapLp */
 
-const cons={ "scoob":{"moves":8,
-                      "kingmoves":16,
-                      "isol":1,
-                      "safe":1,
-                      "win":1000000000,
-                      "thrus":3,
-                      "vuln":128,
-	              "pieces":128 },
-             "handBird":4,
-             "thruBird":0.5,
-             "thrusw":400,
-             "rank":1000,
-             "Bwin":400,
-             "RankLocB":1.0,
-             "RankLocW":0.5,
-             "RankBase":10 };
+// const cons={ "scoob":{"moves":8,
+//                       "kingmoves":16,
+//                       "isol":1,
+//                       "safe":1,
+//                       "win":1000000000,
+//                       "thrus":3,
+//                       "vuln":128,
+// 	              "pieces":128 },
+//              "handBird":4,
+//              "thruBird":0.5,
+//              "thrusw":400,
+//              "rank":1000,
+//              "Bwin":400,
+//              "RankLocB":1.0,
+//              "RankLocW":0.5,
+//              "RankBase":10 };
 
-const consDelta={ "scoob":{"moves":0.3,
-                      "kingmoves":0.5,
-                      "isol":0.1,
-                      "safe":0.1,
-                      "win":0,
-                      "thrus":0.1,
-                      "vuln":4,
-	              "pieces":4 },
-             "handBird":0.1,
-             "thruBird":0.02,
-             "thrusw":10,
-             "rank":100,
-             "Bwin":10,
-             "RankLocB":0.1,
-             "RankLocW":0.02,
-             "RankBase":0.2 };
+const cons = {"scoob":{"moves":6.949999999999999,"kingmoves":16.25,"isol":0.4500000000000001,"safe":1.05,"win":1000000000,"thrus":3.2499999999999996,"vuln":162,"pieces":126},"handBird":5.149999999999996,"thruBird":0.7300000000000002,"thrusw":405,"rank":1550,"Bwin":425,"RankLocB":0.44999999999999996,"RankLocW":0.55,"RankBase":9.9}
+
+var consDelta={"scoob":{"moves":0.3,
+                        "kingmoves":0.5,
+                        "isol":0.1,
+                        "safe":0.1,
+                        "win":0,
+                        "thrus":0.1,
+                        "vuln":4,
+	                "pieces":4 },
+               "handBird":0.1,
+               "thruBird":0.02,
+               "thrusw":10,
+               "rank":100,
+               "Bwin":10,
+               "RankLocB":0.1,
+               "RankLocW":0.02,
+               "RankBase":0.2 };
+
+consDelta = multObj(0.12,consDelta);
 
 // const handBird = 4,
 //       thruBird = 0.5,
@@ -451,6 +455,7 @@ function lossQ(pos){
     return score.win[q]>0 ||
         score.pieces[pos.color]===0 ||
         (repQ(pos)&&(pos.color==="w")) ||
+        score.moves[pos.color]===0 ||
         pos.kingLoc.equal([-1,-1])&&pos.color==="w"; }
 
 function winQ(pos){

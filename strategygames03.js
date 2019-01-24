@@ -223,12 +223,14 @@ function minimaxABaux(pos,depth,player,useThresh,passThresh){
 	    //console.debug("pos = %s",pos.join());
 	    newpos = positionFromMove(succ,pos,player);
 	    updateGameHistory( "mmAB", pos );
+            statusN = opposite(statusN);
 	    //console.debug("newpos computed");
 	    newplayer = opposite(player);
 	    if(winQ(newpos,newplayer)){
 		newValue = -maxVal;}
 	    else if(lossQ(newpos,newplayer)){
 		undoGameHistory();
+                statusN = opposite(statusN);
 		return makeStr( maxVal,[succ]);}
 	    else if ( drawQ( newpos, newplayer ) ){
 		newValue = 0;
@@ -251,6 +253,7 @@ function minimaxABaux(pos,depth,player,useThresh,passThresh){
 		quit = true;
 	    }
 	    undoGameHistory();
+            statusN = opposite(statusN);
 	} while(!quit && s.length>0);
 	return makeStr(passThresh,bestPath);
     }
