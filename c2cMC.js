@@ -9,15 +9,16 @@ repetitionQ = function(pos){ return false; }
 function probFromScore(s){
     "use strict";
     const pc = 0.001;
-    return 2**(pc*s);
+    return 2**(-pc*s);
 }
 
 function mcMoveFromPos(pos){
     "use strict";
-    const mvs = movesFromPos(pos,false);
-    const vals = mvs.map(m => scoreFor(positionFromMove(m,pos)));
+    const mvs = movesFromPos(pos);
+    const mvsred = (mvs.length>numChoices) ? mvs.slice(0,numChoices) : mvs;
+    const vals = mvsred.map(m => scoreFor(positionFromMove(m,pos)));
     const probs = vals.map(probFromScore);
-    return randChoice(mvs,probs);
+    return randChoice(mvsred,probs);
 }
 
 function initMC(cons,delta){
@@ -40,7 +41,8 @@ function playOneMove(params){
     "use strict";
     copyValsToObj(parameterA,params);
     let mv = mcMoveFromPos(posCur);
-    postMove(mv,"opp");
+    posCur =  positionFromMove(mv,posCur);
+    //postMove(mv,"opp");
 }
 
 function playMatch(p1,p2){
@@ -51,6 +53,7 @@ function playMatch(p1,p2){
         scr = scr.vector2Add(playOneGame([p1,p2])); }
     for(let i=0; i<len; i+=1){
         scr = scr.vector2Add(playOneGame([p2,p1]).reverse()); }
+    console.log("score = ",scr);
     return scr;
 }
 
