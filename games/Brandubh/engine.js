@@ -25,7 +25,7 @@
 //              "RankLocW":0.5,
 //              "RankBase":10 };
 
-const cons = {"scoob":{"moves":8.000000000000002,"kingmoves":15.5,"isol":2.2000000000000015,"safe":1.4000000000000004,"win":1000000000,"thrus":1.7999999999999996,"vuln":340,"pieces":60},"handBird":6.599999999999991,"thruBird":0.6000000000000001,"thrusw":650,"rank":4500,"Bwin":-40,"RankLocB":-1.8000000000000005,"RankLocW":1.1800000000000006,"RankBase":11.799999999999994}
+const cons = {"scoob":{"moves":7.0249999999999995,"kingmoves":15.375,"isol":2.375000000000001,"safe":1.2750000000000008,"win":1000000000,"thrus":1.725,"vuln":363,"pieces":59},"handBird":6.324999999999987,"thruBird":0.6150000000000001,"thrusw":662.5,"rank":4375,"Bwin":-27.5,"RankLocB":-1.675000000000001,"RankLocW":1.165000000000001,"RankBase":11.649999999999991}
 
 var consDelta={"scoob":{"moves":0.3,
                         "kingmoves":0.5,
@@ -44,7 +44,7 @@ var consDelta={"scoob":{"moves":0.3,
                "RankLocW":0.02,
                "RankBase":0.2 };
 
-consDelta = multObj(0.5,consDelta);
+consDelta = multObj(0.25,consDelta);
 
 // const handBird = 4,
 //       thruBird = 0.5,
