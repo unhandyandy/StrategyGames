@@ -65,8 +65,8 @@ function changeSignsRand(obj,t){
     "use strict";
     let res;
     if(typeof(obj)==='number'){
-        const newval = tcon**t * obj; 
-        return randBool(7/8) ? 0 : newval; }
+        return randBool(7/8) ? 0 : tcon**t * obj; 
+; }
     else{
         res = Object.clone(obj);
         for(let k of Object.keys(obj)){
