@@ -8,26 +8,26 @@
   setBGCols, rowLen, gameHistory, posCur, setButtonProps, numberSequence,
   mapLp */
 
-// const cons={ "scoob":{"moves":8,
-//                       "kingmoves":16,
-//                       "isol":1,
-//                       "safe":1,
-//                       "win":1000000000,
-//                       "thrus":3,
-//                       "vuln":128,
-// 	              "pieces":128 },
-//              "handBird":4,
-//              "thruBird":0.5,
-//              "thrusw":400,
-//              "rank":1000,
-//              "Bwin":400,
-//              "RankLocB":1.0,
-//              "RankLocW":0.5,
-//              "RankBase":10 };
+const cons={ "scoob":{"moves":8,
+                      "kingmoves":16,
+                      "isol":1,
+                      "safe":1,
+                      "win":1000000000,
+                      "thrus":3,
+                      "vuln":128,
+	              "pieces":128 },
+             "handBird":4,
+             "thruBird":0.5,
+             "thrusw":400,
+             "rank":1000,
+             "Bwin":400,
+             "RankLocB":1.0,
+             "RankLocW":0.5,
+             "RankBase":10 };
 
-const cons = {"scoob":{"moves":6.557000000000003,"kingmoves":15.375,"isol":2.4010000000000007,"safe":1.249000000000001,"win":1000000000,"thrus":1.6210000000000009,"vuln":365.0799999999999,"pieces":55.87999999999998},"handBird":6.298999999999987,"thruBird":0.6202000000000002,"thrusw":667.6999999999998,"rank":4401,"Bwin":-22.299999999999997,"RankLocB":-1.5710000000000017,"RankLocW":1.1806000000000005,"RankBase":11.85799999999999}
+//const cons = 
 
-var consDelta={"scoob":{"moves":0.3,
+const consDelta={"scoob":{"moves":0.3,
                         "kingmoves":0.5,
                         "isol":0.1,
                         "safe":0.1,
@@ -44,7 +44,7 @@ var consDelta={"scoob":{"moves":0.3,
                "RankLocW":0.02,
                "RankBase":0.2 };
 
-consDelta = multObj(0.13,consDelta);
+//consDelta = multObj(0.13,consDelta);
 
 // const handBird = 4,
 //       thruBird = 0.5,

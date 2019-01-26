@@ -988,3 +988,24 @@ function copyValsToObj(obj,vals){
            obj[k] = copyValsToObj(obj[k],vals[k]); } }
     return obj;
 }
+
+function choose(n,r){
+    "use strict";
+    let res = 1;
+    for(let i=0; i<r; i+=1){
+        res *= (n-i)/(i+1); }
+    return res;
+}
+
+function bernoulli(n,p,r){
+    "use strict";
+    return choose(n,r) * p**r * (1-p)**(n-r);
+}
+
+function bernoulliCum(n,p,r){
+    "use strict";
+    let res = 0;
+    for(let i=0; i<=r; i+=1){
+        res += bernoulli(n,p,i); }
+    return res;
+}
