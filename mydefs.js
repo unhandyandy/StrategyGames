@@ -959,6 +959,26 @@ function multObj(s,o){
         for(let k of Object.keys(o)){
             res[k] = multObj(s,o[k]); } }
     return res; }
+function zeroObj(o){
+    "use strict";
+    let res;
+    if(typeof(o)==='number'){
+        return 0; }
+    else{
+        res = Object.clone(o);
+        for(let k of Object.keys(o)){
+            res[k] = zeroObj(o[k]); } }
+    return res; }
+function equalObj(o1,o2){
+    "use strict";
+    let res;
+    if(typeof(o1)==='number'){
+        return o1===o2; }
+    else{
+        for(let k of Object.keys(o1)){
+            if(!equalObj(o1[k],o2[k])){
+                return false; }; } }
+    return true; }
 
 function randChoice(lst,wts){
     "use strict";

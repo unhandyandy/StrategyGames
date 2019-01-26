@@ -1,6 +1,6 @@
 // -*-js-*-
 
-var parameterA,deltaA;
+var parameterA,deltaA,deltaZero;
 
 pmDisabled = true;
 
@@ -25,6 +25,7 @@ function initMC(cons,delta){
     "use strict";
     parameterA = cons;
     deltaA = Object.clone(delta);
+    deltaZero = zeroObj(delta);
 }
 
 function playOneGame(parAlst){
@@ -60,16 +61,16 @@ function playMatch(p1,p2){
 
 const tcon = 2**(-1/300);
 
-function changeSignsRand(obj,p){
+function changeSignsRand(obj,t){
     "use strict";
     let res;
     if(typeof(obj)==='number'){
-        const newval = tcon * obj; 
-        return randBool(p) ? newval : -newval; }
+        const newval = tcon**t * obj; 
+        return randBool(7/8) ? 0 : newval; }
     else{
         res = Object.clone(obj);
         for(let k of Object.keys(obj)){
-            res[k] = changeSignsRand(obj[k],p); } }
+            res[k] = changeSignsRand(obj[k],t); } }
     return res; 
 }
 
@@ -80,11 +81,14 @@ function calcP(s){
     return bernoulliCum(n,0.5,r);
 }
 
-function mcIter(p){
+function mcIter(t){
     "use strict";
-    deltaA = changeSignsRand(deltaA,p);
-    const ps1 = addObjs(parameterA,deltaA);
-    const ps2 = addObjs(parameterA,multObj(-1,deltaA));
+    let del;
+    do{
+        del = changeSignsRand(deltaA,t);
+    }while(equalObj(del,deltaZero));
+    const ps1 = addObjs(parameterA,del);
+    const ps2 = addObjs(parameterA,multObj(-1,del));
     const scr = playMatch(ps1,ps2);
     const pnew = calcP(scr);
     const rB = randBool(pnew);
@@ -100,7 +104,7 @@ function mcImprove(cons,del){
     initMC(cons,del);
     let p = 0.5, t = 0;
     while(true){
-        let iter = mcIter(p);
+        let iter = mcIter(t);
         p = iter[1];
         t += 1;
         console.log(iter[0]);
