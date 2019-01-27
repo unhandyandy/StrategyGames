@@ -8,24 +8,24 @@
   setBGCols, rowLen, gameHistory, posCur, setButtonProps, numberSequence,
   mapLp */
 
-const cons={ "scoob":{"moves":8,
-                      "kingmoves":16,
-                      "isol":1,
-                      "safe":1,
-                      "win":1000000000,
-                      "thrus":3,
-                      "vuln":128,
-	              "pieces":128 },
-             "handBird":4,
-             "thruBird":0.5,
-             "thrusw":400,
-             "rank":1000,
-             "Bwin":400,
-             "RankLocB":1.0,
-             "RankLocW":0.5,
-             "RankBase":10 };
+// const cons={ "scoob":{"moves":8,
+//                       "kingmoves":16,
+//                       "isol":1,
+//                       "safe":1,
+//                       "win":1000000000,
+//                       "thrus":3,
+//                       "vuln":128,
+// 	              "pieces":128 },
+//              "handBird":4,
+//              "thruBird":0.5,
+//              "thrusw":400,
+//              "rank":1000,
+//              "Bwin":400,
+//              "RankLocB":1.0,
+//              "RankLocW":0.5,
+//              "RankBase":10 };
 
-//const cons = 
+const cons = {"scoob":{"moves":9.369142774442986,"kingmoves":24.535563609658997,"isol":1.8085600367089032,"safe":1.2164144559325927,"win":1000000000,"thrus":4.543196675257152,"vuln":122.72162346160124,"pieces":174.24944081726034},"handBird":5.191216995956501,"thruBird":0.5301537171005433,"thrusw":495.548278047892,"rank":2299.637456545024,"Bwin":562.6927551296776,"RankLocB":1.5532845782585882,"RankLocW":0.6497419178065428,"RankBase":11.837130951175903}
 
 const consDelta={"scoob":{"moves":0.3,
                         "kingmoves":0.5,
@@ -100,13 +100,12 @@ function scoreRowAux(r,score,prev,lastp,moves,reach,i){
           clp=color(lastp);
     let newmoves = moves;
     if(p===0){
-        newmoves+=1;
-        // if((prev==="k")&&reach(j,"b")){
-        //     score.thrus.b += 1; }
-        if(clp!=0){
-            score.moves[clp]+=1;
-            if(lastp==="k"){
-                score.kingmoves.w += 1; } }
+        if(!corncent.has([i,j]) || (lastp==="k")){
+            newmoves+=1; 
+            if(clp!=0){
+                score.moves[clp]+=1; } }
+        if(lastp==="k"){
+            score.kingmoves.w += 1; }
         if(corners.has([i,j])&&(lastp==="k")){
             score.thrus.w += 1; }
     }else{
@@ -126,10 +125,6 @@ function scoreRowAux(r,score,prev,lastp,moves,reach,i){
 		score.vuln[co] += 1; } }
     }
     if(p==="k"){
-        // if((prev===0)&&reach(j-1,"b")){
-        //     score.thrus.b += 1; }
-        // if([0,"w"].has(prev)){
-        //     score.luft.w += (prev==="w") ? 2 : 1; }
         if((i===0||i===size-1)&&(newmoves+r.length===size)){
             score.thrus.w += 1; }
         if(corners.has([i,j])){
@@ -142,10 +137,6 @@ function scoreRowAux(r,score,prev,lastp,moves,reach,i){
         if((prev===0)&&(q===0)){
             score.isol[oppColor(cp)] += 1; }
     }
-    // if((prev==="k")&&[0,"w"].has(p)){
-    //     score.luft.w += (p==="w") ? 2 : 1; }
-    // if((lastp==="k")&&(newmoves>0)&&(p==="b")){
-    //     score.thrus.b += 1; }
 
     return scoreRowAux(tail,
                        score,
@@ -253,13 +244,13 @@ function scorePosSimp(pos){
 
 //pmDisabled = true;
 
-pmFactor = 2;
+//pmAdd = 2;
 
 //const noComp = true;
 
-desiredDepth = 8;
+desiredDepth = 6;
 
-numChoices = 3;
+numChoices = 5;
 
 const bdSize = 7;
 

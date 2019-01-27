@@ -623,12 +623,12 @@ function reEval(pscur,pslst,plyr,dep){
     }
 }
 
-var pmFactor = 1;
+var pmAdd = 1;
 
 function postMortem(hist,plyr){
     "use strict";
-    var fct = pmFactor, pscur, pslst, hstrmn, dep, hsttot;
-    numChoices = fct*numChoices;
+    var pscur, pslst, hstrmn, dep, hsttot;
+    numChoices = numChoices + pmAdd;
     hsttot = hist[1];
     hsttot = [posCur.clone()].concat(hsttot);
     if(statusN===plyr){
@@ -648,7 +648,7 @@ function postMortem(hist,plyr){
 	pscur = hstrmn[1];
 	hstrmn = hstrmn.slice(2);
     }while(!reEval(pscur,pslst,plyr,dep));
-    numChoices = numChoices/fct;
+    numChoices = numChoices - pmAdd;
     postMessage("...done!");
 }
 
