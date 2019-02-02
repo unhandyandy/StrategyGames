@@ -184,8 +184,7 @@ function scoreMat(mat,reachable){
 function canReach(pos,p,loc,mvs){
     "use strict";
     var poss = mvs.filter(function(m){return m[1].equal(loc)});
-    poss = poss.filter(function(m){return lookUp(pos.mat,m[0])===p});
-    return poss.length > 0; }
+    return poss.some(m => lookUp(pos.mat,m[0])===p); }
 
 function possMovesBoth(pos){
     "use strict"
