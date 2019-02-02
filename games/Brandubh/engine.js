@@ -207,8 +207,8 @@ function scoreFor(pos){
     for (var k of Object.keys(cons.scoob)){        
 	s += cons.scoob[k]*(cons.handBird*score[k][c]-score[k][oppColor(c)]); }
     if(score.thrus.b>0){
-        s += cons.Bwin * (c==="b" ? 1 : -cons.thruBird); }
-    s += cons.thrusw**score.thrus.w * (c==="w" ? 1 : -cons.thruBird);
+        s += (c==="b") ? cons.scoob.win : -cons.Bwin; }
+    s += score.thrus.w * (c==="w" ? cons.scoob.win : -cons.thrusw);
     const ranks = rankMat(pos.mat);
     const dist = (!pos.kingLoc.equal([-1,-1])) ?
           lookUp(ranks,pos.kingLoc) :
