@@ -25,6 +25,7 @@
 //              "RankLocW":0.5,
 //              "RankBase":10 };
 
+//breadth = 4
 const cons = {"scoob":{"moves":12.919630874429297,"kingmoves":24.64099820005633,"isol":4.013861944316165,"safe":1.8032490645088102,"win":1000000000,"thrus":4.514946699530992,"vuln":132.38103875866508,"pieces":185.2020954584593},"handBird":6.827221735067551,"thruBird":0.8003378863413204,"thrusw":591.868779542106,"rank":3451.328310418006,"Bwin":645.0560853512874,"RankLocB":2.279437375877205,"RankLocW":0.820375086653688,"RankBase":14.336881341710958}
 
 const consDelta={"scoob":{"moves":0.3,
@@ -244,7 +245,7 @@ function scorePosSimp(pos){
 
 //pmDisabled = true;
 
-//pmAdd = 2;
+pmAdd = 2;
 
 //const noComp = true;
 
@@ -356,8 +357,10 @@ function poscurToDisplay(pos){
             '\u2656'});
 }
 
-function movesFromPos(pos,sortedQ){
+function movesFromPos(pos,sortedQ,valsQ){
     "use strict";
+    if(valsQ===undefined){
+	valsQ = false; }
     if(pos.equal(posInit)&&comp===1){
         return [[[1,3],[1,2]],
                 [[1,3],[1,1]],
@@ -387,7 +390,10 @@ function movesFromPos(pos,sortedQ){
         const vals = mapLp(res,
                            m => [m,scoreFor(positionFromMove(m,pos))]);
         sorted.concat(vals);
-        return sorted.getList(); }
+	if(valsQ){
+	    return sorted; }
+        else{
+	    return sorted.getList(); } }
           // allmoves.sort(function(a,b){
 	  //     return sortOrder(positionFromMove(a,pos),
           //                      positionFromMove(b,pos)); })

@@ -926,6 +926,9 @@ const partiallyOrderedList = {
     "getList":function(){
         "use strict";
         return mapLp(this.list,e => e[1]); },
+    "getVals":function(){
+        "use strict";
+        return mapLp(this.list,e => e[0]); },
     "create":function(top){
         "use strict";
         const newpol = Object.create(partiallyOrderedList);
