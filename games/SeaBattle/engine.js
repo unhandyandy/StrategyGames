@@ -298,9 +298,9 @@ function scorePosSimp(pos){
 
 //const noComp = true;
 
-desiredDepth = 6;
+desiredDepth = 8;
 
-numChoices = 5;
+numChoices = 3;
 
 const bdSize = 9;
 

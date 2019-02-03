@@ -32,8 +32,12 @@ function playOneGame(parAlst){
     "use strict"
     setup(Infinity,posInit);
     let i=0;
+    let m=0;
     while(!gameOverQ(posCur)){
         playOneMove(parAlst[i]);
+	m += 1;
+	if(m>99){
+	    return [0.8,0.2]; }
         i = 1 - i; };
     return posCur.kingLoc.equal([-1,-1]) ? [1,0] : [0,1];         
 }
