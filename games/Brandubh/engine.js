@@ -26,7 +26,7 @@
 //              "RankBase":10 };
 
 //breadth = 4
-const cons = {"scoob":{"moves":12.919630874429297,"kingmoves":24.64099820005633,"isol":4.013861944316165,"safe":1.8032490645088102,"win":1000000000,"thrus":4.514946699530992,"vuln":132.38103875866508,"pieces":185.2020954584593},"handBird":6.827221735067551,"thruBird":0.8003378863413204,"thrusw":591.868779542106,"rank":3451.328310418006,"Bwin":645.0560853512874,"RankLocB":2.279437375877205,"RankLocW":0.820375086653688,"RankBase":14.336881341710958}
+const cons = {"scoob":{"moves":20.18083243585275,"kingmoves":24.20833921472163,"isol":5.368513497234786,"safe":2.7197783667074984,"win":1000000000,"thrus":4.8627617891643755,"vuln":159.09784765840152,"pieces":229.54318484653672},"handBird":7.489302844143619,"thruBird":1.0637111338335203,"thrusw":637.0981193495999,"rank":4708.654434794124,"Bwin":662.7886755104074,"RankLocB":2.4070550375979374,"RankLocW":0.9343232255981508,"RankBase":14.090434486598811}
 
 const consDelta={"scoob":{"moves":0.3,
                         "kingmoves":0.5,
@@ -250,7 +250,7 @@ pmAdd = 2;
 
 desiredDepth = 8;
 
-numChoices = 4;
+numChoices = 5;
 
 const bdSize = 7;
 
@@ -498,12 +498,12 @@ function rankLoc(loc,mat,distances){
     const ks = Object.keys(destdict);
     if(ks.length===0){
         newv = Infinity; }
-    else if(ks.length===1){
-        newv = Object.values(destdict)[0] + 1; }
     else if(pce==="w"){
 	newv = Math.min(...Object.values(destdict)) + 1 + cons.RankLocW; }
     else if(pce==="b"){
 	newv = Math.min(...Object.values(destdict)) + 1 + cons.RankLocB; }
+    else if(ks.length===1){
+        newv = Object.values(destdict)[0] + 1; 
     else{
         newv = multiplePaths(destdict,loc,mat); }
     return newv;
@@ -536,9 +536,9 @@ function rankNext(mat,ranks){
     return nextranks;
 }
 
-function rankMat(mat){
+function rankMatWRT(mat,init){
     "use strict"
-    let ranks = makeRankInit(mat);
+    let ranks = init(mat);
     do{ const lastr = ranks.clone();        
         ranks = rankNext(mat,ranks);
         if(ranks.equal(lastr)){
@@ -547,7 +547,12 @@ function rankMat(mat){
     return ranks;
 }
 
-function makeRankInit(posmat){
+function rankMat(mat){
+    "use strict";
+    return rankMatWRT(mat,makeRankInitWDist);
+}
+
+function makeRankInitWDist(posmat){
     "use strict"
     var mat = Array(size);
     mat = mapLp(mat,function(){return Array(size)});
@@ -555,6 +560,19 @@ function makeRankInit(posmat){
         for(var j=0;j<size;j+=1){
             if((i===0||i===size-1)&&(j===0||j===size-1)){
                     lookUpSet(mat,[i,j],0); }
+            else{
+                lookUpSet(mat,[i,j],Infinity); } } }
+    return mat;
+}
+
+function makeRankInitBDist(posmat){
+    "use strict"
+    var mat = Array(size);
+    mat = mapLp(mat,function(){return Array(size)});
+    for(var i=0;i<size;i+=1){
+        for(var j=0;j<size;j+=1){
+            if(lookUp(posmat,[i,j])==="b"){
+                lookUpSet(mat,[i,j],0); }
             else{
                 lookUpSet(mat,[i,j],Infinity); } } }
     return mat;

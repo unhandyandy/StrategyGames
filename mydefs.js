@@ -471,14 +471,14 @@ Array.prototype.filter2 = function(fun,o){
 function numberSequence(start,finish,del){
     "use strict";
     if(del===undefined){
-	del = 1;
+	del = (start<=finish) ? 1 : -1;
     }
-    var res = [start],
-        cur = start + del;
-    while(cur<=finish){
-	res.push(cur);
+    let res = [];
+    let cur = start - del;
+    do{
 	cur += del;
-    }
+	res.push(cur);
+    }while(cur!=finish)
     return res;
 }
 

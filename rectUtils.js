@@ -119,3 +119,13 @@ function makeAllLines(numRows,numCols,len){
 		   });
 }
 
+function betweenLocs(l1,l2){
+    "use strict";
+    let x1 = l1[0];
+    if(x1===l2[0]){
+        let ys = numberSequence(l1[1],l2[1]).slice(1,-1);
+        return ys.map(y => [x1,y]); }
+    else{
+        let xs = numberSequence(l1[0],l2[0]).slice(1,-1);
+        return xs.map(x => [x,l1[1]]); }
+}
