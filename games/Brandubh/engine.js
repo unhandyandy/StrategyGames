@@ -496,14 +496,14 @@ function rankLoc(loc,mat,distances){
     let newv;
     const pce = lookUp(mat,loc);
     const ks = Object.keys(destdict);
-    if(ks.length===0){
-        newv = Infinity; }
+    // if(ks.length===0){
+    //     newv = Infinity; }
     else if(pce==="w"){
 	newv = Math.min(...Object.values(destdict)) + 1 + cons.RankLocW; }
     else if(pce==="b"){
 	newv = Math.min(...Object.values(destdict)) + 1 + cons.RankLocB; }
-    else if(ks.length===1){
-        newv = Object.values(destdict)[0] + 1; 
+    // else if(ks.length===1){
+    //     newv = Object.values(destdict)[0] + 1; }
     else{
         newv = multiplePaths(destdict,loc,mat); }
     return newv;
