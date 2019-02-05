@@ -482,7 +482,7 @@ function destsFrom(loc,mat){
     const mvs = movesFromLoc(mat,loc,orthDirs,size,size,true);
     return mapLp(mvs,m => m[1]); }
 
-function rankLoc(loc,mat,distances){
+function rankLoc(loc,mat,distances,rcons,multiQ){
     "use strict"
     const dold = lookUp(distances,loc);
     if(dold<Infinity){
@@ -498,14 +498,16 @@ function rankLoc(loc,mat,distances){
     const ks = Object.keys(destdict);
     // if(ks.length===0){
     //     newv = Infinity; }
-    else if(pce==="w"){
-	newv = Math.min(...Object.values(destdict)) + 1 + cons.RankLocW; }
+    if(pce==="w"){
+	newv = Math.min(...Object.values(destdict)) + 1 + rcons.w; }
     else if(pce==="b"){
-	newv = Math.min(...Object.values(destdict)) + 1 + cons.RankLocB; }
+	newv = Math.min(...Object.values(destdict)) + 1 + rcons.b; }
     // else if(ks.length===1){
     //     newv = Object.values(destdict)[0] + 1; }
-    else{
+    else if(multiQ){
         newv = multiplePaths(destdict,loc,mat); }
+    else{
+        newv = Math.min(...Object.values(destdict)) + 1; }
     return newv;
 }
 
@@ -528,19 +530,19 @@ function multiplePaths(dict,loc,mat){
     return num===1 ? best + 1 : best===Infinity ? Infinity : best + best/(best+1);;
 }
 
-function rankNext(mat,ranks){
+function rankNext(mat,ranks,rcons,multiQ){
     "use strict"
     const nextranks = ranks.clone();
     mapLp(allLocs,function(l){
-        lookUpSet(nextranks,l,rankLoc(l,mat,ranks)); });
+        lookUpSet(nextranks,l,rankLoc(l,mat,ranks,rcons,multiQ)); });
     return nextranks;
 }
 
-function rankMatWRT(mat,init){
+function rankMatWRT(mat,init,rcons,multiQ){
     "use strict"
     let ranks = init(mat);
     do{ const lastr = ranks.clone();        
-        ranks = rankNext(mat,ranks);
+        ranks = rankNext(mat,ranks,rcons,multiQ);
         if(ranks.equal(lastr)){
             break; }
     }while(true)
@@ -549,7 +551,11 @@ function rankMatWRT(mat,init){
 
 function rankMat(mat){
     "use strict";
-    return rankMatWRT(mat,makeRankInitWDist);
+    return rankMatWRT(mat,makeRankInitWDist,{"w":cons.RankLocW,"b":cons.RankLocW},true);
+}
+function rankMatBDist(mat){
+    "use strict";
+    return rankMatWRT(mat,makeRankInitBDist,{"w":Infinity,"b":0},false);
 }
 
 function makeRankInitWDist(posmat){
@@ -576,6 +582,13 @@ function makeRankInitBDist(posmat){
             else{
                 lookUpSet(mat,[i,j],Infinity); } } }
     return mat;
+}
+
+function pathSafety(mat,l1,l2){
+    "use strict";
+    const locs = betweenLocs(l1,l2);
+    const vals = locs.map(l => lookUp(mat,l));
+    return Math.min(...vals);
 }
 
 //const rankInit = makeRankInit(posInit.mat);
