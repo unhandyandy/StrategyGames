@@ -23,27 +23,29 @@
 //              "Bwin":400,
 //              "RankLocB":1.0,
 //              "RankLocW":0.5,
-//              "RankBase":10 };
+//              "RankBase":10,
+//              "wdCorner":-10 };
 
 //breadth = 4
-const cons = {"scoob":{"moves":20.18083243585275,"kingmoves":24.20833921472163,"isol":5.368513497234786,"safe":2.7197783667074984,"win":1000000000,"thrus":4.8627617891643755,"vuln":159.09784765840152,"pieces":229.54318484653672},"handBird":7.489302844143619,"thruBird":1.0637111338335203,"thrusw":637.0981193495999,"rank":4708.654434794124,"Bwin":662.7886755104074,"RankLocB":2.4070550375979374,"RankLocW":0.9343232255981508,"RankBase":14.090434486598811}
+const cons = {"scoob":{"moves":20.18083243585275,"kingmoves":24.20833921472163,"isol":5.368513497234786,"safe":2.7197783667074984,"win":1000000000,"thrus":4.8627617891643755,"vuln":159.09784765840152,"pieces":229.54318484653672},"handBird":7.489302844143619,"thruBird":1.0637111338335203,"thrusw":637.0981193495999,"rank":4708.654434794124,"Bwin":662.7886755104074,"RankLocB":2.4070550375979374,"RankLocW":0.9343232255981508,"RankBase":14.090434486598811,"wdCorner":-10}
 
 const consDelta={"scoob":{"moves":0.3,
-                        "kingmoves":0.5,
-                        "isol":0.1,
-                        "safe":0.1,
-                        "win":0,
-                        "thrus":0.1,
-                        "vuln":4,
-	                "pieces":4 },
-               "handBird":0.1,
-               "thruBird":0.02,
-               "thrusw":10,
-               "rank":100,
-               "Bwin":10,
-               "RankLocB":0.1,
-               "RankLocW":0.02,
-               "RankBase":0.2 };
+                          "kingmoves":0.5,
+                          "isol":0.1,
+                          "safe":0.1,
+                          "win":0,
+                          "thrus":0.1,
+                          "vuln":4,
+	                  "pieces":4 },
+                 "handBird":0.1,
+                 "thruBird":0.02,
+                 "thrusw":10,
+                 "rank":100,
+                 "Bwin":10,
+                 "RankLocB":0.1,
+                 "RankLocW":0.02,
+                 "RankBase":0.2,
+                 "wdCorner":0.5 };
 
 //consDelta = multObj(0.13,consDelta);
 
@@ -482,11 +484,10 @@ function destsFrom(loc,mat){
     const mvs = movesFromLoc(mat,loc,orthDirs,size,size,true);
     return mapLp(mvs,m => m[1]); }
 
-function rankLoc(loc,mat,lud,rcons,multiQ){
+function rankLoc(loc,mat,lud,rcons,multiQ,dold){
     "use strict"
-    // const dold = lookUp(distances,loc);
-    // if(dold<Infinity){
-    //     return dold; }
+    if(corners.has(loc)){
+        return dold; }
     const dests = destsFrom(loc,mat);
     var destdict = {};
     mapLp(dests,l => destdict[l] = lud(l,loc));
@@ -527,7 +528,9 @@ function multiplePaths(dict,loc,mat){
     //     return 1 + best; }
     // else{
     //     return best; }
-    return num===1 ? best + 1 : best===Infinity ? Infinity : best + best/(best+1);;
+    return num===1 ? best + 1 : best===Infinity ? Infinity :
+        best===-Infinity ? -Infinity :
+        best + best/(best+1);;
 }
 
 function rankNext(mat,ranks,rcons,multiQ,ludr){
@@ -536,7 +539,8 @@ function rankNext(mat,ranks,rcons,multiQ,ludr){
     mapLp(allLocs,function(l){
         lookUpSet(nextranks,l,rankLoc(l,mat,
                                       (l,loc) => ludr(ranks,l,loc),
-                                      rcons,multiQ)); });
+                                      rcons,multiQ,
+                                      lookUp(ranks,l))); });
     return nextranks;
 }
 
@@ -544,7 +548,7 @@ function rankMatWRT(mat,init,rcons,multiQ,ludr){
     "use strict"
     let ranks = init(mat);
     do{ const lastr = ranks.clone();        
-        ranks = rankNext(mat,ranks,rcons,multiQ);
+        ranks = rankNext(mat,ranks,rcons,multiQ,ludr);
         if(ranks.equal(lastr)){
             break; }
     }while(true)
@@ -563,7 +567,7 @@ function rankMatBDist(mat){
     "use strict";
     return rankMatWRT(mat,
                       makeRankInitBDist,
-                      {"w":Infinity,"b":0},
+                      {"w":Infinity,"b":-1},
                       false,
                       (rnks,l,loc) => lookUp(rnks,l));
 }
@@ -592,7 +596,7 @@ function makeRankInitWDist(posmat){
     for(var i=0;i<size;i+=1){
         for(var j=0;j<size;j+=1){
             if((i===0||i===size-1)&&(j===0||j===size-1)){
-                    lookUpSet(mat,[i,j],-Infinity); }
+                    lookUpSet(mat,[i,j],cons.wdCorner); }
             else{
                 lookUpSet(mat,[i,j],Infinity); } } }
     return mat;
