@@ -570,17 +570,18 @@ function rankMatBDist(mat){
 
 function rankMatSafeDist(mat){
     "use strict";
+    const bDistMat = rankMatBDist(mat);
     return rankMatWRT(mat,
                       makeRankInitWDist,
                       {"w":cons.RankLocW,"b":cons.RankLocW},
                       true,
-                      (rnks,l,loc) => safeDist(rnks,l,loc));
+                      (rnks,l,loc) => safeDist(rnks,bDistMat,l,loc));
 }
 
-function safeDist(rnks,l,loc){
+function safeDist(rnks,bDistMat,l,loc){
     "use strict";
     const lval = lookUp(rnks,l);
-    const safety = pathSafety(rnks,l,loc);
+    const safety = pathSafety(bDistMat,l,loc);
     return Math.max(lval,1 - safety);
 }
 
