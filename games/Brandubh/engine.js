@@ -210,7 +210,7 @@ function scoreFor(pos){
     if(score.thrus.b>0){
         s += (c==="b") ? cons.scoob.win : -cons.Bwin; }
     s += score.thrus.w * (c==="w" ? cons.scoob.win : -cons.thrusw);
-    const ranks = rankMat(pos.mat);
+    const ranks = rankMatSafeDist(pos.mat);
     const dist = (!pos.kingLoc.equal([-1,-1])) ?
           lookUp(ranks,pos.kingLoc) :
           Infinity;
@@ -482,7 +482,7 @@ function destsFrom(loc,mat){
     "use strict"
 //    const mat = mat0.clone();
     const mvs = movesFromLoc(mat,loc,orthDirs,size,size,true);
-    return mapLp(mvs,m => m[1]); }
+    return [loc].concat(mapLp(mvs,m => m[1])); }
 
 function rankLoc(loc,mat,lud,rcons,multiQ,dold){
     "use strict"
@@ -528,9 +528,11 @@ function multiplePaths(dict,loc,mat){
     //     return 1 + best; }
     // else{
     //     return best; }
-    return num===1 ? best + 1 : best===Infinity ? Infinity :
+    return num===1 ? best + 1 :
+        best===Infinity ? Infinity :
         best===-Infinity ? -Infinity :
-        best + best/(best+1);;
+        best<0 ? best:
+        best + best/(best+1);
 }
 
 function rankNext(mat,ranks,rcons,multiQ,ludr){
