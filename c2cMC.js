@@ -14,9 +14,11 @@ function wtFromScore(s){
 
 function mcMoveFromPos(pos){
     "use strict";
-    const mvs = movesFromPos(pos);
-    const mvsred = (mvs.length>numChoices) ? mvs.slice(0,numChoices) : mvs;
-    const vals = mvsred.map(m => scoreFor(positionFromMove(m,pos)));
+    const rawmvs = movesFromPos(pos,true,true);
+    //const mvsred = (mvs.length>numChoices) ? mvs.slice(0,numChoices) : mvs;
+    const mvs = rawmvs.getList();
+    //const vals = mvsred.map(m => scoreFor(positionFromMove(m,pos)));
+    const vals = rawmvs.getVals();
     const wts = vals.map(wtFromScore);
     return randChoice(mvsred,wts);
 }

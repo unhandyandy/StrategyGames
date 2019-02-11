@@ -27,7 +27,7 @@
 //              "wdCorner":-10 };
 
 //breadth = 5
-const cons = {"scoob":{"moves":19.42947958308113,"kingmoves":27.284465914027038,"isol":5.338745213350127,"safe":3.3186639428795854,"win":1000000000,"thrus":4.995060278707704,"vuln":145.2460447230671,"pieces":226.32617293145898},"handBird":7.273553465879096,"thruBird":1.2014232115359875,"thrusw":757.4616163610046,"rank":4118.346873615916,"Bwin":732.9655071386956,"RankLocB":2.1116679532855165,"RankLocW":0.9625228023341633,"RankBase":14.95411095407319,"wdCorner":-11.19062254519981}
+const cons = {"scoob":{"moves":22.900714569544714,"kingmoves":27.782355733951974,"isol":6.1018866085866446,"safe":3.9217447225809035,"win":1000000000,"thrus":6.0587912373976724,"vuln":142.8482682997767,"pieces":283.1936299228222},"handBird":7.879946898611656,"thruBird":1.6072943509597013,"thrusw":803.9198140565827,"rank":4410.920334264162,"Bwin":915.6024731712056,"RankLocB":3.4987930643459975,"RankLocW":1.0875616262075996,"RankBase":16.398467149213655,"wdCorner":-0.3886911621833195,"safety":2.8200182776032365}
 
 const consDelta={"scoob":{"moves":0.3,
                           "kingmoves":0.5,
@@ -45,7 +45,8 @@ const consDelta={"scoob":{"moves":0.3,
                  "RankLocB":0.1,
                  "RankLocW":0.02,
                  "RankBase":0.2,
-                 "wdCorner":0.5 };
+                 "wdCorner":0.5,
+                 "safety":0.1 };
 
 //consDelta = multObj(0.13,consDelta);
 
@@ -252,7 +253,7 @@ pmAdd = 2;
 
 desiredDepth = 8;
 
-numChoices = 3;
+numChoices = 5;
 
 const bdSize = 7;
 
@@ -588,7 +589,7 @@ function safeDist(rnks,bDistMat,l,loc){
     "use strict";
     const lval = lookUp(rnks,l);
     const safety = pathSafety(bDistMat,l,loc);
-    return Math.max(lval,1 - safety);
+    return Math.max(lval,cons.safety - safety);
 }
 
 function makeRankInitWDist(posmat){
