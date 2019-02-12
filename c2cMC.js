@@ -2,7 +2,7 @@
 
 var parameterA,deltaA,deltaZero;
 
-pmDisabled = true;
+//pmDisabled = true;
 
 repetitionQ = function(pos){ return false; }
 
@@ -20,7 +20,7 @@ function mcMoveFromPos(pos){
     //const vals = mvsred.map(m => scoreFor(positionFromMove(m,pos)));
     const vals = rawmvs.getVals();
     const wts = vals.map(wtFromScore);
-    return randChoice(mvsred,wts);
+    return randChoice(mvs,wts);
 }
 
 function initMC(cons,delta){
