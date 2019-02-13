@@ -27,7 +27,7 @@
 //              "wdCorner":-10 };
 
 //breadth = 5
-const cons = {"scoob":{"moves":26.77772358660741,"kingmoves":30.78893240601576,"isol":7.2866968357036646,"safe":5.199810684461848,"win":1000000000,"thrus":7.325229082050377,"vuln":168.56402469384545,"pieces":323.3262068261359},"handBird":9.18885099293278,"thruBird":1.8265526204769802,"thrusw":889.6397380507234,"rank":5335.939259756898,"Bwin":1043.9587381423644,"RankLocB":3.9284244765460503,"RankLocW":1.1628627457619765,"RankBase":17.021986500742464,"wdCorner":2.954678391005302,"safety":3.0548200349881625}
+const cons = {"scoob":{"moves":26.892396400445904,"kingmoves":30.916292292315532,"isol":7.315851873190857,"safe":5.408143925466931,"win":1000000000,"thrus":7.448034804850076,"vuln":170.47870362639364,"pieces":325.9708194449543},"handBird":9.24740323887064,"thruBird":1.8440977316064329,"thrusw":882.5663177289209,"rank":5429.9989920210755,"Bwin":1042.4867104887587,"RankLocB":4.093128205382571,"RankLocW":1.1971262173985442,"RankBase":16.907454588978858,"wdCorner":-5,"safety":3.121353156942069}
 
 const consDelta={"scoob":{"moves":0.3,
                           "kingmoves":0.5,
@@ -45,7 +45,7 @@ const consDelta={"scoob":{"moves":0.3,
                  "RankLocB":0.1,
                  "RankLocW":0.02,
                  "RankBase":0.2,
-                 "wdCorner":0.5,
+                 "wdCorner":0.3,
                  "safety":0.1 };
 
 //consDelta = multObj(0.13,consDelta);
@@ -629,3 +629,5 @@ function pathSafety(mat,l1,l2){
 const allLocs = makeAllLocs(size,size);
 
 //clearAllCaches();
+
+//testpos0 = {"mat":[[0,0,0,"b",0,0,0],[0,0,"b",0,"w",0,0],[0,0,0,0,0,"k","w"],["b",0,"w",0,0,"b","b"],[0,"b",0,"w","b",0,0],[0,0,0,"b",0,0,0],[0,0,0,0,0,0,0]],"plyr":1,"color":"b","kingLoc":[2,5]};

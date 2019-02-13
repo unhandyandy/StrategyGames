@@ -116,3 +116,40 @@ function mcImprove(cons,del){
         console.log(iter[0]);
         console.log("t = ",t); }
 }
+
+function mcImproveMove(pos,mv){
+    "use strict";
+    const numchOld = numChoices;
+    numChoices = Infinity;
+    let test = false;
+    let t = 0;
+    while(!test){
+        const res = mcIterMove(pos,mv,t);
+        t += 1;
+        console.log(res[1]);
+        console.log("t = ",t);
+        test = res[0]; }
+    numChoices = numchOld;
+}
+
+function mcIterMove(pos,mv,t){
+    "use strict";
+    let del;
+    do{
+        del = changeSignsRand(deltaA,t);
+    }while(equalObj(del,deltaZero));
+    const ps1 = addObjs(parameterA,del);
+    const ps2 = addObjs(parameterA,multObj(-1,del));
+    copyValsToObj(parameterA,ps1);
+    const mvs1 = mcMoveFromPos(pos);
+    const scr1 = mvs1.findIndex(m => m.equal(mv));
+    copyValsToObj(parameterA,ps2);
+    const mvs2 = mcMoveFromPos(pos);
+    const scr2 = mvs2.findIndex(m => m.equal(mv));
+    const winner = scr1<scr2 ? ps1 : ps2;
+    copyValsToObj(parameterA,winner);
+    if(Math.min(scr1,scr2)<numchOld){
+        return [true,winner]; }
+    else{
+        return [false,winner]; }
+}
