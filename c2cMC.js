@@ -124,7 +124,7 @@ function mcImproveMove(pos,mv){
     let test = false;
     let t = 0;
     while(!test){
-        const res = mcIterMove(pos,mv,t);
+        const res = mcIterMove(pos,mv,numchOld,t);
         t += 1;
         console.log(res[1]);
         console.log("t = ",t);
@@ -132,7 +132,7 @@ function mcImproveMove(pos,mv){
     numChoices = numchOld;
 }
 
-function mcIterMove(pos,mv,t){
+function mcIterMove(pos,mv,cut,t){
     "use strict";
     let del;
     do{
@@ -141,14 +141,17 @@ function mcIterMove(pos,mv,t){
     const ps1 = addObjs(parameterA,del);
     const ps2 = addObjs(parameterA,multObj(-1,del));
     copyValsToObj(parameterA,ps1);
-    const mvs1 = mcMoveFromPos(pos);
+    const mvs1 = movesFromPos(pos);
     const scr1 = mvs1.findIndex(m => m.equal(mv));
     copyValsToObj(parameterA,ps2);
-    const mvs2 = mcMoveFromPos(pos);
+    const mvs2 = movesFromPos(pos);
     const scr2 = mvs2.findIndex(m => m.equal(mv));
-    const winner = scr1<scr2 ? ps1 : ps2;
+    const p = (scr2+1)/(scr1+scr2+2);
+    const winner = randBool(p) ? ps1 : ps2;
     copyValsToObj(parameterA,winner);
-    if(Math.min(scr1,scr2)<numchOld){
+    const worst = Math.max(scr1,scr2);
+    console.log("worst = ",worst);
+    if(worst<cut){
         return [true,winner]; }
     else{
         return [false,winner]; }
