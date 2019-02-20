@@ -105,10 +105,12 @@ function mcIter(t){
     return [parameterA,q];
 }
 
-function mcImprove(cons,del){
+function mcImprove(cons,del,tplus){
     "use strict";
+    if(tplus==undefined){
+        tplus = 0; }
     initMC(cons,del);
-    let p = 0.5, t = 0;
+    let p = 0.5, t = tplus;
     while(true){
         let iter = mcIter(t);
         p = iter[1];
@@ -155,4 +157,46 @@ function mcIterMove(pos,mv,cut,t){
         return [true,winner]; }
     else{
         return [false,winner]; }
+}
+
+function mcChangeEval(pos){
+    "use strict";
+    const numchOld = numChoices;
+    numChoices = Infinity;
+    let test = false;
+    let t = 0;
+    const sign = - Math.sign(scoreFor(pos));
+    while(!test){
+        const res = mcChangeEvalIter(pos,sign,t);
+        t += 1;
+        console.log(res[1]);
+        console.log("t = ",t);
+        test = res[0]; }
+    numChoices = numchOld;
+}
+
+function mcChangeEvalIter(pos,sign,t){
+    "use strict";
+    let del;
+    do{
+        del = changeSignsRand(deltaA,t+300);
+    }while(equalObj(del,deltaZero));
+    const ps1 = addObjs(parameterA,del);
+    const ps2 = addObjs(parameterA,multObj(-1,del));
+    copyValsToObj(parameterA,ps1);
+    const scr1 = scoreFor(pos);
+    copyValsToObj(parameterA,ps2);
+    const scr2 = scoreFor(pos);
+    const s1 = Math.exp(sign*scr1);
+    const s2 = Math.exp(sign*scr2);
+    const p = s1/(s1+s2);
+    const winner = randBool(p) ? ps1 : ps2;
+    copyValsToObj(parameterA,winner);
+    const worst = Math.max(scr1,scr2);
+    console.log("worst = ",worst);
+    if(sign*worst>0){
+        return [true,winner]; }
+    else{
+        return [false,winner]; }
+
 }

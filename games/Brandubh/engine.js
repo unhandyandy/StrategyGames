@@ -15,7 +15,7 @@
 //                       "win":1000000000,
 //                       "thrus":3,
 //                       "vuln":128,
-// 	              "pieces":128 },
+// 	                 "pieces":128 },
 //              "handBird":4,
 //              "thruBird":0.5,
 //              "thrusw":400,
@@ -24,10 +24,11 @@
 //              "RankLocB":1.0,
 //              "RankLocW":0.5,
 //              "RankBase":10,
-//              "wdCorner":-10 };
+//              "wdCorner":-10,
+//              "safety":2 };
 
 //breadth = 5
-const cons = {"scoob":{"moves":26.049849490518206,"kingmoves":31.88796569393103,"isol":7.134396469038407,"safe":5.79650336233737,"win":1000000000,"thrus":7.460070794681947,"vuln":148.3843747102272,"pieces":318.7891499257153},"handBird":9.36225990291459,"thruBird":1.7713846028808675,"thrusw":893.3125440878825,"rank":5247.625756722864,"Bwin":1024.6346998289125,"RankLocB":4.1018866942365735,"RankLocW":1.2207883344011488,"RankBase":16.542646286565954,"wdCorner":-6.098308371660135,"safety":2.752701451909862}
+const cons = {"scoob":{"moves":8.212075176260578,"kingmoves":15.33602888546691,"isol":1.0323020252847606,"safe":1.455781316081544,"win":1000000000,"thrus":3.2328894753417274,"vuln":146.1940205453708,"pieces":144.70189247093907},"handBird":3.9595965902853347,"thruBird":0.6001460293648113,"thrusw":338.22401592230597,"rank":1352.8173467540819,"Bwin":334.30915685822333,"RankLocB":0.938160862673331,"RankLocW":0.48787839443181746,"RankBase":10.470361937921126,"wdCorner":-8.94173832532522,"safety":2.5085412303933885}
 
 const consDelta={"scoob":{"moves":0.3,
                           "kingmoves":0.5,
@@ -247,13 +248,13 @@ function scorePosSimp(pos){
 
 //pmDisabled = true;
 
-pmAdd = 2;
+//pmAdd = 2;
 
 //const noComp = true;
 
 desiredDepth = 8;
 
-numChoices = 5;
+numChoices = 3;
 
 const bdSize = 7;
 

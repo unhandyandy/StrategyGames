@@ -627,8 +627,9 @@ var pmAdd = 1;
 
 function postMortem(hist,plyr){
     "use strict";
-    var pscur, pslst, hstrmn, dep, hsttot;
-    numChoices = numChoices + pmAdd;
+    let pscur, pslst, hstrmn, dep, hsttot;
+    const numChoicesOrig = numChoices;
+    numChoices += pmAdd;
     hsttot = hist[1];
     hsttot = [posCur.clone()].concat(hsttot);
     if(statusN===plyr){
@@ -637,18 +638,22 @@ function postMortem(hist,plyr){
     //pslst = hsttot[0];
     //pscur = hsttot[1];
     hstrmn = hsttot.clone();
-    dep = desiredDepth;
+    dep = desiredDepth + 1;
+    let gameHistOld = gameHistory.clone();
 
     do{
 	if(hstrmn.length < 2){
 	    hstrmn = hsttot.clone();
+            gameHistory = gameHistOld.clone();
 	    dep += 1;
+            numChoices += pmAdd;
 	}
 	pslst = hstrmn[0];
 	pscur = hstrmn[1];
 	hstrmn = hstrmn.slice(2);
+        undoGameHistory(2);
     }while(!reEval(pscur,pslst,plyr,dep));
-    numChoices = numChoices - pmAdd;
+    numChoices = numChoicesOrig;
     postMessage("...done!");
 }
 
