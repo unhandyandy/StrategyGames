@@ -635,3 +635,7 @@ const allLocs = makeAllLocs(size,size);
 testpos0 = posInit.clone();
 testpos0.mat = [[0,0,0,"b",0,0,0],[0,0,"b",0,"w",0,0],[0,0,0,0,0,"k","w"],["b",0,"w",0,0,"b","b"],[0,"b",0,"w","b",0,0],[0,0,0,"b",0,0,0],[0,0,0,0,0,0,0]];
 testpos0.kingLoc = [2,5];
+
+testpos1 = posInit.clone();
+testpos1.mat = [[0,0,0,"b",0,0,0],[0,0,0,0,0,"b",0],[0,0,"b","w",0,0,0],["b",0,"w",0,"k",0,"b"],[0,"b",0,0,0,"w",0],[0,0,"b",0,0,0,0],[0,0,0,"b","w",0,0]];
+testpos1.kingLoc = [3,4];

@@ -43,6 +43,32 @@ function playOneGame(parAlst){
         i = 1 - i; };
     return posCur.kingLoc.equal([-1,-1]) ? [1,0] : [0,1];         
 }
+function rollout(startpos){
+    "use strict"
+    setup(Infinity,startpos);
+    let i=0;
+    let m=0;
+    while(!gameOverQ(posCur)){
+        playOneMove();
+	m += 1;
+	if(m>99){
+	    return [0.8,0.2]; }
+        i = 1 - i; };
+    return posCur.kingLoc.equal([-1,-1]) ? [1,0] : [0,1];         
+}
+
+function mcRolloutN(pos,len){
+    "use strict";
+    let score = [0,0];
+    let cnt = 0;
+    while(cnt<len){
+        cnt += 1;
+        let newscore = rollout(pos);
+        score = score.vector2Add(newscore); }
+    if(pos.color==="w"){
+        score = score.reverse(); }
+    return score;
+}
 
 function playOneMove(params){
     "use strict";
@@ -51,6 +77,12 @@ function playOneMove(params){
     //console.log("mv = ",mv);
     posCur =  positionFromMove(mv,posCur);
     //postMove(mv,"opp");
+}
+function playOneMove(){
+    "use strict";
+    let mv = mcMoveFromPos(posCur);
+    posCur =  positionFromMove(mv,posCur);
+    //update history?
 }
 
 function playMatch(p1,p2){
