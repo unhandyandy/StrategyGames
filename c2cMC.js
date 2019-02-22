@@ -43,13 +43,21 @@ function playOneGame(parAlst){
         i = 1 - i; };
     return posCur.kingLoc.equal([-1,-1]) ? [1,0] : [0,1];         
 }
-function rollout(startpos){
+function rollout(startpos,probtree){
     "use strict"
     setup(Infinity,startpos);
     let i=0;
     let m=0;
     while(!gameOverQ(posCur)){
-        playOneMove();
+        if(minID(posCur) in probtree){
+            playOneMoveFromTree(probtree); }
+        else{
+            probtree[minID(posCur)] = movesFromPos(posCur,true,true);
+            const scr = scoreFor(posCur);
+            const res = scr > 0 ?
+                  (posCur.color==="b" ? [1,0] : [0,1]) :
+                  (posCur.color==="b" ? [0,1] : [1,0]);
+            return res; }
 	m += 1;
 	if(m>99){
 	    return [0.8,0.2]; }
@@ -57,17 +65,45 @@ function rollout(startpos){
     return posCur.kingLoc.equal([-1,-1]) ? [1,0] : [0,1];         
 }
 
-function mcRolloutN(pos,len){
+function mcRolloutN(pos,len,probtree){
     "use strict";
     let score = [0,0];
     let cnt = 0;
     while(cnt<len){
         cnt += 1;
-        let newscore = rollout(pos);
+        let newscore = rollout(pos,probtree);
         score = score.vector2Add(newscore); }
-    if(pos.color==="w"){
-        score = score.reverse(); }
     return score;
+}
+
+function scoreToReal(scr){
+    "use strict";
+    const buffer = 2;
+    return scr[0]/(scr[0]+scr[1]+buffer);
+}
+
+function mcBestMove(pos,len1,lenro){
+    "use strict";
+    const scrdct = {};
+    const rawmvs = movesFromPos(pos,true,true);
+    const probtree = {};
+    probtree[minID(pos)] = rawmvs;
+    const mvs = rawmvs.getList();
+    for(let m of mvs){
+        scrdct[m] = [0,0]; }
+    let i = 0;
+    while(i<len1){
+        i += 1;
+        const mv = randMoveFromMV(rawmvs);
+        const startpos = positionFromMove(mv,pos);
+        const score = mcRolloutN(startpos,lenro,probtree);
+        if(pos.color==="w"){
+            score.reverse(); }
+        scrdct[mv] = scrdct[mv].vector2Add(score); }
+    console.log(scrdct);
+    const best = bestWRT(mvs,
+                         (m1,m2) => scoreToReal(scrdct[m1])>scoreToReal(scrdct[m2]));
+    return best;        
 }
 
 function playOneMove(params){
@@ -78,9 +114,17 @@ function playOneMove(params){
     posCur =  positionFromMove(mv,posCur);
     //postMove(mv,"opp");
 }
-function playOneMove(){
+
+function randMoveFromMV(mv){
     "use strict";
-    let mv = mcMoveFromPos(posCur);
+    const mvs = mv.getList();
+    const vals = mv.getVals();
+    return randChoice(mvs,vals);
+}
+function playOneMoveFromTree(probtree){
+    "use strict";
+    const rawmvs = probtree[minID(posCur)];
+    const mv = randMoveFromMV(rawmvs);
     posCur =  positionFromMove(mv,posCur);
     //update history?
 }
