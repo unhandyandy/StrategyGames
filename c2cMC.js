@@ -82,27 +82,23 @@ function scoreToReal(scr){
     return scr[0]/(scr[0]+scr[1]+buffer);
 }
 
-function mcBestMove(pos,len1,lenro){
+function mcBestMove(pos,lenro){
     "use strict";
     const scrdct = {};
     const rawmvs = movesFromPos(pos,true,true);
     const probtree = {};
     probtree[minID(pos)] = rawmvs;
     const mvs = rawmvs.getList();
-    for(let m of mvs){
-        scrdct[m] = [0,0]; }
-    let i = 0;
-    while(i<len1){
-        i += 1;
-        const mv = randMoveFromMV(rawmvs);
+    for(let mv of mvs){
         const startpos = positionFromMove(mv,pos);
         const score = mcRolloutN(startpos,lenro,probtree);
         if(pos.color==="w"){
             score.reverse(); }
-        scrdct[mv] = scrdct[mv].vector2Add(score); }
+        scrdct[mv] = score; }
     console.log(scrdct);
     const best = bestWRT(mvs,
                          (m1,m2) => scoreToReal(scrdct[m1])>scoreToReal(scrdct[m2]));
+    setup(Infinity,positionFromMove(best,pos));
     return best;        
 }
 
