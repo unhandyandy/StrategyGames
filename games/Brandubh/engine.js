@@ -213,9 +213,10 @@ function scoreFor(pos){
         s += (c==="b") ? cons.scoob.win : -cons.Bwin; }
     s += score.thrus.w * (c==="w" ? cons.scoob.win : -cons.thrusw);
     const ranks = rankMatSafeDist(pos.mat);
-    const dist = (!pos.kingLoc.equal([-1,-1])) ?
+    let dist = (!pos.kingLoc.equal([-1,-1])) ?
           lookUp(ranks,pos.kingLoc) :
-          Infinity;
+        Infinity;
+    dist = Math.max(dist,1);
     s += (c==="w" ? 1 : -cons.thruBird) *
         cons.rank / (cons.RankBase ** (dist - 1));
     if(repQ(pos)){
@@ -251,6 +252,11 @@ function scorePosSimp(pos){
 //pmAdd = 2;
 
 //const noComp = true;
+
+function minID(pos){
+    "use strict";
+    return JSON.stringify([pos.mat,pos.color]);
+}
 
 desiredDepth = 8;
 
@@ -365,12 +371,21 @@ function movesFromPos(pos,sortedQ,valsQ){
     if(valsQ===undefined){
 	valsQ = false; }
     if(pos.equal(posInit)&&comp===1){
-        return [[[1,3],[1,2]],
-                [[1,3],[1,1]],
-                [[1,3],[1,0]],
-                [[0,3],[0,2]],
-                [[0,3],[0,1]]]; }
-    if (sortedQ===undefined){ sortedQ = true; }
+        const res = Object.create(partiallyOrderedList);
+        res.top = Infinity;
+        res.list = valsQ ?
+            [[0,[[1,3],[1,2]]],
+             [0,[[1,3],[1,1]]],
+             [0,[[1,3],[1,0]]],
+             [0,[[0,3],[0,2]]],
+             [0,[[0,3],[0,1]]]] :
+            [[[1,3],[1,2]],
+             [[1,3],[1,1]],
+             [[1,3],[1,0]],
+             [[0,3],[0,2]],
+             [[0,3],[0,1]]];
+        return valsQ ? res : res.list; }
+    if (sortedQ===undefined || Number(sortedQ)===sortedQ){ sortedQ = true; }
     let res = [];
     const mat = pos.mat;
     for (var i=0;i<size;i+=1){
@@ -639,3 +654,9 @@ testpos0.kingLoc = [2,5];
 testpos1 = posInit.clone();
 testpos1.mat = [[0,0,0,"b",0,0,0],[0,0,0,0,0,"b",0],[0,0,"b","w",0,0,0],["b",0,"w",0,"k",0,"b"],[0,"b",0,0,0,"w",0],[0,0,"b",0,0,0,0],[0,0,0,"b","w",0,0]];
 testpos1.kingLoc = [3,4];
+
+testpos2 = posInit.clone();
+testpos2.mat = [[0,0,0,"b",0,0,0],[0,0,"b",0,"w","k",0],[0,0,0,0,0,"b","w"],["b","b","w",0,0,0,0],[0,0,0,0,0,0,"b"],[0,0,0,"b",0,0,0],[0,0,0,0,"b",0,0]];
+testpos2.kingLoc = [1,5];
+testpos2.color = "w";
+testpos2.plyr = 2;

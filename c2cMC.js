@@ -2,9 +2,11 @@
 
 var parameterA,deltaA,deltaZero;
 
-//pmDisabled = true;
+pmDisabled = true;
 
-repetitionQ = function(pos){ return false; }
+numChoices = Infinity;
+
+//repetitionQ = function(pos){ return false; }
 
 function wtFromScore(s){
     "use strict";
@@ -45,8 +47,8 @@ function playOneGame(parAlst){
 }
 function rollout(startpos,probtree){
     "use strict"
-    setup(Infinity,startpos);
-    let i=0;
+    //setup(Infinity,startpos);
+    posCur = startpos.clone();
     let m=0;
     while(!gameOverQ(posCur)){
         if(minID(posCur) in probtree){
@@ -60,8 +62,7 @@ function rollout(startpos,probtree){
             return res; }
 	m += 1;
 	if(m>99){
-	    return [0.8,0.2]; }
-        i = 1 - i; };
+	    return [0.8,0.2]; } };
     return posCur.kingLoc.equal([-1,-1]) ? [1,0] : [0,1];         
 }
 
@@ -82,6 +83,18 @@ function scoreToReal(scr){
     return scr[0]/(scr[0]+scr[1]+buffer);
 }
 
+function getMaxInDict( dict ){
+    "use strict";
+    let max = -Infinity;
+    let best;
+    for(let m in dict){
+        const curscr = scoreToReal(dict[m]);
+        if(curscr>max){
+            max = curscr;
+            best = m; } }
+    return [max,[eval(best)]];
+}
+
 function mcBestMove(pos,lenro){
     "use strict";
     const scrdct = {};
@@ -94,11 +107,11 @@ function mcBestMove(pos,lenro){
         const score = mcRolloutN(startpos,lenro,probtree);
         if(pos.color==="w"){
             score.reverse(); }
-        scrdct[mv] = score; }
+        scrdct[JSON.stringify(mv)] = score; }
     console.log(scrdct);
-    const best = bestWRT(mvs,
-                         (m1,m2) => scoreToReal(scrdct[m1])>scoreToReal(scrdct[m2]));
-    setup(Infinity,positionFromMove(best,pos));
+    const best = getMaxInDict(scrdct);
+    //setup(Infinity,positionFromMove(best,pos));
+    posCur = pos.clone();
     return best;        
 }
 
@@ -271,4 +284,11 @@ function mcChangeEvalIter(pos,sign,t){
     else{
         return [false,winner]; }
 
+}
+
+function minimaxAB(pos,dep,plyr){
+    "use strict";
+    const rolen = 60;
+    const best = mcBestMove(pos,rolen);
+    return best;
 }
