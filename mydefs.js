@@ -939,7 +939,10 @@ const partiallyOrderedList = {
     "concat":function(newlist){
         "use strict";
         for(let cur of newlist){
-            this.add(...cur); } }
+            this.add(...cur); } },
+    "mapVals":function(fun){
+        "use strict"
+        this.list = this.list.map(ve => [fun(ve[0]),ve[1]]); }
 }
         
 function addObjs(o1,o2){

@@ -45,25 +45,34 @@ function playOneGame(parAlst){
         i = 1 - i; };
     return posCur.kingLoc.equal([-1,-1]) ? [1,0] : [0,1];         
 }
+
 function rollout(startpos,probtree){
     "use strict"
     //setup(Infinity,startpos);
     posCur = startpos.clone();
+    const colB = posCur.color==="b";
     let m=0;
+    let prevpos;
     while(!gameOverQ(posCur)){
         if(minID(posCur) in probtree){
+            prevpos = posCur;
             playOneMoveFromTree(probtree); }
         else{
-            probtree[minID(posCur)] = movesFromPos(posCur,true,true);
+            const mvs = movesFromPos(posCur,true,true);
+            mvs.mapVals(wtFromScore);
+            probtree[minID(posCur)] = mvs;
             const scr = scoreFor(posCur);
             const res = scr > 0 ?
-                  (posCur.color==="b" ? [1,0] : [0,1]) :
-                  (posCur.color==="b" ? [0,1] : [1,0]);
+                  (colB ? [1,0] : [0,1]) :
+                  (colB ? [0,1] : [1,0]);
             return res; }
 	m += 1;
 	if(m>99){
 	    return [0.8,0.2]; } };
-    return posCur.kingLoc.equal([-1,-1]) ? [1,0] : [0,1];         
+    const res =  posCur.kingLoc.equal([-1,-1]) ? [1,0] : [0,1];
+    // if((res===[1,0] && prevpos.color==="b") ||
+    //    (res===[0,1] && prevpos.color!="b")){
+    return res;
 }
 
 function mcRolloutN(pos,len,probtree){
