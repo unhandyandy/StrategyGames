@@ -249,7 +249,7 @@ function scorePosSimp(pos){
 
 //pmDisabled = true;
 
-//pmAdd = 2;
+pmAdd = 2;
 
 //const noComp = true;
 
@@ -258,9 +258,9 @@ function minID(pos){
     return JSON.stringify([pos.mat,pos.color]);
 }
 
-desiredDepth = 8;
+desiredDepth = 6;
 
-numChoices = 3;
+numChoices = 5;
 
 const bdSize = 7;
 
