@@ -28,7 +28,7 @@
 //              "safety":2 };
 
 //breadth = 5
-const cons = {"scoob":{"moves":5.5311790626885875,"kingmoves":18.05005499463288,"isol":1.163638249647261,"safe":0.6061895503398721,"win":1000000000,"thrus":1.778278536020475,"vuln":130.8980789835076,"pieces":121.92151631337377},"handBird":3.4379624526479104,"thruBird":0.5843136353463441,"thrusw":386.5647399488555,"rank":956.8656065914599,"Bwin":487.4159930160514,"RankLocB":1.227313908890125,"RankLocW":0.46207169183714303,"RankBase":11.517063983311749,"wdCorner":-9.887455650805745,"safety":2.241895522727359}
+const cons = {"scoob":{"moves":5.585345245567094,"kingmoves":17.981929772552245,"isol":1.5550029024083074,"safe":0.8578876650849209,"win":1000000000,"thrus":1.5515008855133658,"vuln":125.43535210593961,"pieces":119.27961280876723},"handBird":3.541236521175894,"thruBird":0.6130354876524747,"thrusw":372.14720993464675,"rank":758.6799029016508,"Bwin":511.097612682807,"RankLocB":1.0565891569217305,"RankLocW":0.4000637213971296,"RankBase":11.240912425723508,"wdCorner":-9.386892775025776,"safety":2.539772089691931}
 
 const consDelta={"scoob":{"moves":0.3,
                           "kingmoves":0.5,
@@ -197,6 +197,13 @@ function possMovesBoth(pos){
     return res;
 }
 
+function rankScore(dist,c){
+    "use strict";
+    const d = Math.max(dist-1,0);
+    return (c==="w" ? 1 : -cons.thruBird) *
+        cons.rank / (cons.RankBase ** d);
+}
+
 function scoreFor(pos){
     "use strict";
     const c = pos.color;
@@ -216,9 +223,7 @@ function scoreFor(pos){
     let dist = (!pos.kingLoc.equal([-1,-1])) ?
           lookUp(ranks,pos.kingLoc) :
         Infinity;
-    dist = Math.max(dist,1);
-    s += (c==="w" ? 1 : -cons.thruBird) *
-        cons.rank / (cons.RankBase ** (dist - 1));
+    s += rankScore(dist,c);
     if(repQ(pos)){
 	s += cons.scoob.win * (c==="b" ? 1 : -1); }
     if(pos.kingLoc.equal([-1,-1])){
@@ -409,6 +414,7 @@ function movesFromPos(pos,sortedQ,valsQ){
                            m => [m,scoreFor(positionFromMove(m,pos))]);
         sorted.concat(vals);
 	if(valsQ){
+            sorted.list = sorted.list.slice(0,numChoices);
 	    return sorted; }
         else{
 	    return sorted.getList(); } }

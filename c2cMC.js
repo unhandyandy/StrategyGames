@@ -4,7 +4,7 @@ var parameterA,deltaA,deltaZero;
 
 pmDisabled = true;
 
-numChoices = Infinity;
+numChoices = 12;
 
 //repetitionQ = function(pos){ return false; }
 
@@ -50,7 +50,6 @@ function rollout(startpos,probtree){
     "use strict"
     //setup(Infinity,startpos);
     posCur = startpos.clone();
-    const colB = posCur.color==="b";
     let m=0;
     let prevpos;
     while(!gameOverQ(posCur)){
@@ -63,8 +62,8 @@ function rollout(startpos,probtree){
             probtree[minID(posCur)] = mvs;
             const scr = scoreFor(posCur);
             const res = scr > 0 ?
-                  (colB ? [1,0] : [0,1]) :
-                  (colB ? [0,1] : [1,0]);
+                  (posCur.color==="b" ? [1,0] : [0,1]) :
+                  (posCur.color==="b" ? [0,1] : [1,0]);
             return res; }
 	m += 1;
 	if(m>99){
