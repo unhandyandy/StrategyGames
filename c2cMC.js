@@ -51,7 +51,6 @@ function rollout(startpos,probtree){
     //setup(Infinity,startpos);
     posCur = startpos.clone();
     let m=0;
-    let prevpos;
     while(!gameOverQ(posCur)){
         if(minID(posCur) in probtree){
             prevpos = posCur;
@@ -62,16 +61,20 @@ function rollout(startpos,probtree){
             probtree[minID(posCur)] = mvs;
             const scr = scoreFor(posCur);
             const res = scr > 0 ?
-                  (posCur.color==="b" ? [1,0] : [0,1]) :
-                  (posCur.color==="b" ? [0,1] : [1,0]);
+                  (posCur.color==="b" ? [0.6,0.4] : [0.4,0.6]) :
+                  (posCur.color==="b" ? [0.4,0.6] : [0.6,0.4]);
             return res; }
 	m += 1;
 	if(m>99){
 	    return [0.8,0.2]; } };
     const res =  posCur.kingLoc.equal([-1,-1]) ? [1,0] : [0,1];
-    // if((res===[1,0] && prevpos.color==="b") ||
-    //    (res===[0,1] && prevpos.color!="b")){
     return res;
+}
+
+function rolloutRec(startpos,probtree){
+    "use strict"
+    posCur = startpos.clone();
+    
 }
 
 function mcRolloutN(pos,len,probtree){
@@ -189,13 +192,14 @@ function mcIter(t){
     const ps1 = addObjs(parameterA,del);
     const ps2 = addObjs(parameterA,multObj(-1,del));
     const scr = playMatch(ps1,ps2);
-    const pnew = calcP(scr);
-    const rB = randBool(pnew);
-    const winner = rB ? ps1 : ps2;
-    let q = rB ? pnew : 1-pnew;
-    q = Math.max(q,0.5);
+    //const pnew = calcP(scr);
+    //const rB = randBool(pnew);
+    //const winner = rB ? ps1 : ps2;
+    const winner = scr[0]>scr[1] ? ps1 : ps2;
+    //let q = rB ? pnew : 1-pnew;
+    //q = Math.max(q,0.5);
     copyValsToObj(parameterA,winner);
-    return [parameterA,q];
+    return parameterA;
 }
 
 function mcImprove(cons,del,tplus){
@@ -203,12 +207,12 @@ function mcImprove(cons,del,tplus){
     if(tplus==undefined){
         tplus = 0; }
     initMC(cons,del);
-    let p = 0.5, t = tplus;
+    let t = tplus;
     while(true){
         let iter = mcIter(t);
-        p = iter[1];
+        //p = iter[1];
         t += 1;
-        console.log(iter[0]);
+        console.log(iter);
         console.log("t = ",t); }
 }
 
