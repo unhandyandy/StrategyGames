@@ -4,7 +4,7 @@ var parameterA,deltaA,deltaZero;
 
 pmDisabled = true;
 
-numChoices = 12;
+numChoices = Infinity;
 
 //repetitionQ = function(pos){ return false; }
 
