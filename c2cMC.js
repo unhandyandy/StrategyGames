@@ -4,7 +4,7 @@ var parameterA,deltaA,deltaZero;
 
 pmDisabled = true;
 
-numChoices = Infinity;
+numChoices = 1;
 
 //repetitionQ = function(pos){ return false; }
 
@@ -151,7 +151,7 @@ function playOneMoveFromTree(probtree){
 
 function playMatch(p1,p2){
     "use strict";
-    const len = 15;
+    const len = 1;
     let scr = [0,0];
     for(let i=0; i<len; i+=1){
         scr = scr.vector2Add(playOneGame([p1,p2])); }
@@ -189,13 +189,15 @@ function mcIter(t){
     do{
         del = changeSignsRand(deltaA,t);
     }while(equalObj(del,deltaZero));
+    const oldPA = Object.clone(parameterA);
     const ps1 = addObjs(parameterA,del);
     const ps2 = addObjs(parameterA,multObj(-1,del));
     const scr = playMatch(ps1,ps2);
     //const pnew = calcP(scr);
     //const rB = randBool(pnew);
     //const winner = rB ? ps1 : ps2;
-    const winner = scr[0]>scr[1] ? ps1 : ps2;
+    const winner = scr[0]>scr[1] ? ps1 :
+	           scr[0]<scr[1] ? ps2 : oldPA;
     //let q = rB ? pnew : 1-pnew;
     //q = Math.max(q,0.5);
     copyValsToObj(parameterA,winner);
