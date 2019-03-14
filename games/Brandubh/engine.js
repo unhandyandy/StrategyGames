@@ -23,11 +23,11 @@ const cons={ "scoob":{"moves":8,
              "Bwin":400,
              "RankLocB":1.0,
              "RankLocW":0.5,
-             "RankBase":-1.0,
+             "RankBase":1.0,
              "wdCorner":-10,
              "safety":2 };
 
-//breadth = 5
+//breadth = inf
 //const cons = 
 
 const consDelta={"scoob":{"moves":0.3,
@@ -188,7 +188,7 @@ function possMovesBoth(pos){
 
 function rankScore(dist,c){
     "use strict";
-    const d = Math.max(dist,0);
+    const d = Math.max(dist,1);
     return (c==="w" ? 1 : -cons.thruBird) *
         //cons.rank / (cons.RankBase ** d);
         cons.rank / (d ** cons.RankBase);

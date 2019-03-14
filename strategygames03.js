@@ -577,6 +577,7 @@ function repetitionQaux(pos,plyr,hist,stt){
 
 function repetitionQ(pos,plyr){
     "use strict";
+    if(gameHistory.length===0){return false;}
     return repetitionQaux(pos,plyr,gameHistory[1].slice(2),statusN);
 }
 

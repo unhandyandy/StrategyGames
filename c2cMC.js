@@ -4,7 +4,7 @@ var parameterA,deltaA,deltaZero;
 
 pmDisabled = true;
 
-numChoices = 1;
+numChoices = Infinity;
 
 //repetitionQ = function(pos){ return false; }
 
@@ -130,6 +130,7 @@ function playOneMove(params){
     "use strict";
     copyValsToObj(parameterA,params);
     let mv = mcMoveFromPos(posCur);
+    //let mv = aidedTS(posCur,6,20).mov;
     //console.log("mv = ",mv);
     posCur =  positionFromMove(mv,posCur);
     //postMove(mv,"opp");
@@ -151,7 +152,7 @@ function playOneMoveFromTree(probtree){
 
 function playMatch(p1,p2){
     "use strict";
-    const len = 1;
+    const len = 15;
     let scr = [0,0];
     for(let i=0; i<len; i+=1){
         scr = scr.vector2Add(playOneGame([p1,p2])); }
@@ -187,7 +188,7 @@ function mcIter(t){
     "use strict";
     let del;
     do{
-        del = changeSignsRand(deltaA,t);
+        del = changeSignsRand(multObj(1,deltaA),t);
     }while(equalObj(del,deltaZero));
     const oldPA = Object.clone(parameterA);
     const ps1 = addObjs(parameterA,del);
@@ -302,7 +303,112 @@ function mcChangeEvalIter(pos,sign,t){
 
 function minimaxAB(pos,dep,plyr){
     "use strict";
-    const rolen = 60;
-    const best = mcBestMove(pos,rolen);
-    return best;
+    //const rolen = 60;
+    const best = aidedTS(pos,8,30);
+    return [best.val,[best.mov]];
+}
+
+function makePVpair([v,p,m]){
+    const res = {};
+    res.pos = p;
+    res.val = v;
+    res.mov = m;
+    return res;
+}
+
+function children(pos){
+    "use strict"
+    const mvs = movesFromPos(pos);
+    const postns = mvs.map(m => [m,positionFromMove(m,pos)]);
+    const pairs = postns.map(p => [scoreFor(p[1]),p[1],p[0]]);
+    pairs.sort((p1,p2) => p1[0]-p2[0]);
+    return pairs.map(makePVpair);
+}
+
+treeNodeProto = { "pos":posInit,
+                  "children":children(posInit),
+                  "val":scoreFor(posInit)         
+                }
+
+function makeTN(pos,val){
+    "use strict"
+    if(val===undefined){
+        val = scoreFor(pos); }
+    const newtn = Object.clone(treeNodeProto);
+    newtn.pos = pos;
+    newtn.children = children(pos);
+    newtn.val = val;
+    return newtn;
+}
+
+function aidedTS(pos,dep,brd){
+    "use strict";
+    const tree = {};
+    const val = scoreFor(pos);
+    const {bestpos,bestval,brdrem,bestmv} = aidedTSaux(pos,val,dep,brd,tree);
+    return {"pos":bestpos,
+            "mov":bestmv,
+            "val":bestval};
+}
+
+const aidedTScut = 2500;
+
+function aidedTSaux(pos,val,dep,brd,tree){
+    "use strict"
+    let brdloc = brd;
+    if(!(minID(pos) in tree)){
+        tree[minID(pos)] = makeTN(pos); }
+    const node = tree[minID(pos)];
+    const best = node.children[0];
+    if(dep===0){
+        return {"bestpos":best.pos,
+                "bestval":-best.val,
+                "brdrem":brdloc,
+                "bestmv":best.mov }; }
+    else{
+        best.val = -Infinity;
+        for(let c of node.children){
+            if(gameOverQ(c.pos)){
+                if(c.val<aidedTScut || brdloc===0){
+                    return {"bestpos":c.pos,
+                            "bestval":c.val,
+                            "brdrem":brdloc,
+                            "bestmv":c.mov }; }
+            }
+            else{
+                const {bestpos,bestval,brdrem,bestmv} = aidedTSaux(c.pos,c.val,dep-1,brdloc,tree);
+                brdloc = brdrem;
+                if(bestval<aidedTScut || brdloc===0){
+                    return {"bestpos":c.pos,
+                            "bestval":-bestval,
+                            "brdrem":brdloc,
+                            "bestmv":c.mov }; }
+                else{
+                    brdloc -= 1;
+                    if(-bestval>best.val){
+                        best.val = -bestval;
+                        best.pos = bestpos;
+                        best.mov = bestmv; } } } }
+        return {"bestpos":best.pos,
+                "bestval":best.val,
+                "brdrem":brdloc,
+                "bestmv":best.mov }; }  
+}
+
+function playGameAuto(dep,brd){
+    "use strict"
+    posCur = posInit;
+    while(!gameOverQ(posCur)){
+        let {pos,val} = aidedTS(posCur,dep,brd);
+        posCur = pos;
+        postPosition(posCur);
+        console.log(pos.mat); }
+}
+
+function makeMoveAuto(dep,brd){
+    "use strict"
+    let {pos,val} = aidedTS(posCur,dep,brd);
+    posCur = pos;
+    postPosition(posCur);
+    console.log(val); 
 }
