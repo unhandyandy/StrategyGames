@@ -269,6 +269,9 @@ function updatePosCur(newmov){
     var scr;
     updateGameHistory( newmov, posCur );
     //console.debug("updating posCur...");
+    if(resortNode!=undefined && gameHistory[1].length>1){
+        resortNode(tree,tree[minID(gameHistory[1][0])]);
+        resortNode(tree,tree[minID(gameHistory[1][1])]); }
     posCur = positionFromMove(newmov,posCur,statusN);
     //console.debug("...done");
     histButt = [];
@@ -418,7 +421,7 @@ function clearAllCaches(){
     localStorage.clear();
 }
 
-var posInit;
+let posInit;
 
 function setup( you, posInit ){
     "use strict";
@@ -431,7 +434,6 @@ function setup( you, posInit ){
     histButt = [];
 
     posCur = ( posInit===undefined ) ? makePosInit() : posInit;
-
     comp = opposite( pyou );
 
     if (!noComps){

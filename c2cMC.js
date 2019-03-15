@@ -301,11 +301,13 @@ function mcChangeEvalIter(pos,sign,t){
 
 }
 
+tree = {};
+
 function minimaxAB(pos,dep,plyr){
     "use strict";
     //const rolen = 60;
-    const best = aidedTS(pos,8,30);
-    return [best.val,[best.mov]];
+    const best = aidedTS(pos,10,40,tree);
+    return [-best.val,[best.mov]];
 }
 
 function makePVpair([v,p,m]){
@@ -338,61 +340,83 @@ function makeTN(pos,val){
     newtn.pos = pos;
     newtn.children = children(pos);
     newtn.val = val;
+    //newtn.resort = false;
+    newtn.rep = false;
     return newtn;
 }
 
-function aidedTS(pos,dep,brd){
+function aidedTS(pos,dep,brd,tree){
     "use strict";
-    const tree = {};
+    if(tree===undefined){
+        const tree = {}; }
     const val = scoreFor(pos);
     const {bestpos,bestval,brdrem,bestmv} = aidedTSaux(pos,val,dep,brd,tree);
+    console.log("breadth: ",brd-brdrem);
     return {"pos":bestpos,
             "mov":bestmv,
             "val":bestval};
 }
 
-const aidedTScut = 1500;
+const aidedTScut = 8000;
+
+function cutFun(val){
+    "use strict"
+    
+}
 
 function aidedTSaux(pos,val,dep,brd,tree){
     "use strict"
-    let brdloc = brd;
     if(!(minID(pos) in tree)){
         tree[minID(pos)] = makeTN(pos); }
     const node = tree[minID(pos)];
-    const best = node.children[0];
+    node.rep = true;
     if(dep===0){
-        return {"bestpos":best.pos,
-                "bestval":best.val,
-                "brdrem":brdloc,
-                "bestmv":best.mov }; }
+        return {"bestpos":null,
+                "bestval":-node.val,
+                "brdrem":brd,
+                "bestmv":null,
+                "rep":false }; }
     else{
-        best.val = -Infinity;
+        //node.resort = true;
+        let brdloc = brd;
+        let best = node.children[0];
         for(let c of node.children){
-            if(gameOverQ(c.pos)){
-                if(c.val<aidedTScut || brdloc===0){
+            const id = minID(c.pos);
+            const crep = (id in tree) && tree[id].rep;
+            if(gameOverQ(c.pos) || crep){
+                const newval = crep ?
+                      (c.pos.color==="b" ? Infinity : -Infinity) :
+                      c.val;
+                resortNode(tree,node);
+                return {"bestpos":c.pos,
+                        "bestval":newval,
+                        "brdrem":brdloc,
+                        "bestmv":c.mov,
+                        "rep":crep }; }
+            else{
+                const {bestpos,bestval,brdrem,bestmv,rep} = aidedTSaux(c.pos,c.val,dep-1,brdloc,tree);
+                const cnode = tree[id];
+                brdloc = brdrem;
+                c.val = -bestval;
+                cnode.val = c.val;
+                cnode.rep = false;
+                if(val-bestval<aidedTScut || brdloc===0){
+                    resortNode(tree,node);
                     return {"bestpos":c.pos,
                             "bestval":c.val,
                             "brdrem":brdloc,
-                            "bestmv":c.mov }; }
-            }
-            else{
-                const {bestpos,bestval,brdrem,bestmv} = aidedTSaux(c.pos,c.val,dep-1,brdloc,tree);
-                brdloc = brdrem;
-                if(bestval<aidedTScut || brdloc===0){
-                    return {"bestpos":c.pos,
-                            "bestval":-bestval,
-                            "brdrem":brdloc,
-                            "bestmv":c.mov }; }
+                            "bestmv":c.mov,
+                            "rep":rep }; }
                 else{
                     brdloc -= 1;
-                    if(-bestval>best.val){
-                        best.val = -bestval;
-                        best.pos = bestpos;
-                        best.mov = bestmv; } } } }
+                    if(c.val<best.val){
+                        best = Object.clone(c); } } } }
+        resortNode(tree,node);
         return {"bestpos":best.pos,
                 "bestval":best.val,
                 "brdrem":brdloc,
-                "bestmv":best.mov }; }  
+                "bestmv":best.mov,
+                "rep":best.rep }; }  
 }
 
 function playGameAuto(dep,brd){
@@ -411,4 +435,30 @@ function makeMoveAuto(dep,brd){
     posCur = pos;
     postPosition(posCur);
     console.log(val); 
+}
+
+function lookupVal(tree,node){
+    "use strict"
+    const id = minID(node.pos);
+    if(id in tree){
+        const newval = tree[id].val;
+        node.val = newval;
+        return newval; }
+    else{
+        return node.val; }
+}
+
+function resortNode(tree,node){
+    "use strict"
+    node.children.sort((c1,c2) => lookupVal(tree,c1) - lookupVal(tree,c2));
+}
+
+function resortTree(tree){
+    "use strict"
+    let cnt = 0;
+    for(let p in tree){
+        if(tree[p].resort){
+            cnt +=1 ;
+            resortNode(tree,tree[p]); } }
+    console.log(cnt);
 }
