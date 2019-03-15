@@ -351,7 +351,7 @@ function aidedTS(pos,dep,brd){
             "val":bestval};
 }
 
-const aidedTScut = 2500;
+const aidedTScut = 1500;
 
 function aidedTSaux(pos,val,dep,brd,tree){
     "use strict"
@@ -362,7 +362,7 @@ function aidedTSaux(pos,val,dep,brd,tree){
     const best = node.children[0];
     if(dep===0){
         return {"bestpos":best.pos,
-                "bestval":-best.val,
+                "bestval":best.val,
                 "brdrem":brdloc,
                 "bestmv":best.mov }; }
     else{
