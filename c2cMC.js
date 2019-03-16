@@ -384,7 +384,7 @@ function aidedTSaux(pos,val,dep,brd,tree){
     node.rep = true;
     if(dep===0){
         return {"bestpos":null,
-                "bestval":-node.val,
+                "bestval":1-node.val,
                 "brdrem":brd,
                 "bestmv":null,
                 "rep":false }; }
@@ -411,22 +411,22 @@ function aidedTSaux(pos,val,dep,brd,tree){
                 brdloc = brdrem;
                 const cnode = tree[id];
                 if(!rep){
-                    const newval = adjustVal(c.val,-bestval,cnode.vst);
+                    const newval = adjustVal(c.val,1-bestval,cnode.vst);
                     c.val = newval;
                     cnode.val = newval; }
                 cnode.rep = false;
                 if(val-bestval<aidedTScut || brdloc===0){
                     resortNode(tree,node);
                     return {"bestpos":c.pos,
-                            "bestval":-bestval,
+                            "bestval":1-bestval,
                             "brdrem":brdloc,
                             "bestmv":c.mov,
                             "rep":rep }; }
                 else{
                     brdloc -= 1;
-                    if(-bestval<best.val){
+                    if(1-bestval<best.val){
                         best.pos = c.pos;
-                        best.val = -bestval;
+                        best.val = 1-bestval;
                         best.mov = c.mov;
                         best.rep = rep; } } } }
         resortNode(tree,node);
