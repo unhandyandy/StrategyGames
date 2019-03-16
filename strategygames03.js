@@ -426,6 +426,8 @@ let posInit;
 function setup( you, posInit ){
     "use strict";
     var modeBtn, pyou;
+    if(resetReps!=undefined){
+        resetReps(tree); }
     pyou = (you === undefined) ? comp : you; 
     setPause(false);
     statusN = 1;

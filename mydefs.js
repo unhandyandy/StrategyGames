@@ -1035,3 +1035,43 @@ function bernoulliCum(n,p,r){
         res += bernoulli(n,p,i); }
     return res;
 }
+
+function findMin(fun,del){
+    "use strict"
+    let x1 = -1;
+    let x2 = -1/3;
+    let x3 = 1/3;
+    let x4 = 1;
+    let error = x4 - x1;
+    let flag = false;
+    let miny;
+    while(error>del && error<1000){
+        let y1 = fun(x1);
+        let y2 = fun(x2);
+        let y3 = fun(x3);
+        let y4 = fun(x4);
+        miny = Math.min(y1,y2,y3,y4);
+        if(!flag && (y1===miny || y4===miny || (y1<y2 && y3>y4))){
+            if(y1===y4){
+                x1 = x1 - error/3;
+                x4 = x4 + error/3; }
+            else if(y1<y4){
+                x4 = x2;
+                x1 = x2 - 4/3*error; }
+            else{
+                x1 = x3;
+                x4 = x3 + 4/3*error; } }
+        else{
+            flag = true;
+            if(miny===y1 || miny===y2){
+                x1 = x1;
+                x4 = x3; }
+            else{
+                x1 = x2;
+                x4 = x4; } }
+        error = x4 - x1;
+        x2 = x1 + error/3;
+        x3 = x4 - error/3;
+    }
+    return error<del ? [(x1+x4)/2,miny] : undefined;
+}

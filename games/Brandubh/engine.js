@@ -8,27 +8,27 @@
   setBGCols, rowLen, gameHistory, posCur, setButtonProps, numberSequence,
   mapLp */
 
-// const cons={ "scoob":{"moves":8,
-//                       "kingmoves":16,
-//                       "isol":1,
-//                       "safe":1,
-//                       "win":1000000000,
-//                       "thrus":3,
-//                       "vuln":128,
-// 	                 "pieces":128 },
-//              "handBird":4,
-//              "thruBird":0.5,
-//              "thrusw":400,
-//              "rank":1000,
-//              "Bwin":400,
-//              "RankLocB":1.0,
-//              "RankLocW":0.5,
-//              "RankBase":1.0,
-//              "wdCorner":-10,
-//              "safety":2 };
+const cons={ "scoob":{"moves":8,
+                      "kingmoves":16,
+                      "isol":1,
+                      "safe":1,
+                      "win":1000000000,
+                      "thrus":3,
+                      "vuln":128,
+	                 "pieces":128 },
+             "handBird":4,
+             "thruBird":0.5,
+             "thrusw":400,
+             "rank":1000,
+             "Bwin":400,
+             "RankLocB":1.0,
+             "RankLocW":0.5,
+             "RankBase":1.0,
+             "wdCorner":-10,
+             "safety":2 };
 
 //breadth = inf
-const cons = {"scoob":{"moves":9.37480880830341,"kingmoves":16.523191683320512,"isol":1.1326075554172197,"safe":1.0994647045861636,"win":1000000000,"thrus":2.9932579731757936,"vuln":136.7618905321716,"pieces":144.96272860260342},"handBird":4.029751513520973,"thruBird":0.49861199804507766,"thrusw":418.1420058076974,"rank":877.6435818886788,"Bwin":395.1216144433808,"RankLocB":1.119573326730479,"RankLocW":0.5849779955546172,"RankBase":1.0284149772343754,"wdCorner":-8.931850001596185,"safety":1.5398176554929215}
+//const cons = {"scoob":{"moves":9.37480880830341,"kingmoves":16.523191683320512,"isol":1.1326075554172197,"safe":1.0994647045861636,"win":1000000000,"thrus":2.9932579731757936,"vuln":136.7618905321716,"pieces":144.96272860260342},"handBird":4.029751513520973,"thruBird":0.49861199804507766,"thrusw":418.1420058076974,"rank":877.6435818886788,"Bwin":395.1216144433808,"RankLocB":1.119573326730479,"RankLocW":0.5849779955546172,"RankBase":1.0284149772343754,"wdCorner":-8.931850001596185,"safety":1.5398176554929215}
 
 const consDelta={"scoob":{"moves":0.3,
                           "kingmoves":0.5,

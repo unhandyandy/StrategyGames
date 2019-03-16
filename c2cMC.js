@@ -306,7 +306,7 @@ tree = {};
 function minimaxAB(pos,dep,plyr){
     "use strict";
     //const rolen = 60;
-    const best = aidedTS(pos,10,40,tree);
+    const best = aidedTS(pos,2,30,tree);
     return [-best.val,[best.mov]];
 }
 
@@ -322,26 +322,27 @@ function children(pos){
     "use strict"
     const mvs = movesFromPos(pos);
     const postns = mvs.map(m => [m,positionFromMove(m,pos)]);
-    const pairs = postns.map(p => [scoreFor(p[1]),p[1],p[0]]);
+    const pairs = postns.map(p => [scoreExp(p[1]),p[1],p[0]]);
     pairs.sort((p1,p2) => p1[0]-p2[0]);
     return pairs.map(makePVpair);
 }
 
 treeNodeProto = { "pos":posInit,
                   "children":children(posInit),
-                  "val":scoreFor(posInit)         
+                  "val":scoreExp(posInit)         
                 }
 
 function makeTN(pos,val){
     "use strict"
     if(val===undefined){
-        val = scoreFor(pos); }
+        val = scoreExp(pos); }
     const newtn = Object.clone(treeNodeProto);
     newtn.pos = pos;
     newtn.children = children(pos);
     newtn.val = val;
     //newtn.resort = false;
     newtn.rep = false;
+    newtn.vst = 0;
     return newtn;
 }
 
@@ -349,19 +350,29 @@ function aidedTS(pos,dep,brd,tree){
     "use strict";
     if(tree===undefined){
         const tree = {}; }
-    const val = scoreFor(pos);
-    const {bestpos,bestval,brdrem,bestmv} = aidedTSaux(pos,val,dep,brd,tree);
+    const val = scoreExp(pos);
+    const {bestpos,bestval,brdrem,bestmv,rep} = aidedTSaux(pos,val,dep,brd,tree);
+    if(!rep){
+        tree[minID(pos)].val = -bestval; }
+    tree[minID(bestpos)].rep = true;
     console.log("breadth: ",brd-brdrem);
     return {"pos":bestpos,
             "mov":bestmv,
             "val":bestval};
 }
 
-const aidedTScut = 8000;
+const aidedTScut = 0.01;
 
 function cutFun(val){
     "use strict"
     
+}
+
+const nodeInertia = 1;
+function adjustVal(oldval,newval,visits){
+    "use strict"
+    const past = nodeInertia + visits; 
+    return (past*oldval + newval)/(past + 1);
 }
 
 function aidedTSaux(pos,val,dep,brd,tree){
@@ -369,6 +380,7 @@ function aidedTSaux(pos,val,dep,brd,tree){
     if(!(minID(pos) in tree)){
         tree[minID(pos)] = makeTN(pos); }
     const node = tree[minID(pos)];
+    node.vst += 1;
     node.rep = true;
     if(dep===0){
         return {"bestpos":null,
@@ -379,11 +391,12 @@ function aidedTSaux(pos,val,dep,brd,tree){
     else{
         //node.resort = true;
         let brdloc = brd;
-        let best = node.children[0];
+        const best = node.children[0];
         for(let c of node.children){
             const id = minID(c.pos);
             const crep = (id in tree) && tree[id].rep;
             if(gameOverQ(c.pos) || crep){
+                if(crep){console.log(id);}
                 const newval = crep ?
                       (c.pos.color==="b" ? Infinity : -Infinity) :
                       c.val;
@@ -395,22 +408,27 @@ function aidedTSaux(pos,val,dep,brd,tree){
                         "rep":crep }; }
             else{
                 const {bestpos,bestval,brdrem,bestmv,rep} = aidedTSaux(c.pos,c.val,dep-1,brdloc,tree);
-                const cnode = tree[id];
                 brdloc = brdrem;
-                c.val = -bestval;
-                cnode.val = c.val;
+                const cnode = tree[id];
+                if(!rep){
+                    const newval = adjustVal(c.val,-bestval,cnode.vst);
+                    c.val = newval;
+                    cnode.val = newval; }
                 cnode.rep = false;
                 if(val-bestval<aidedTScut || brdloc===0){
                     resortNode(tree,node);
                     return {"bestpos":c.pos,
-                            "bestval":c.val,
+                            "bestval":-bestval,
                             "brdrem":brdloc,
                             "bestmv":c.mov,
                             "rep":rep }; }
                 else{
                     brdloc -= 1;
-                    if(c.val<best.val){
-                        best = Object.clone(c); } } } }
+                    if(-bestval<best.val){
+                        best.pos = c.pos;
+                        best.val = -bestval;
+                        best.mov = c.mov;
+                        best.rep = rep; } } } }
         resortNode(tree,node);
         return {"bestpos":best.pos,
                 "bestval":best.val,
@@ -437,15 +455,15 @@ function makeMoveAuto(dep,brd){
     console.log(val); 
 }
 
-function lookupVal(tree,node){
+function lookupVal(tree,ch){
     "use strict"
-    const id = minID(node.pos);
+    const id = minID(ch.pos);
     if(id in tree){
         const newval = tree[id].val;
-        node.val = newval;
+        ch.val = newval;
         return newval; }
     else{
-        return node.val; }
+        return ch.val; }
 }
 
 function resortNode(tree,node){
@@ -461,4 +479,96 @@ function resortTree(tree){
             cnt +=1 ;
             resortNode(tree,tree[p]); } }
     console.log(cnt);
+}
+
+function resetReps(tree){
+    "use strict"
+    for(let id in tree){
+        if(typeof(tree[id])!="function" && tree[id].rep){
+            tree[id].rep = false; }}
+}
+
+
+// for(id in tree){
+//     if(typeof(tree[id])!="function" && tree[id].rep){
+//         console.log(id)}}
+
+function errorCase(pos,val){
+    "use strict"
+    return Math.abs(scoreExp(testpos0)-val);
+}
+
+function errorData(datalist,newparams){
+    "use strict"
+    if(newparams===undefined){
+        newparams = Object.clone(parameterA); }
+    copyValsToObj(parameterA,newparams);
+    const errs = datalist.map(d => errorCase(...d))
+    return Math.plus(...errs);
+}
+
+let data1 = [[testpos0,5000],[testpos1,6000]];
+
+function trainParams(data){
+    "use strict"
+    let tol = 0.001;
+    let pat = 2;
+    const originalParams = Object.clone(parameterA);
+    let err = errorData(data,originalParams);
+    do{
+        let del;
+        do{del = changeSignsRand(multObj(1,deltaA),0);
+        }while(equalObj(del,deltaZero));
+        let error = function(t){
+            const newparams = addObjs(originalParams,multObj(t,del));
+            return errorData(data,newparams); }
+        let current = findMin(error,tol);
+        if(current===undefined){
+            tol *= 2;
+            copyValsToObj(parameterA,originalParams); }
+        else{
+            let [t,errnew] = current;
+            let newparams = addObjs(originalParams,multObj(t,del));
+            copyValsToObj(parameterA,newparams);
+            if(Math.abs(errnew-err) < 1){
+                pat -= 1; }
+            else{
+                err = errnew; } }
+        console.log(err);
+    }while(pat>0)
+    return err;
+}
+
+
+function scoreExp(pos){
+    "use strict"
+    const s = scoreFor(pos);
+    return Math.atan(s/10000)/Math.PI + 0.5;
+}
+
+function getDataFromHist(){
+    "use strict"
+    const games = gameHistory[1];
+    return games.map(g => [g,tree[minID(g)].val]);
+}
+
+function getDataFromTree(){
+    "use strict"
+    const data = [];
+    for(let id in tree){
+        if(typeof(tree[id])!="function"){
+            let node = tree[id];
+            data.push([node.pos,node.val]); } }
+    return data;
+}
+
+
+initMC(cons,consDelta);
+
+
+
+function postMortem(hist,plyr){
+    "use strict"
+    const data = getDataFromHist();
+    trainParams(data);
 }
