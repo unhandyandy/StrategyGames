@@ -307,7 +307,7 @@ function minimaxAB(pos,dep,plyr){
     "use strict";
     //const rolen = 60;
     const best = aidedTS(pos,8,30,tree);
-    return [-best.val,[best.mov]];
+    return [1-best.val,[best.mov]];
 }
 
 function makePVpair([v,p,m]){
@@ -353,7 +353,7 @@ function aidedTS(pos,dep,brd,tree){
     const val = scoreExp(pos);
     const {bestpos,bestval,brdrem,bestmv,rep} = aidedTSaux(pos,val,dep,brd,tree);
     if(!rep){
-        tree[minID(pos)].val = -bestval; }
+        tree[minID(pos)].val = 1-bestval; }
     tree[minID(bestpos)].rep = true;
     console.log("breadth: ",brd-brdrem);
     return {"pos":bestpos,
