@@ -398,7 +398,7 @@ function aidedTSaux(pos,val,dep,brd,tree){
             if(gameOverQ(c.pos) || crep){
                 //if(crep){console.log(id);}
                 const newval = crep ?
-                      (c.pos.color==="b" ? Infinity : -Infinity) :
+                      (c.pos.color==="b" ? 1 : 0) :
                       c.val;
                 resortNode(tree,node);
                 return {"bestpos":c.pos,
