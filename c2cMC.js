@@ -306,7 +306,7 @@ tree = {};
 function minimaxAB(pos,dep,plyr){
     "use strict";
     //const rolen = 60;
-    const best = aidedTS(pos,2,30,tree);
+    const best = aidedTS(pos,8,30,tree);
     return [-best.val,[best.mov]];
 }
 
@@ -361,7 +361,7 @@ function aidedTS(pos,dep,brd,tree){
             "val":bestval};
 }
 
-const aidedTScut = 0.01;
+const aidedTScut = 0.1;
 
 function cutFun(val){
     "use strict"
@@ -396,7 +396,7 @@ function aidedTSaux(pos,val,dep,brd,tree){
             const id = minID(c.pos);
             const crep = (id in tree) && tree[id].rep;
             if(gameOverQ(c.pos) || crep){
-                if(crep){console.log(id);}
+                //if(crep){console.log(id);}
                 const newval = crep ?
                       (c.pos.color==="b" ? Infinity : -Infinity) :
                       c.val;
