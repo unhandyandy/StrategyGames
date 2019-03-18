@@ -168,7 +168,7 @@ function changeSignsRand(obj,t){
     "use strict";
     let res;
     if(typeof(obj)==='number'){
-        return randBool(7/8) ? 0 : tcon**t * obj; 
+        return (randBool() ? 1 : -1) * tcon**t * obj; 
 ; }
     else{
         res = Object.clone(obj);
@@ -354,7 +354,8 @@ function aidedTS(pos,dep,brd,tree){
     const {bestpos,bestval,brdrem,bestmv,rep} = aidedTSaux(pos,val,dep,brd,tree);
     if(!rep){
         tree[minID(pos)].val = 1-bestval; }
-    tree[minID(bestpos)].rep = true;
+    //console.log(bestpos);
+    //tree[minID(bestpos)].rep = true;
     console.log("breadth: ",brd-brdrem);
     return {"pos":bestpos,
             "mov":bestmv,
@@ -397,6 +398,7 @@ function aidedTSaux(pos,val,dep,brd,tree){
             const crep = (id in tree) && tree[id].rep;
             if(gameOverQ(c.pos) || crep){
                 //if(crep){console.log(id);}
+                tree[id] = makeTN(c.pos);
                 const newval = crep ?
                       (c.pos.color==="b" ? 1 : 0) :
                       c.val;
@@ -437,14 +439,27 @@ function aidedTSaux(pos,val,dep,brd,tree){
                 "rep":best.rep }; }  
 }
 
-function playGameAuto(dep,brd){
+function playGameAuto(dep,brd,startpos,cb){
     "use strict"
-    posCur = posInit;
-    while(!gameOverQ(posCur)){
-        let {pos,val} = aidedTS(posCur,dep,brd);
-        posCur = pos;
-        postPosition(posCur);
-        console.log(pos.mat); }
+    if(startpos===undefined){
+        startpos = posInit;
+        gameHistory = [[],[]]; }
+    posCur = startpos.clone();
+    let {pos,val} = aidedTS(posCur,dep,brd,tree);
+    const go = gameOverQ(pos);
+    posCur = pos.clone();
+    updateBoard();
+    //console.log(pos.mat);
+    if(!go){
+        tree[minID(pos)].rep = true;
+        setTimeout(playGameAuto,0,dep,brd,pos,cb); }
+    else{
+        setTimeout(cb,0); }
+}
+
+function updateBoard(){
+    "use strict"
+    postPosition(posCur);
 }
 
 function makeMoveAuto(dep,brd){
@@ -511,30 +526,32 @@ let data1 = [[testpos0,5000],[testpos1,6000]];
 
 function trainParams(data){
     "use strict"
-    let tol = 0.001;
+    let tol = 0.01;
     let pat = 2;
     const originalParams = Object.clone(parameterA);
     let err = errorData(data,originalParams);
     do{
         let del;
-        do{del = changeSignsRand(multObj(1,deltaA),0);
-        }while(equalObj(del,deltaZero));
+        do{del = changeSignsRand(multObj(4,deltaA),0);
+          }while(equalObj(del,deltaZero));
+        //console.log("del = ",del);
         let error = function(t){
             const newparams = addObjs(originalParams,multObj(t,del));
             return errorData(data,newparams); }
-        let current = findMin(error,tol);
+        let current = findMin(error,tol,true);
         if(current===undefined){
             tol *= 2;
+            console.log("tol = ",tol);
             copyValsToObj(parameterA,originalParams); }
         else{
             let [t,errnew] = current;
             let newparams = addObjs(originalParams,multObj(t,del));
             copyValsToObj(parameterA,newparams);
-            if(Math.abs(errnew-err) < 1){
+            console.log("t = ",t,", error = ",errnew);
+            if(Math.abs(err-errnew) < 0.01){
                 pat -= 1; }
             else{
                 err = errnew; } }
-        console.log(err);
     }while(pat>0)
     return err;
 }
@@ -552,6 +569,11 @@ function getDataFromHist(){
     return games.map(g => [g,tree[minID(g)].val]);
 }
 
+function getDataFromGame(hist){
+    "use strict"
+    return hist.map(g => [g,tree[minID(g)].val]);
+}
+
 function getDataFromTree(){
     "use strict"
     const data = [];
@@ -562,13 +584,29 @@ function getDataFromTree(){
     return data;
 }
 
-
 initMC(cons,consDelta);
 
-
-
-function postMortem(hist,plyr){
+// function postMortem(hist,plyr){
+//     "use strict"
+//     const data = getDataFromTree();
+//     const err = trainParams(data);
+//     tree = {};
+//     return err;
+// }
+// 
+function postMortem(data){
     "use strict"
-    const data = getDataFromHist();
-    trainParams(data);
+    const err = trainParams(data);
+    return err;
+}
+
+let prom;
+
+function aidedImprove(){
+    "use strict"
+    while(true){
+        playGameAuto(4,30,posInit,
+                     function(){
+                         let data = getDataFromHist();
+                         postMortem(data); } ); }
 }

@@ -1036,14 +1036,15 @@ function bernoulliCum(n,p,r){
     return res;
 }
 
-function findMin(fun,del){
+function findMin(fun,del,flag){
     "use strict"
     let x1 = -1;
     let x2 = -1/3;
     let x3 = 1/3;
     let x4 = 1;
     let error = x4 - x1;
-    let flag = false;
+    if(flag===undefined){
+        flag = false; }
     let miny;
     while(error>del && error<1000){
         let y1 = fun(x1);
@@ -1072,6 +1073,7 @@ function findMin(fun,del){
         error = x4 - x1;
         x2 = x1 + error/3;
         x3 = x4 - error/3;
+        //console.log("miny = ",miny);
     }
     return error<del ? [(x1+x4)/2,miny] : undefined;
 }
