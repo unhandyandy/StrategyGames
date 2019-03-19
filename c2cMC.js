@@ -306,7 +306,7 @@ tree = {};
 function minimaxAB(pos,dep,plyr){
     "use strict";
     //const rolen = 60;
-    const best = aidedTS(pos,8,30,tree);
+    const best = aidedTS(pos,12,100,tree);
     return [1-best.val,[best.mov]];
 }
 
