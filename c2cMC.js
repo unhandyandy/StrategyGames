@@ -2,7 +2,9 @@
 
 var parameterA,deltaA,deltaZero;
 
-pmDisabled = true;
+defineParameters();
+
+//pmDisabled = true;
 
 numChoices = Infinity;
 
@@ -28,6 +30,7 @@ function mcMoveFromPos(pos){
 function initMC(cons,delta){
     "use strict";
     parameterA = cons;
+    copyValsToObj(parameterA,parameters);
     deltaA = Object.clone(delta);
     deltaZero = zeroObj(delta);
 }
@@ -526,34 +529,37 @@ function errorData(datalist,newparams){
 
 let data1 = [[testpos0,5000],[testpos1,6000]];
 
-function trainParams(data){
+function trainParams(data,numiters){
     "use strict"
     let tol = 0.01;
-    let pat = 4;
-    const originalParams = Object.clone(parameterA);
-    let err = errorData(data,originalParams);
+    let pat = numiters;
+    let oldParams = Object.clone(parameterA);
+    let err = errorData(data,oldParams);
     do{
         let del;
         do{del = changeSignsRand(multObj(7,deltaA),0);
           }while(equalObj(del,deltaZero));
         //console.log("del = ",del);
         let error = function(t){
-            const newparams = addObjs(originalParams,multObj(t,del),0);
+            const newparams = addObjs(oldParams,multObj(t,del),0);
             return errorData(data,newparams); }
         let current = findMin(error,tol,true);
         if(current===undefined){
             tol *= 2;
             console.log("tol = ",tol);
-            copyValsToObj(parameterA,originalParams); }
+            copyValsToObj(parameterA,oldParams); }
         else{
             let [t,errnew] = current;
-            let newparams = addObjs(originalParams,multObj(t,del),0);
+            let newparams = addObjs(oldParams,multObj(t,del),0);
             copyValsToObj(parameterA,newparams);
+            oldParams = Object.clone(newparams);
+            //console.log(parameterA);
             console.log("t = ",t,", error = ",errnew);
-            if(Math.abs(err-errnew) < 0.01){
-                pat -= 1; }
-            else{
-                err = errnew; } }
+            // if(Math.abs(err-errnew) < 0.01){
+            //     pat -= 1; }
+            // else{
+            err = errnew; }
+        pat -= 1;
     }while(pat>0)
     return err;
 }
@@ -598,7 +604,9 @@ initMC(cons,consDelta);
 // 
 function postMortem(data){
     "use strict"
-    const err = trainParams(data);
+    const err = trainParams(data,17);
+    postMessage("...done!");
+    tree = {};
     return err;
 }
 
@@ -613,6 +621,23 @@ function aidedImprove(poslist){
     prom.then(function(){
         let newposlist = gameHistory[1];
         poslist = poslist.concat(newposlist);
-	let data = getDataFromGame(newposlist);
+	let data = getDataFromGame(poslist);
 	postMortem(data); } ).then(() => aidedImprove(poslist));
+}
+
+function postMortemCheck(plyr){
+    "use strict";
+    if(twoComps){
+	comp = opposite(comp);
+    }
+
+    updateScores( scoreGame( posCur, opposite( plyr ) ) );
+    postMessage( "Cumulative scores:" );
+    printScores();
+
+    postMessage("Performing post-mortem...");
+    let data = getDataFromHist();
+    setTimeout(postMortem,100,data);
+
+    localStorage[gameName+"_Parameters"] = JSON.stringify(parameterA);
 }

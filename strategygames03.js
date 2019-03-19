@@ -19,7 +19,8 @@ var maxVal = 1000000;
 
 var pauseQ;
 
-var depthTable;
+let depthTable;
+let parameters;
 
 var scores = {
     "H": 0,
@@ -399,6 +400,20 @@ function defineMinimaxCache(){
     }
     else{
 	minimaxABcache = {};
+    }
+}
+
+function defineParameters(){
+    "use strict";
+    if( localStorage.hasOwnProperty( gameName + "_Parameters" ) ){
+	try {
+	    parameters = JSON.parse(localStorage[gameName+"_Parameters"]);
+	} catch (x) {
+	    parameters = cons;
+	}	
+    }
+    else{
+	parameters = cons;
     }
 }
 
