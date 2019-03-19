@@ -945,15 +945,17 @@ const partiallyOrderedList = {
         this.list = this.list.map(ve => [fun(ve[0]),ve[1]]); }
 }
         
-function addObjs(o1,o2){
+function addObjs(o1,o2,min){
     "use strict";
+    if(min===undefined){
+        min = -Infinity; }
     let res;
     if(typeof(o1)==='number'){
-        return o1 + o2; }
+        return Math.max(o1 + o2,min); }
     else{
         res = Object.clone(o1);
         for(let k of Object.keys(o1)){
-            res[k] = addObjs(o1[k],o2[k]); } }
+            res[k] = addObjs(o1[k],o2[k],min); } }
     return res; }
 function multObj(s,o){
     "use strict";
@@ -1046,12 +1048,14 @@ function findMin(fun,del,flag){
     if(flag===undefined){
         flag = false; }
     let miny;
+    let maxy;
     while(error>del && error<1000){
         let y1 = fun(x1);
         let y2 = fun(x2);
         let y3 = fun(x3);
         let y4 = fun(x4);
         miny = Math.min(y1,y2,y3,y4);
+        maxy = Math.max(y1,y2,y3,y4);
         if(!flag && (y1===miny || y4===miny || (y1<y2 && y3>y4))){
             if(y1===y4){
                 x1 = x1 - error/3;
@@ -1073,7 +1077,7 @@ function findMin(fun,del,flag){
         error = x4 - x1;
         x2 = x1 + error/3;
         x3 = x4 - error/3;
-        //console.log("miny = ",miny);
+        console.log("y width = ",maxy - miny);
     }
     return error<del ? [(x1+x4)/2,miny] : undefined;
 }

@@ -521,7 +521,7 @@ function errorData(datalist,newparams){
         newparams = Object.clone(parameterA); }
     copyValsToObj(parameterA,newparams);
     const errs = datalist.map(d => errorCase(...d))
-    return Math.plus(...errs);
+    return errs.reduce(Math.plus);
 }
 
 let data1 = [[testpos0,5000],[testpos1,6000]];
@@ -534,11 +534,11 @@ function trainParams(data){
     let err = errorData(data,originalParams);
     do{
         let del;
-        do{del = changeSignsRand(multObj(1,deltaA),0);
+        do{del = changeSignsRand(multObj(7,deltaA),0);
           }while(equalObj(del,deltaZero));
         //console.log("del = ",del);
         let error = function(t){
-            const newparams = addObjs(originalParams,multObj(t,del));
+            const newparams = addObjs(originalParams,multObj(t,del),0);
             return errorData(data,newparams); }
         let current = findMin(error,tol,true);
         if(current===undefined){
@@ -547,7 +547,7 @@ function trainParams(data){
             copyValsToObj(parameterA,originalParams); }
         else{
             let [t,errnew] = current;
-            let newparams = addObjs(originalParams,multObj(t,del));
+            let newparams = addObjs(originalParams,multObj(t,del),0);
             copyValsToObj(parameterA,newparams);
             console.log("t = ",t,", error = ",errnew);
             if(Math.abs(err-errnew) < 0.01){
@@ -604,11 +604,15 @@ function postMortem(data){
 
 let prom;
 
-function aidedImprove(){
+function aidedImprove(poslist){
     "use strict"
+    if(poslist===undefined){
+        poslist = []; }
     tree = {};
     let prom = playGameAuto(4,30);
     prom.then(function(){
-	let data = getDataFromHist();
-	postMortem(data); } ).then(aidedImprove);
+        let newposlist = gameHistory[1];
+        poslist = poslist.concat(newposlist);
+	let data = getDataFromGame(newposlist);
+	postMortem(data); } ).then(() => aidedImprove(poslist));
 }

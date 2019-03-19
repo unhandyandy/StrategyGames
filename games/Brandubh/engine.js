@@ -24,7 +24,7 @@ const cons={ "scoob":{"moves":8,
              "RankLocB":1.0,
              "RankLocW":0.5,
              "RankBase":1.0,
-             "wdCorner":-10,
+             "wdCorner":10,
              "safety":2 };
 
 //breadth = inf
@@ -611,7 +611,7 @@ function makeRankInitWDist(posmat){
     for(var i=0;i<size;i+=1){
         for(var j=0;j<size;j+=1){
             if((i===0||i===size-1)&&(j===0||j===size-1)){
-                    lookUpSet(mat,[i,j],cons.wdCorner); }
+                    lookUpSet(mat,[i,j],-cons.wdCorner); }
             else{
                 lookUpSet(mat,[i,j],Infinity); } } }
     return mat;
