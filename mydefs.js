@@ -1077,7 +1077,7 @@ function findMin(fun,del,flag){
         error = x4 - x1;
         x2 = x1 + error/3;
         x3 = x4 - error/3;
-        //console.log("y width = ",maxy - miny);
+        //console.log("y width = ",miny,maxy);
     }
     return error<del ? [(x1+x4)/2,miny] : undefined;
 }

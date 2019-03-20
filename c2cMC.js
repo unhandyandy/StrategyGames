@@ -373,10 +373,10 @@ function cutFun(val){
 }
 
 const nodeInertia = 1;
-function adjustVal(oldval,newval,visits){
+function adjustVal(oldval,newval,visits,brd){
     "use strict"
     const past = nodeInertia + visits; 
-    return (past*oldval + newval)/(past + 1);
+    return (past*oldval + brd*newval)/(past + brd);
 }
 
 function aidedTSaux(pos,val,dep,brd,tree){
@@ -406,6 +406,7 @@ function aidedTSaux(pos,val,dep,brd,tree){
                       (c.pos.color==="b" ? 1 : 0) :
                       c.val;
                 resortNode(tree,node);
+		node.vst += brd - brdloc;
                 return {"bestpos":c.pos,
                         "bestval":newval,
                         "brdrem":brdloc,
@@ -413,15 +414,16 @@ function aidedTSaux(pos,val,dep,brd,tree){
                         "rep":crep }; }
             else{
                 const {bestpos,bestval,brdrem,bestmv,rep} = aidedTSaux(c.pos,c.val,dep-1,brdloc,tree);
-                brdloc = brdrem;
                 const cnode = tree[id];
                 if(!rep){
-                    const newval = adjustVal(c.val,1-bestval,cnode.vst);
+                    const newval = adjustVal(c.val,1-bestval,cnode.vst,brdloc-brdrem+1);
                     c.val = newval;
                     cnode.val = newval; }
                 cnode.rep = false;
+                brdloc = brdrem;
                 if(val-bestval<aidedTScut || brdloc===0){
                     resortNode(tree,node);
+		    node.vst += brd - brdloc;
                     return {"bestpos":c.pos,
                             "bestval":1-bestval,
                             "brdrem":brdloc,
@@ -435,6 +437,7 @@ function aidedTSaux(pos,val,dep,brd,tree){
                         best.mov = c.mov;
                         best.rep = rep; } } } }
         resortNode(tree,node);
+	node.vst += brd - brdloc;
         return {"bestpos":best.pos,
                 "bestval":best.val,
                 "brdrem":brdloc,
@@ -553,7 +556,7 @@ function trainParams(data,numiters){
             let newparams = addObjs(oldParams,multObj(t,del),0);
             copyValsToObj(parameterA,newparams);
             oldParams = Object.clone(newparams);
-            //console.log(parameterA);
+            //console.log(cons);
             console.log("t = ",t,", error = ",errnew);
             // if(Math.abs(err-errnew) < 0.01){
             //     pat -= 1; }
