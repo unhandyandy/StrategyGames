@@ -171,7 +171,7 @@ function changeSignsRand(obj,t){
     "use strict";
     let res;
     if(typeof(obj)==='number'){
-        return (randBool() ? 1 : -1) * tcon**t * obj; 
+        return (randBool(0.5) ? 1 : 0)*(randBool(0) ? 1 : -1) * tcon**t * obj; 
 ; }
     else{
         res = Object.clone(obj);
@@ -538,11 +538,12 @@ function trainParams(data,numiters){
     let pat = numiters;
     let oldParams = Object.clone(parameterA);
     let err = errorData(data,oldParams);
+    console.log("error = ",err);
     do{
         let del;
         do{del = changeSignsRand(multObj(7,deltaA),0);
           }while(equalObj(del,deltaZero));
-        //console.log("del = ",del);
+        console.log("del = ",del);
         let error = function(t){
             const newparams = addObjs(oldParams,multObj(t,del),0);
             return errorData(data,newparams); }
@@ -558,11 +559,11 @@ function trainParams(data,numiters){
             oldParams = Object.clone(newparams);
             //console.log(cons);
             console.log("t = ",t,", error = ",errnew);
-            // if(Math.abs(err-errnew) < 0.01){
-            //     pat -= 1; }
-            // else{
-            err = errnew; }
-        pat -= 1;
+            if(Math.abs(err-errnew) < 0.001){
+                pat -= 1; }
+            else{
+                err = errnew; } }
+        //pat -= 1;
     }while(pat>0)
     return err;
 }
@@ -607,7 +608,7 @@ initMC(cons,consDelta);
 // 
 function postMortem(data){
     "use strict"
-    const err = trainParams(data,17);
+    const err = trainParams(data,4);
     postMessage("...done!");
     tree = {};
     return err;
@@ -620,11 +621,11 @@ function aidedImprove(poslist){
     if(poslist===undefined){
         poslist = []; }
     tree = {};
-    let prom = playGameAuto(4,30);
+    let prom = playGameAuto(8,30);
     prom.then(function(){
         let newposlist = gameHistory[1];
         poslist = poslist.concat(newposlist);
-	let data = getDataFromGame(poslist);
+	let data = getDataFromGame(newposlist);
 	postMortem(data); } ).then(() => aidedImprove(poslist));
 }
 
