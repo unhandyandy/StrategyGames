@@ -28,7 +28,7 @@ const cons={ "scoob":{"moves":8,
              "safety":2 };
 
 //breadth = inf
-//const cons = {"scoob":{"moves":8,"kingmoves":-14.293672363967062,"isol":1,"safe":1.0196269333532433,"win":1000000000,"thrus":3,"vuln":128,"pieces":128},"handBird":-2.0587344727934127,"thruBird":0.5,"thrusw":400,"rank":1000,"Bwin":400,"RankLocB":1,"RankLocW":0.5,"RankBase":1,"wdCorner":-10,"safety":2}
+//const cons = {"scoob":{"moves":3.6780624763133565,"kingmoves":15.819767595497112,"isol":1.7887285361716931,"safe":2.7015837038548893,"win":1000000000,"thrus":1.1996686483445713,"vuln":151.03141692969623,"pieces":150.53209984822212},"handBird":3.9722706993666765,"thruBird":0.6398882605230447,"thrusw":234.26156354869727,"rank":1153.112103681988,"Bwin":622.2239924061528,"RankLocB":1.5516196877365465,"RankLocW":0.10739967162113326,"RankBase":0.7929273146813913,"wdCorner":43.28355121321639,"safety":7.316591732257852}
 
 const consDelta={"scoob":{"moves":0.3,
                           "kingmoves":0.5,

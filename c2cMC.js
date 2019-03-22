@@ -309,7 +309,7 @@ tree = {};
 function minimaxAB(pos,dep,plyr){
     "use strict";
     //const rolen = 60;
-    const best = aidedTS(pos,12,100,tree);
+    const best = aidedTS(pos,12,30,tree);
     return [1-best.val,[best.mov]];
 }
 
@@ -610,7 +610,7 @@ function postMortem(data){
     "use strict"
     const err = trainParams(data,4);
     postMessage("...done!");
-    tree = {};
+    //tree = {};
     return err;
 }
 
@@ -619,13 +619,13 @@ let prom;
 function aidedImprove(poslist){
     "use strict"
     if(poslist===undefined){
-        poslist = []; }
-    tree = {};
+        poslist = []; 
+        tree = {}; }
     let prom = playGameAuto(8,30);
     prom.then(function(){
         let newposlist = gameHistory[1];
         poslist = poslist.concat(newposlist);
-	let data = getDataFromGame(newposlist);
+	let data = getDataFromGame(poslist);
 	postMortem(data); } ).then(() => aidedImprove(poslist));
 }
 
