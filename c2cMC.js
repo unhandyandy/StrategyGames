@@ -171,13 +171,22 @@ function changeSignsRand(obj,t){
     "use strict";
     let res;
     if(typeof(obj)==='number'){
-        return (randBool(0.5) ? 1 : 0)*(randBool(0) ? 1 : -1) * tcon**t * obj; 
+        return (randBool(1/15) ? 1 : 0)*(randBool(0) ? 1 : -1) * tcon**t * obj; 
 ; }
     else{
         res = Object.clone(obj);
         for(let k of Object.keys(obj)){
             res[k] = changeSignsRand(obj[k],t); } }
     return res; 
+}
+
+function randomDelta(t){
+    "use strict"
+    let del;
+    do{
+        del = changeSignsRand(deltaA,t);
+    }while(equalObj(del,deltaZero));
+    return del;
 }
 
 function calcP(s){
@@ -540,9 +549,7 @@ function trainParams(data,numiters){
     let err = errorData(data,oldParams);
     console.log("error = ",err);
     do{
-        let del;
-        do{del = changeSignsRand(multObj(7,deltaA),0);
-          }while(equalObj(del,deltaZero));
+        let del = randomDelta(0);
         console.log("del = ",del);
         let error = function(t){
             const newparams = addObjs(oldParams,multObj(t,del),0);
@@ -608,7 +615,7 @@ initMC(cons,consDelta);
 // 
 function postMortem(data){
     "use strict"
-    const err = trainParams(data,4);
+    const err = trainParams(data,15);
     postMessage("...done!");
     //tree = {};
     return err;
