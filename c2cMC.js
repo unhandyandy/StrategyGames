@@ -463,31 +463,43 @@ function checkTreePos(pos,id){
     if(!(id in tree)){
         tree[id] = makeTN(pos); } }
 
+function updateChildVals(node){
+	"use strict";
+	for(c of node.children){
+		const cid = minID(c.pos);
+		c.val = tree[cid].val; }
+}
+
 function aidedTSaux(pos,dep,brd){
     "use strict";
     checkTreePos(pos);
     const node = tree[minID(pos)];
+	const val = node.val;
     node.vst += 1;
     node.rep = true;
     if(dep===0){
         return {"bestpos":null,
-                "bestval":1-node.val,
+                "bestval":1-val,
                 "brdrem":brd,
                 "bestmv":null,
                 "rep":false }; }
     else{
-        let brdloc = brd;
+        let brdloc = brd + 1;
         const best = node.children[0];
         let prev = null;
-        let cont = true;
-        while(cont){
+	    updateChildVals(node);
+        while(true){
             let c = maxWRT(node.children, x => -x.val);
             if(c===prev){
+		    node.val = 1 - c.val;
                 return {"bestpos":c.pos,
-                        "bestval":newval,
+                        "bestval":c.val,
                         "brdrem":brdloc,
                         "bestmv":c.mov,
                         "rep":crep }; } 
+		prev = c;
+		brdloc -= 1;
+		node.vst += 1;
             const cid = minID(c.pos);
             const crep = (cid in tree) && tree[cid].rep;
             if(gameOverQ(c.pos) || crep){
@@ -495,13 +507,20 @@ function aidedTSaux(pos,dep,brd){
                 const newval = crep ?
                       (c.pos.color==="b" ? 1 : 0) :
                       c.val;
-	        node.vst += brd - brdloc;
                 return {"bestpos":c.pos,
-                        "bestval":c.val,
+                        "bestval":newval,
                         "brdrem":brdloc,
                         "bestmv":c.mov,
                         "rep":c.rep }; }
-            
+         else{
+                const {bestpos,bestval,brdrem,bestmv,rep} = aidedTSaux(c.pos,dep-1,brdloc,tree);
+                const cnode = tree[cid];
+                if(!rep){
+                    const newval = adjustVal(c.val,1-bestval,cnode.vst,brdloc-brdrem+1);
+                    c.val = newval;
+                    cnode.val = newval; }
+                cnode.rep = false;
+                brdloc = brdrem;
         }
 }
 
