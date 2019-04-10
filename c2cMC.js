@@ -456,6 +456,55 @@ function aidedTSaux(pos,val,dep,brd,tree){
                 "rep":best.rep }; }  
 }
 
+function checkTreePos(pos,id){
+    "use strict";
+    if(id===undefined){
+        id = minID(pos); }
+    if(!(id in tree)){
+        tree[id] = makeTN(pos); } }
+
+function aidedTSaux(pos,dep,brd){
+    "use strict";
+    checkTreePos(pos);
+    const node = tree[minID(pos)];
+    node.vst += 1;
+    node.rep = true;
+    if(dep===0){
+        return {"bestpos":null,
+                "bestval":1-node.val,
+                "brdrem":brd,
+                "bestmv":null,
+                "rep":false }; }
+    else{
+        let brdloc = brd;
+        const best = node.children[0];
+        let prev = null;
+        let cont = true;
+        while(cont){
+            let c = maxWRT(node.children, x => -x.val);
+            if(c===prev){
+                return {"bestpos":c.pos,
+                        "bestval":newval,
+                        "brdrem":brdloc,
+                        "bestmv":c.mov,
+                        "rep":crep }; } 
+            const cid = minID(c.pos);
+            const crep = (cid in tree) && tree[cid].rep;
+            if(gameOverQ(c.pos) || crep){
+                checkTreePos(c.pos,cid);
+                const newval = crep ?
+                      (c.pos.color==="b" ? 1 : 0) :
+                      c.val;
+	        node.vst += brd - brdloc;
+                return {"bestpos":c.pos,
+                        "bestval":c.val,
+                        "brdrem":brdloc,
+                        "bestmv":c.mov,
+                        "rep":c.rep }; }
+            
+        }
+}
+
 function playGameAuto(dep,brd,startpos){
     "use strict"
     if(startpos===undefined){

@@ -754,6 +754,27 @@ function bestWRT( lst, prf, cur ){
     nwcr = ( prf( cur, hd ) ) ? cur : hd;
     return bestWRT( lst, prf, nwcr );
 }
+// return max item in lst according to value func val 
+// cur = current best
+function maxWRT( lst, val, cur, curval ){
+    "use strict";
+    if ( !cur ){
+	cur = lst.pop();
+        curval = val(cur);
+    }
+    if ( lst.length === 0 ) {
+	return {"best":cur
+                "bestVal":curval};
+    }
+    let hd = lst.pop();
+    let hdval = val(hd);
+    let newcur = cur;
+    let newcurval = curval;
+    if( curval < hdval ){
+        newcur = hd;
+        newcurval = hdval; }
+    return maxWRT( lst, val, newcur, newcurval );
+}
 
 function best( lst ){
     "use strict";
