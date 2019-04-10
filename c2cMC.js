@@ -374,7 +374,8 @@ function aidedTS(pos,dep,brd,tree){
             "val":bestval};
 }
 
-const aidedTScut = 0.1;
+const aidedTScut = 0.05;
+const aidedTSwdth = 0.10;
 
 function cutFun(val){
     "use strict"
@@ -430,6 +431,7 @@ function aidedTSaux(pos,val,dep,brd,tree){
                     cnode.val = newval; }
                 cnode.rep = false;
                 brdloc = brdrem;
+                //if(c.val + bestval < 1 + aidedTScut || brdloc===0){
                 if(val-bestval<aidedTScut || brdloc===0){
                     resortNode(tree,node);
 		    node.vst += brd - brdloc;
