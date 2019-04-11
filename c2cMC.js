@@ -335,7 +335,7 @@ function children(pos){
     const mvs = movesFromPos(pos);
     const postns = mvs.map(m => [m,positionFromMove(m,pos)]);
     const pairs = postns.map(p => [scoreExp(p[1]),p[1],p[0]]);
-    pairs.sort((p1,p2) => p1[0]-p2[0]);
+    //pairs.sort((p1,p2) => p1[0]-p2[0]);
     return pairs.map(makePVpair);
 }
 
@@ -348,7 +348,7 @@ function makeTN(pos,val){
     "use strict"
     if(val===undefined){
         val = scoreExp(pos); }
-    const newtn = Object.clone(treeNodeProto);
+    const newtn = Object.create(treeNodeProto);
     newtn.pos = pos.clone();
     newtn.children = children(pos);
     newtn.val = val;
@@ -489,14 +489,14 @@ function aidedTSaux(pos,dep,brd){
         let prev = null;
 	updateChildVals(node);
         while(true){
-            let c = maxWRT(node.children, x => -x.val).best;
-            if(c===prev){
+            let c = maxWRT(Object.create(node.children), x => -x.val).best;
+            if(c===prev || brdloc===0){
 		node.val = 1 - c.val;
                 return {"bestpos":c.pos,
                         "bestval":c.val,
                         "brdrem":brdloc,
                         "bestmv":c.mov,
-                        "rep":crep }; } 
+                        "rep":c.rep }; } 
 	    prev = c;
 	    brdloc -= 1;
 	    node.vst += 1;
@@ -511,7 +511,7 @@ function aidedTSaux(pos,dep,brd){
                         "bestval":newval,
                         "brdrem":brdloc,
                         "bestmv":c.mov,
-                        "rep":c.rep }; }
+                        "rep":crep }; }
             else{
                 const {bestpos,bestval,brdrem,bestmv,rep} = aidedTSaux(c.pos,dep-1,brdloc);
                 const cnode = tree[cid];

@@ -756,6 +756,7 @@ function bestWRT( lst, prf, cur ){
 }
 // return max item in lst according to value func val 
 // cur = current best
+// Destructive of lst!
 function maxWRT( lst, val, cur, curval ){
     "use strict";
     if ( !cur ){
