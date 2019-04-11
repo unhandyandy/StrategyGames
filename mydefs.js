@@ -763,7 +763,7 @@ function maxWRT( lst, val, cur, curval ){
         curval = val(cur);
     }
     if ( lst.length === 0 ) {
-	return {"best":cur
+	return {"best":cur,
                 "bestVal":curval};
     }
     let hd = lst.pop();
