@@ -697,7 +697,7 @@ function aidedImprove(poslist){
     if(poslist===undefined){
         poslist = []; 
         tree = {}; }
-    let prom = playGameAuto(2,30);
+    let prom = playGameAuto(4,30);
     prom.then(function(){
         let newposlist = gameHistory[1];
         poslist = poslist.concat(newposlist);
