@@ -490,17 +490,17 @@ function aidedTSaux(pos,dep,brd){
 	updateChildVals(node);
         while(true){
             let c = maxWRT(Object.create(node.children), x => -x.val).best;
-            if(c===prev || brdloc===0){
+            const cid = minID(c.pos);
+            if(cid===prev || brdloc===0){
 		node.val = 1 - c.val;
                 return {"bestpos":c.pos,
                         "bestval":c.val,
                         "brdrem":brdloc,
                         "bestmv":c.mov,
                         "rep":c.rep }; } 
-	    prev = c;
+	    prev = cid;
 	    brdloc -= 1;
 	    node.vst += 1;
-            const cid = minID(c.pos);
             const crep = (cid in tree) && tree[cid].rep;
             if(gameOverQ(c.pos) || crep){
                 checkTreePos(c.pos,cid);
