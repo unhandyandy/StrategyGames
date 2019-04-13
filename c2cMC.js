@@ -467,7 +467,9 @@ function updateChildVals(node){
 	for(let c of node.children){
 	    const cid = minID(c.pos);
 	    checkTreePos(c.pos,cid);
-	    c.val = tree[cid].val; }
+            const cnode = tree[cid];
+	    c.val = cnode.val;
+            c.rep = cnode.rep; }
 }
 
 function aidedTSaux(pos,dep,brd){
@@ -515,9 +517,9 @@ function aidedTSaux(pos,dep,brd){
             else{
                 const {bestpos,bestval,brdrem,bestmv,rep} = aidedTSaux(c.pos,dep-1,brdloc);
                 const cnode = tree[cid];
+                const newval = adjustVal(c.val,1-bestval,cnode.vst,brdloc-brdrem+1);
+                c.val = newval;
                 if(!rep){
-                    const newval = adjustVal(c.val,1-bestval,cnode.vst,brdloc-brdrem+1);
-                    c.val = newval;
                     cnode.val = newval; }
                 cnode.rep = false;
                 brdloc = brdrem; } } }
@@ -697,7 +699,7 @@ function aidedImprove(poslist){
     if(poslist===undefined){
         poslist = []; 
         tree = {}; }
-    let prom = playGameAuto(4,30);
+    let prom = playGameAuto(8,30);
     prom.then(function(){
         let newposlist = gameHistory[1];
         poslist = poslist.concat(newposlist);
