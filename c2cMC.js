@@ -518,9 +518,11 @@ function aidedTSaux(pos,dep,brd){
                 const {bestpos,bestval,brdrem,bestmv,rep} = aidedTSaux(c.pos,dep-1,brdloc);
                 const cnode = tree[cid];
                 const newval = adjustVal(c.val,1-bestval,cnode.vst,brdloc-brdrem+1);
-                c.val = newval;
                 if(!rep){
+                    c.val = newval;
                     cnode.val = newval; }
+                else{
+                    c.val = 1-bestval; }
                 cnode.rep = false;
                 brdloc = brdrem; } } }
 }
