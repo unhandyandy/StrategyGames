@@ -704,11 +704,11 @@ function aidedImprove(poslist){
     tree = {};
     let prom = playGameAuto(8,30);
     prom.then(function(){
-        let newposlist = gameHistory[1];
-	let newdata = getDataFromGame(newposlist);
+        poslist = gameHistory[1];
+	let newdata = getDataFromGame(poslist);
         //poslist = poslist.concat(newposlist);
 	//let data = getDataFromGame(poslist);
-	postMortem(newdata); } ).then(() => aidedImprove(newposlist));
+	postMortem(newdata); } ).then(() => aidedImprove(poslist));
 }
 
 function postMortemCheck(plyr){
