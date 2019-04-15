@@ -705,9 +705,10 @@ function aidedImprove(poslist){
     let prom = playGameAuto(8,30);
     prom.then(function(){
         let newposlist = gameHistory[1];
-        poslist = poslist.concat(newposlist);
-	let data = getDataFromGame(poslist);
-	postMortem(data); } ).then(() => aidedImprove(poslist));
+	let newdata = getDataFromGame(newposlist);
+        //poslist = poslist.concat(newposlist);
+	//let data = getDataFromGame(poslist);
+	postMortem(newdata); } ).then(() => aidedImprove(newposlist));
 }
 
 function postMortemCheck(plyr){
