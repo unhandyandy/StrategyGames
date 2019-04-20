@@ -1079,7 +1079,7 @@ function findMin(fun,del,flag){
         miny = Math.min(y1,y2,y3,y4);
         maxy = Math.max(y1,y2,y3,y4);
         if(!flag && (y1===miny || y4===miny || (y1<y2 && y3>y4))){
-            if(y1===y4){
+            if(Math.abs(y1-y2)<del){
                 x1 = x1 - error/3;
                 x4 = x4 + error/3; }
             else if(y1<y4){

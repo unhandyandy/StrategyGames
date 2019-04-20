@@ -270,10 +270,12 @@ function updatePosCur(newmov){
     var scr;
     updateGameHistory( newmov, posCur );
     //console.debug("updating posCur...");
-    if(resortNode!=undefined && gameHistory[1].length>1){
-        resortNode(tree,tree[minID(gameHistory[1][0])]);
-        resortNode(tree,tree[minID(gameHistory[1][1])]); }
+    // if(resortNode!=undefined && gameHistory[1].length>1){
+    //     resortNode(tree,tree[minID(gameHistory[1][0])]);
+    //     resortNode(tree,tree[minID(gameHistory[1][1])]); }
     posCur = positionFromMove(newmov,posCur,statusN);
+    if(checkTreePos!=undefined){
+        checkTreePos(posCur); }
     //console.debug("...done");
     histButt = [];
     postPosition(posCur);
