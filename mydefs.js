@@ -1079,7 +1079,7 @@ function findMin(fun,del,flag){
         miny = Math.min(y1,y2,y3,y4);
         maxy = Math.max(y1,y2,y3,y4);
         if(!flag && (y1===miny || y4===miny || (y1<y2 && y3>y4))){
-            if(Math.abs(y1-y2)<del){
+            if(Math.abs(y1-y4)<del){
                 x1 = x1 - error/3;
                 x4 = x4 + error/3; }
             else if(y1<y4){
@@ -1102,4 +1102,39 @@ function findMin(fun,del,flag){
         //console.log("y width = ",miny,maxy);
     }
     return error<del ? [(x1+x4)/2,miny] : undefined;
+}
+
+function constantV(val,len){
+    "use strict";
+    const res = [];
+    res.length = len;
+    res.fill(val);
+    return res;
+}
+
+function basisVec(i,len){
+    "use strict";
+    const res = constantV(0,len);
+    res[i] = 1;
+    return res;
+}
+
+function basis(n){
+    "use strict";
+    const res = [];
+    for(let i=0; i<n; i+=1){
+        let newv = basisVec(i,n);
+        res.push(newv); }
+    return res;
+}
+
+function gradient(xvec,f){
+    "use strict";
+    const n = xvec.length;
+    const del = 0.01
+    let span = basis(n);
+    span = span.map(v => v.scalarMult(del));
+    let res = span.map(v => f(xvec.vectorAdd(v))-f(xvec));
+    res = res.map(v => v/del);
+    return res;
 }
