@@ -27,6 +27,23 @@ const cons={ "scoob":{"moves":8,
              "wdCorner":10,
              "safety":2 };
 
+const conKeys = [["scoob","moves"], ["scoob","kingmoves"], ["scoob","isol"], ["scoob","safe"], ["scoob","win"], ["scoob","thrus"], ["scoob","vuln"], ["scoob","pieces"], ["handBird"], ["thruBird"], ["thrusw"], ["rank"], ["Bwin"], ["RankLocB"], ["RankLocW"], ["RankBase"], ["wdCorner"], ["safety"]];
+
+
+function vecToParams(v){
+    "use strict";
+    const len = conKeys.length;
+    const res = Object.clone(cons);
+    for(let i=0; i<len; i+=1){
+        lookDownSet(res,conKeys[i],v[i]); }
+    return res;
+}
+
+function paramsToVec(ps){
+    "use strict";
+    return conKeys.map(k => lookDown(ps,k));
+}
+
 //breadth = inf
 //const cons = {"scoob":{"moves":3.6780624763133565,"kingmoves":15.819767595497112,"isol":1.7887285361716931,"safe":2.7015837038548893,"win":1000000000,"thrus":1.1996686483445713,"vuln":151.03141692969623,"pieces":150.53209984822212},"handBird":3.9722706993666765,"thruBird":0.6398882605230447,"thrusw":234.26156354869727,"rank":1153.112103681988,"Bwin":622.2239924061528,"RankLocB":1.5516196877365465,"RankLocW":0.10739967162113326,"RankBase":0.7929273146813913,"wdCorner":43.28355121321639,"safety":7.316591732257852}
 

@@ -189,6 +189,11 @@ function randomDelta(t){
     return del;
 }
 
+function gradientDelta(data,startParams){
+    "use strict";
+    const grad = gradient(paramsToVec(startParams),v => errorData(data,vecToParams(v)));
+    return vecToParams(grad); }
+
 function calcP(s){
     "use strict";
     const n = s.sum();
@@ -622,7 +627,7 @@ function trainParams(data,numiters){
     let err = errorData(data,oldParams);
     console.log("error = ",err);
     do{
-        let del = randomDelta(0);
+        let del = gradientDelta(data,oldParams);
         console.log("del = ",del);
         let error = function(t){
             const newparams = addObjs(oldParams,multObj(t,del),0);
@@ -688,7 +693,7 @@ initMC(cons,consDelta);
 // 
 function postMortem(data){
     "use strict"
-    const err = trainParams(data,15);
+    const err = trainParams(data,1);
     postMessage("...done!");
     //tree = {};
     return err;

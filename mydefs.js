@@ -1138,3 +1138,18 @@ function gradient(xvec,f){
     res = res.map(v => v/del);
     return res;
 }
+
+function lookDown(ob,vals){
+    "use strict";
+    if(vals.length==0){
+        return ob; }
+    else{
+        return lookDown(ob[vals[0]],vals.slice(1)); }
+}
+function lookDownSet(ob,vals,newval){
+    "use strict";
+    if(vals.length==1){
+        ob[vals[0]] = newval; }
+    else{
+        lookDownSet(ob[vals[0]],vals.slice(1),newval); }
+}
