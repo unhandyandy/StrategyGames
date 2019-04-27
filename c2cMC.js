@@ -318,7 +318,12 @@ function mcChangeEvalIter(pos,sign,t){
 
 }
 
+treeNodeProto = { "pos":posInit,
+                  "children":children(posInit),
+                  "val":scoreExp(posInit)         
+                };
 tree = {};
+checkTreePos(posInit);
 
 function minimaxAB(pos,dep,plyr){
     "use strict";
@@ -344,11 +349,6 @@ function children(pos){
     return pairs.map(makePVpair);
 }
 
-treeNodeProto = { "pos":posInit,
-                  "children":children(posInit),
-                  "val":scoreExp(posInit)         
-                }
-
 function makeTN(pos,val){
     "use strict"
     if(val===undefined){
@@ -366,7 +366,8 @@ function makeTN(pos,val){
 function aidedTS(pos,dep,brd,tree){
     "use strict";
     if(tree===undefined){
-        const tree = {}; }
+        const tree = {};
+        checkTreePos(posInit); }
     const {bestpos,bestval,brdrem,bestmv,rep} = aidedTSaux(pos,dep,brd,tree);
     if(!rep){
         tree[minID(pos)].val = 1-bestval; }
@@ -483,6 +484,7 @@ function aidedTSaux(pos,dep,brd){
     checkTreePos(pos,id);
     const node = tree[id];
     const val = node.val;
+    const oldrep = node.rep;
     node.vst += 1;
     node.rep = true;
     if(dep===0){
@@ -509,11 +511,11 @@ function aidedTSaux(pos,dep,brd){
 	    brdloc -= 1;
 	    node.vst += 1;
             const crep = (cid in tree) && tree[cid].rep;
-            if(gameOverQ(c.pos) || crep){
-                checkTreePos(c.pos,cid);
-                const newval = crep ?
-                      (c.pos.color==="b" ? 1 : 0) :
-                      c.val;
+            checkTreePos(c.pos,cid);
+            const newval = crep ?
+                  (c.pos.color==="b" ? 1 : 0) :
+                  c.val;
+            if(newval===0){
                 return {"bestpos":c.pos,
                         "bestval":newval,
                         "brdrem":brdloc,
@@ -528,7 +530,7 @@ function aidedTSaux(pos,dep,brd){
                     cnode.val = newval; }
                 else{
                     c.val = 1-bestval; }
-                cnode.rep = false;
+                cnode.rep = oldrep;
                 brdloc = brdrem; } } }
 }
 
