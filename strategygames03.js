@@ -274,7 +274,7 @@ function updatePosCur(newmov){
     //     resortNode(tree,tree[minID(gameHistory[1][0])]);
     //     resortNode(tree,tree[minID(gameHistory[1][1])]); }
     posCur = positionFromMove(newmov,posCur,statusN);
-    if(checkTreePos!=undefined){
+    if(typeof(checkTreePos)!="undefined"){
         checkTreePos(posCur); }
     //console.debug("...done");
     histButt = [];
@@ -443,7 +443,7 @@ let posInit;
 function setup( you, posInit ){
     "use strict";
     var modeBtn, pyou;
-    if(resetReps!=undefined){
+    if(typeof(resetReps)!="undefined"){
         resetReps(tree); }
     pyou = (you === undefined) ? comp : you; 
     setPause(false);

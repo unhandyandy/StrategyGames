@@ -196,7 +196,7 @@ var owarePos = {
     "possibleMoves": false
 };
 
-var posInit = owarePos.clone();
+posInit = owarePos.clone();
 //posInit.plyr = owarePos.opposite( posInit.plyr );
 
 function makePosInit(){
