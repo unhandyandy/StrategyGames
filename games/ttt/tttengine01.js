@@ -147,7 +147,7 @@ function poscurToDisplay(pos){
 
 // This is a required variable.
 // It represents the default search depth.  
-var desiredDepth = 3;
+var desiredDepth = 2;
 
 
 
@@ -173,7 +173,7 @@ function makeInitBdTab(){
 var initBdTab = makeInitBdTab();
 
 
-var posInit = [[0,0,0],[0,0,0],[0,0,0]];
+posInit = [[0,0,0],[0,0,0],[0,0,0]];
 
 //required function which returns a table, 
 // each entry of which is the code for the 

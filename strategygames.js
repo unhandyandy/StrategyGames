@@ -56,7 +56,7 @@ function textWin(n){
 
 function setPause(pq){
     "use strict";
-    if(pq===undefined){
+    if(typeof(pq)==='undefined'){
 	pq = true;
     }
     pauseQ = pq;
@@ -65,7 +65,7 @@ function setPause(pq){
 //print scores
 function printScores( scrs ){
     "use strict";
-    if ( scrs === undefined ){
+    if ( typeof(scrs) === 'undefined' ){
 	scrs = scores;}
     var text = "Human: " + scrs.H + nbspN(8) + "JS: " + scrs.J;
     postMessage( text );
@@ -163,7 +163,7 @@ function updateGameHistory( newmov, pos ){
 function undoGameHistory( n ){
     "use strict";
     var movls = gameHistory[0], posls = gameHistory[1];
-    if ( n === undefined ){
+    if ( typeof(n) === 'undefined' ){
 	n = 1;}
     gameHistory[1] = posls.slice(n);
     gameHistory[0] = movls.slice(n);    
@@ -183,8 +183,9 @@ function minimaxAB(pos,depth,player){
 	posID = minID(pos),
         cchval = minimaxABcache[[JSON.stringify(posID),newdep,player]];
     //console.log("cchval: ",cchval);
-    if(cchval===undefined){
+    if(typeof(cchval)==='undefined'){
 	res = minimaxABaux(pos,newdep,player,Infinity,-Infinity);
+	console.log("best: ",path(res));
 	minimaxABcache[[JSON.stringify(posID),newdep,player]] = res;
 	depthTable[[JSON.stringify(posID),player]] = newdep;
     }
@@ -194,7 +195,7 @@ function minimaxAB(pos,depth,player){
     return res;
 }
 
-function minimaxABaux(pos,depth,player,useThresh,passThresh){
+function minimaxABaux(pos,depth,player,useThresh,passThreshIn){
     "use strict";
     var deptab = getDepth(pos,player), newmvs, successors, bestPath, quit, s, succ, newValue, resSucc, newpos, newplayer;
     if(deptab >= depth){
@@ -205,57 +206,63 @@ function minimaxABaux(pos,depth,player,useThresh,passThresh){
     }
     newmvs = movesFromPos(pos,player);
     if(newmvs.length>numChoices){
-	successors = newmvs.slice(0,numChoices);  
+	successors = newmvs.slice(0,numChoices).reverse();  
     }
     else{
-	successors = newmvs;
+	successors = newmvs.reverse();
     }
 
     if(successors.length === 0){
 	return makeStr(staticPos(pos,player),[]);
     }
     else{
-	bestPath = [successors[0]];
-	quit = false;
-	s = successors.reverse();
-	do{
-	    succ = s.pop();
-	    //console.debug("succ = %s",succ.join());
-	    //console.debug("pos = %s",pos.join());
-	    newpos = positionFromMove(succ,pos,player);
-	    updateGameHistory( "mmAB", pos );
-            statusN = opposite(statusN);
-	    //console.debug("newpos computed");
-	    newplayer = opposite(player);
-	    if(winQ(newpos,newplayer)){
-		newValue = -maxVal;}
-	    else if(lossQ(newpos,newplayer)){
+	let newsuccs,passThresh;
+	for(let dep=1;dep<=depth;dep+=1){
+	    passThresh = passThreshIn;
+	    bestPath = [successors.last()];
+	    quit = false;
+	    newsuccs = partiallyOrderedList.create();
+	    do{
+		succ = successors.pop();
+		//console.debug("succ = %s",succ.join());
+		//console.debug("pos = %s",pos.join());
+		newpos = positionFromMove(succ,pos,player);
+		updateGameHistory( "mmAB", pos );
+		statusN = opposite(statusN);
+		//console.debug("newpos computed");
+		newplayer = opposite(player);
+		if(winQ(newpos,newplayer)){
+		    newValue = -maxVal;}
+		else if(lossQ(newpos,newplayer)){
+		    undoGameHistory();
+                    statusN = opposite(statusN);
+		    return makeStr( maxVal,[succ]);}
+		else if ( drawQ( newpos, newplayer ) ){
+		    newValue = 0;
+		    resSucc = makeStr( newValue, [] );}
+		else{
+		    resSucc = minimaxABaux(newpos,
+					   dep-1,
+					   newplayer,
+					   - passThresh,
+					   - useThresh);
+		    newValue = - moveValue(resSucc);
+		}
+		
+		newsuccs.add(succ,newValue);
+		if(newValue > passThresh){
+		    passThresh = newValue;
+		    if(typeof(resSucc)!=='undefined'){
+			bestPath = [succ].concat(path(resSucc)); }
+		}
+		if(passThresh > useThresh){
+		    quit = true;
+		}
 		undoGameHistory();
-                statusN = opposite(statusN);
-		return makeStr( maxVal,[succ]);}
-	    else if ( drawQ( newpos, newplayer ) ){
-		newValue = 0;
-		resSucc = makeStr( newValue, [] );}
-	    else{
-		resSucc = minimaxABaux(newpos,
-				       depth - 1,
-				       newplayer,
-				       - passThresh,
-				       - useThresh);
-		newValue = - moveValue(resSucc);
-	    }
-	    
-	    if(newValue > passThresh){
-		passThresh = newValue;
-		if(resSucc!=undefined){
-		    bestPath = [succ].concat(path(resSucc)); }
-	    }
-	    if(passThresh >= useThresh){
-		quit = true;
-	    }
-	    undoGameHistory();
-            statusN = opposite(statusN);
-	} while(!quit && s.length>0);
+		statusN = opposite(statusN);
+	    } while(!quit && successors.length>0);
+	    successors = newsuccs.getList();
+	}
 	return makeStr(passThresh,bestPath);
     }
 }
@@ -274,7 +281,7 @@ function updatePosCur(newmov){
     //     resortNode(tree,tree[minID(gameHistory[1][0])]);
     //     resortNode(tree,tree[minID(gameHistory[1][1])]); }
     posCur = positionFromMove(newmov,posCur,statusN);
-    if(typeof(checkTreePos)!="undefined"){
+    if(typeof(checkTreePos)!=='undefined'){
         checkTreePos(posCur); }
     //console.debug("...done");
     histButt = [];
@@ -356,7 +363,7 @@ function postPositionRow(row,rownum,colnum){
 
 function postPositionCol(rows,rownum){
     "use strict";
-    if(rownum===undefined){
+    if(typeof(rownum)==='undefined'){
 	rownum = 0;
     }
     if(rows.length===0){
@@ -443,16 +450,16 @@ let posInit;
 function setup( you, posInit ){
     "use strict";
     var modeBtn, pyou;
-    if(typeof(resetReps)!="undefined"){
+    if(typeof(resetReps)!=='undefined'){
         resetReps(tree); }
-    pyou = (you === undefined) ? comp : you; 
+    pyou = (typeof(you) === 'undefined') ? comp : you; 
     setPause(false);
     statusN = 1;
     gameHistory[0] = [];
     gameHistory[1] = [];
     histButt = [];
 
-    posCur = ( posInit===undefined ) ? makePosInit() : posInit;
+    posCur = ( typeof(posInit)==='undefined' ) ? makePosInit() : posInit;
     comp = opposite( pyou );
 
     if (!noComps){
@@ -485,7 +492,7 @@ function setup( you, posInit ){
 function initGame(compnum,posInit){
     "use strict";
     var p, q;
-    p = (compnum === undefined) ? comp : compnum;
+    p = (typeof(compnum) === 'undefined') ? comp : compnum;
     q = opposite( p );
     postMessage("New Game");
 
@@ -568,12 +575,12 @@ function undoFn(arg){
 
 function previousPos( n ){
     "use strict";
-    if ( n === undefined ){ n = 1; }
+    if ( typeof(n) === 'undefined' ){ n = 1; }
     return gameHistory[1].slice( 0, n ); }
 
 function previousMov( n ){
     "use strict";
-    if ( n === undefined ){ n = 1; }
+    if ( typeof(n) === 'undefined' ){ n = 1; }
     return gameHistory[0].slice( 0, n ); }
 
 function repetitionQaux(pos,plyr,hist,stt){
@@ -703,7 +710,7 @@ function postMortemCheck(plyr){
 function getDepth(pos,plyr){
     "use strict";
     var res = depthTable[[JSON.stringify(pos),plyr]];
-    if(res===undefined){
+    if(typeof(res)==='undefined'){
 	return -1;
     }
     else{
@@ -727,7 +734,7 @@ function whichButton(btls){
 function makeRow(vctlst,flip){
     "use strict";
     var res, revQ;
-    revQ = ( flip !== undefined ) ? flip : false;
+    revQ = ( typeof(flip) !== 'undefined' ) ? flip : false;
     if(revQ){ vctlst.reverse(); } 
     res = vctlst.map(whichButton);
     return res.join(" ") + " <br />";    
@@ -737,7 +744,7 @@ function makeRow(vctlst,flip){
 function makePanel( vctmat, flip ){
     "use strict";
     var revQ, res;
-    revQ = ( flip !== undefined ) ? flip : false;
+    revQ = ( typeof(flip) !== 'undefined' ) ? flip : false;
     if(revQ){ vctmat.reverse(); } 
     res = vctmat.map(function(x){
 	return makeRow(x,revQ);});	   
@@ -756,7 +763,7 @@ function makeButton(text,data,func,opts){
 		     'height' : 50 , 'fontsize' : 12, 'marginTop': 10, 
 		     'disabled': false, 'border': "1px", 'boxShadow': "2px" }, 
 	ind, btn, dis;
-    if(opts===undefined){
+    if(typeof(opts)==='undefined'){
 	opts = {};
     }
     dis = opts.disabled ? " disabled" : "";
@@ -778,24 +785,24 @@ function makeButton(text,data,func,opts){
 function setButtonProps(name,txt,opts){
     "use strict";
     //var defaults = { 'bgc' : 'lightgray', 'fgc' : 'black' };
-    if(opts===undefined){
+    if(typeof(opts)==='undefined'){
 	opts = {};
     }
     
     var btn = document.getElementById(name);
-    if( txt !== undefined ){
+    if( typeof(txt) !== 'undefined' ){
 	btn.value = txt;
     }
-    if( opts.bgc !== undefined ){
+    if( typeof(opts.bgc) !== 'undefined' ){
 	btn.style.backgroundColor = opts.bgc;
     }
-    if( opts.fgc !== undefined ){
+    if( typeof(opts.fgc) !== 'undefined' ){
 	btn.style.color = opts.fgc;
     }
-    if( opts.bgimg !== undefined ){
+    if( typeof(opts.bgimg) !== 'undefined' ){
 	btn.style.backgroundImage = opts.bgimg;
     }
-    if( opts.fontsize !== undefined ){
+    if( typeof(opts.fontsize) !== 'undefined' ){
 	btn.style.fontSize = opts.fontsize;
     }
 }
@@ -969,7 +976,7 @@ function deFlatStringifyRec( obj ){
     }else if(typeof(obj) === 'object'){
 	name = obj.prototypeName;
 	res = {};
-	if ( name !== undefined && typeList.has( name ) ){
+	if ( typeof(name) !== 'undefined' && typeList.has( name ) ){
 	    proto = eval( name );
 	    res.__proto__ = proto; }
 	for (x in obj){

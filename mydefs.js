@@ -918,24 +918,32 @@ var numberSeqSum = {
 };
 
 const partiallyOrderedList = {
-    "top":0,
+    //increasing or decreasing?
+    "low":true,
+    // correction factor, -1 if increasing
+    "con":1,
+    // how many to order 
+    "top":Infinity,
+    // [value,item} pairs
     "list":[],
+    // cut value for top
     "cut":Infinity,
     "add":function(el,v){
         "use strict";
+	let cv = this.con*v;
         let added = false;
-	if(v>=this.cut){
-	    this.list.push([v,el]); }
+	if(cv>=this.cut){
+	    this.list.push([cv,el]); }
 	else{
             for(let i=0; i<this.top; i+=1){
 		const cur = this.list[i];
-		if(cur===undefined){
-                    this.list.push([v,el]);
+		if(typeof(cur)==='undefined'){
+                    this.list.push([cv,el]);
                     added = true;
                     break;  }
-		if(v<cur[0]){
+		if(cv<cur[0]){
                     const front = this.list.slice(0,i);
-                    front.push([v,el]);
+                    front.push([cv,el]);
                     const back = this.list.slice(i,);
                     this.list = front.concat(back);
                     added = true;
@@ -944,19 +952,22 @@ const partiallyOrderedList = {
 	    	if(this.list.length>=this.top){
 		    this.cut=this.list[this.top-1][0]; } }
 	    else{
-		this.list.push([v,el]); } } },
+		this.list.push([cv,el]); } } },
     "getList":function(){
         "use strict";
         return mapLp(this.list,e => e[1]); },
     "getVals":function(){
         "use strict";
-        return mapLp(this.list,e => e[0]); },
-    "create":function(top){
+        return mapLp(this.list,e => this.con*e[0]); },
+    "create":function(top,low){
         "use strict";
         const newpol = Object.create(partiallyOrderedList);
-        newpol.top = top;
-        newpol.list = [];
-	newpol.cut=Infinity;
+	if(typeof(low)!=="undefined"){
+	    newpol.low = low;
+	    newpol.con = newpol.low ? 1 : -1; }
+	if(typeof(top)!=='undefined'){
+            newpol.top = top; }
+	newpol.list = [];
         return newpol; },
     "concat":function(newlist){
         "use strict";
@@ -964,7 +975,10 @@ const partiallyOrderedList = {
             this.add(...cur); } },
     "mapVals":function(fun){
         "use strict"
-        this.list = this.list.map(ve => [fun(ve[0]),ve[1]]); }
+        this.list = this.list.map(ve => [fun(ve[0]),ve[1]]); },
+    "last":function(){
+	"use strict"
+	return this.list.last()[1]; }
 }
         
 function addObjs(o1,o2,min){

@@ -15,7 +15,7 @@ const cons={ "scoob":{"moves":8,
                       "win":1000000000,
                       "thrus":3,
                       "vuln":128,
-	                 "pieces":128 },
+	              "pieces":128 },
              "handBird":4,
              "thruBird":0.5,
              "thrusw":400,
@@ -98,7 +98,7 @@ function scoreRow(r,reach,i){
 
 function scoreRowAux(r,score,prev,lastp,moves,reach,i){
     "use strict";
-    if(reach===undefined){
+    if(typeof(reach)==='undefined'){
         reach = function(){return false}; }
     if(r.length===0){
         return(score); }
@@ -176,7 +176,7 @@ function addScores(s1,s2){
     
 function scoreMat(mat,reachable){
     "use strict";
-    if(reachable===undefined){
+    if(typeof(reachable)==='undefined'){
         reachable = function(i){return function(){return false}; }; }
     let sum = Object.clone(rowScore);
     for(let i=0; i<size; i+=1){
@@ -357,7 +357,7 @@ function makePosInit(){
 function makeAllMoves( n ){
     "use strict";
     var ones, twos;
-    if ( n === undefined ){
+    if ( typeof(n) === 'undefined' ){
 	n = numberCups;}
     ones = matrixTranspose( [ numberSequence( 1, n )  ] );
     twos = ones.map( function( l ){ 
@@ -380,7 +380,7 @@ function poscurToDisplay(pos){
 
 function movesFromPos(pos,sortedQ,valsQ){
     "use strict";
-    if(valsQ===undefined){
+    if(typeof(valsQ)==='undefined'){
 	valsQ = false; }
     if(pos.equal(posInit)&&comp===1){
         const res = Object.create(partiallyOrderedList);
@@ -397,7 +397,7 @@ function movesFromPos(pos,sortedQ,valsQ){
              [[0,3],[0,2]],
              [[0,3],[0,1]]];
         return valsQ ? res : res.list; }
-    if (sortedQ===undefined || Number(sortedQ)===sortedQ){ sortedQ = true; }
+    if (typeof(sortedQ)==='undefined' || Number(sortedQ)===sortedQ){ sortedQ = true; }
     let res = [];
     const mat = pos.mat;
     for (var i=0;i<size;i+=1){
