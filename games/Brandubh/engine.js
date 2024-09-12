@@ -8,26 +8,68 @@
   setBGCols, rowLen, gameHistory, posCur, setButtonProps, numberSequence,
   mapLp */
 
-const cons={"moves":8,
-            "kingmoves":16,
-            "isol":1,
-            "safe":1,
-            "win":1000000000,
-            //"loss":1000,
-            //"luft":4,
-            "thrus":3,
-            "vuln":128,
-	    "pieces":128 };
+const cons={ "scoob":{"moves":8,
+                      "kingmoves":16,
+                      "isol":1,
+                      "safe":1,
+                      "win":1000000000,
+                      "thrus":3,
+                      "vuln":128,
+	                 "pieces":128 },
+             "handBird":4,
+             "thruBird":0.5,
+             "thrusw":400,
+             "rank":1000,
+             "Bwin":400,
+             "RankLocB":1.0,
+             "RankLocW":0.5,
+             "RankBase":1.0,
+             "wdCorner":10,
+             "safety":2 };
 
-const handBird = 2,
-      consthrusw = 100,
-      consrank = 1000,
-      consBwin = 10000;
+const conKeys = [["scoob","moves"], ["scoob","kingmoves"], ["scoob","isol"], ["scoob","safe"], ["scoob","win"], ["scoob","thrus"], ["scoob","vuln"], ["scoob","pieces"], ["handBird"], ["thruBird"], ["thrusw"], ["rank"], ["Bwin"], ["RankLocB"], ["RankLocW"], ["RankBase"], ["wdCorner"], ["safety"]];
+
+
+function vecToParams(v){
+    "use strict";
+    const len = conKeys.length;
+    const res = Object.clone(cons);
+    for(let i=0; i<len; i+=1){
+        lookDownSet(res,conKeys[i],v[i]); }
+    return res;
+}
+
+function paramsToVec(ps){
+    "use strict";
+    return conKeys.map(k => lookDown(ps,k));
+}
+
+//breadth = inf
+//const cons = {"scoob":{"moves":3.6780624763133565,"kingmoves":15.819767595497112,"isol":1.7887285361716931,"safe":2.7015837038548893,"win":1000000000,"thrus":1.1996686483445713,"vuln":151.03141692969623,"pieces":150.53209984822212},"handBird":3.9722706993666765,"thruBird":0.6398882605230447,"thrusw":234.26156354869727,"rank":1153.112103681988,"Bwin":622.2239924061528,"RankLocB":1.5516196877365465,"RankLocW":0.10739967162113326,"RankBase":0.7929273146813913,"wdCorner":43.28355121321639,"safety":7.316591732257852}
+
+const consDelta={"scoob":{"moves":0.3,
+                          "kingmoves":0.5,
+                          "isol":0.1,
+                          "safe":0.1,
+                          "win":0,
+                          "thrus":0.1,
+                          "vuln":4,
+	                  "pieces":4 },
+                 "handBird":0.1,
+                 "thruBird":0.02,
+                 "thrusw":10,
+                 "rank":100,
+                 "Bwin":10,
+                 "RankLocB":0.1,
+                 "RankLocW":0.02,
+                 "RankBase":0.02,
+                 "wdCorner":0.3,
+                 "safety":0.1 };
 
 const size=7;
 
 var rowScore = {};
-for (k of Object.keys(cons)){
+for (k of Object.keys(cons.scoob)){
     rowScore[k] = {"b":0,"w":0}; }
 
 function opposed(p,q){
@@ -47,7 +89,6 @@ function color(p){
         return("b"); }
     else return(0); }
            
-
 function scoreRow(r,reach,i){
     "use strict";
     var score=Object.clone(rowScore);
@@ -70,13 +111,12 @@ function scoreRowAux(r,score,prev,lastp,moves,reach,i){
           clp=color(lastp);
     let newmoves = moves;
     if(p===0){
-        newmoves+=1;
-        // if((prev==="k")&&reach(j,"b")){
-        //     score.thrus.b += 1; }
-        if(clp!=0){
-            score.moves[clp]+=1;
-            if(lastp==="k"){
-                score.kingmoves.w += 1; } }
+        if(!corncent.has([i,j]) || (lastp==="k")){
+            newmoves+=1; 
+            if(clp!=0){
+                score.moves[clp]+=1; } }
+        if(lastp==="k"){
+            score.kingmoves.w += 1; }
         if(corners.has([i,j])&&(lastp==="k")){
             score.thrus.w += 1; }
     }else{
@@ -90,15 +130,12 @@ function scoreRowAux(r,score,prev,lastp,moves,reach,i){
 	if(((prev===0)&&(q===co || (q===0&&corncent.has([i,j+1])))&&reach(j-1,co)) ||
 	   ((q===0)&&(prev===co || (prev===0&&corncent.has([i,j-1])))&&reach(j+1,co))){
 	    if(p==="k"){
-		score.thrus.b += 1; }
+                if(i!=3 || ![2,4].has(j)){
+		    score.thrus.b += 1; } }
 	    else{
 		score.vuln[co] += 1; } }
     }
     if(p==="k"){
-        // if((prev===0)&&reach(j-1,"b")){
-        //     score.thrus.b += 1; }
-        // if([0,"w"].has(prev)){
-        //     score.luft.w += (prev==="w") ? 2 : 1; }
         if((i===0||i===size-1)&&(newmoves+r.length===size)){
             score.thrus.w += 1; }
         if(corners.has([i,j])){
@@ -111,10 +148,6 @@ function scoreRowAux(r,score,prev,lastp,moves,reach,i){
         if((prev===0)&&(q===0)){
             score.isol[oppColor(cp)] += 1; }
     }
-    // if((prev==="k")&&[0,"w"].has(p)){
-    //     score.luft.w += (p==="w") ? 2 : 1; }
-    // if((lastp==="k")&&(newmoves>0)&&(p==="b")){
-    //     score.thrus.b += 1; }
 
     return scoreRowAux(tail,
                        score,
@@ -129,7 +162,7 @@ function addScores(s1,s2){
     "use strict";
     var res=Object.clone(rowScore);
     var k,c;
-    for (k of Object.keys(cons)){
+    for (k of Object.keys(cons.scoob)){
         for (c of ["b","w"]){
             res[k][c]=s1[k][c]+s2[k][c]; } }
     return(res); }
@@ -147,11 +180,11 @@ function scoreMat(mat,reachable){
         reachable = function(i){return function(){return false}; }; }
     let sum = Object.clone(rowScore);
     for(let i=0; i<size; i+=1){
-	const newrowscore = scoreRow(mat[i],reachable(i),i);
+	const newrowscore = scoreRow(mat[i],reachable(i,false),i);
 	sum = addScores(sum,newrowscore); }
     var trans = matrixTranspose(mat);
     for(let i=0; i<size; i+=1){
-	const newrowscore = scoreRow(trans[i],reachable(i+size),i);
+	const newrowscore = scoreRow(trans[i],reachable(i,true),i);
 	sum = addScores(sum,newrowscore); }
     // !!Check if king has been captured!!
     // if(){
@@ -161,8 +194,7 @@ function scoreMat(mat,reachable){
 function canReach(pos,p,loc,mvs){
     "use strict";
     var poss = mvs.filter(function(m){return m[1].equal(loc)});
-    poss = poss.filter(function(m){return lookUp(pos.mat,m[0])===p});
-    return poss.length > 0; }
+    return poss.some(m => lookUp(pos.mat,m[0])===p); }
 
 function possMovesBoth(pos){
     "use strict"
@@ -171,29 +203,38 @@ function possMovesBoth(pos){
     return res;
 }
 
+function rankScore(dist,c){
+    "use strict";
+    const d = Math.max(dist,0);
+    return (c==="w" ? 1 : -cons.thruBird) *
+        //cons.rank / (cons.RankBase ** d);
+        Math.min(cons.rank / (d ** cons.RankBase),100000);
+}
+
 function scoreFor(pos){
     "use strict";
     const c = pos.color;
     const mat = pos.mat;
-    const reachable = function(i){
+    const reachable = function(i,tQ){
         return function(j,p){
-            return canReach(pos,p,[i,j],possMovesBoth(pos)); }; }
+	    const loc = tQ ? [j,i] : [i,j];
+            return canReach(pos,p,loc,possMovesBoth(pos)); }; }
     const score = scoreMat(mat,reachable);
     var s = 0;
-    for (var k of Object.keys(cons)){        
-	s += cons[k]*(handBird*score[k][c]-score[k][oppColor(c)]); }
+    for (var k of Object.keys(cons.scoob)){        
+	s += cons.scoob[k]*(cons.handBird*score[k][c]-score[k][oppColor(c)]); }
     if(score.thrus.b>0){
-        s += consBwin * (c==="b" ? 1 : -1); }
-    s += consthrusw**score.thrus.w * (c==="w" ? 1 : -1);
-    const ranks = rankMat(pos.mat);
-    const dist = (!pos.kingLoc.equal([-1,-1])) ?
+        s += (c==="b") ? cons.scoob.win : -cons.Bwin; }
+    s += score.thrus.w * (c==="w" ? cons.scoob.win : -cons.thrusw);
+    const ranks = rankMatSafeDist(pos.mat);
+    let dist = (!pos.kingLoc.equal([-1,-1])) ?
           lookUp(ranks,pos.kingLoc) :
-          Infinity;
-    s += (c==="w" ? 1 : -0.1) * consrank / (10 ** (dist - 1));
+        Infinity;
+    s += rankScore(dist,c);
     if(repQ(pos)){
-	s += cons.win * (c==="b" ? 1 : -1); }
+	s += cons.scoob.win * (c==="b" ? 1 : -1); }
     if(pos.kingLoc.equal([-1,-1])){
-        s += cons.win * (c==="b" ? 1 : -1); }
+        s += cons.scoob.win * (c==="b" ? 1 : -1); }
     return(s); }
 
 function scorePosSimp(pos){
@@ -218,13 +259,20 @@ function scorePosSimp(pos){
 // testing
 
 
-pmDisabled = true;
+//pmDisabled = true;
+
+pmAdd = 2;
 
 //const noComp = true;
 
-desiredDepth = 4;
+function minID(pos){
+    "use strict";
+    return JSON.stringify([pos.mat,pos.color]);
+}
 
-numChoices = 3;
+desiredDepth = 6;
+
+numChoices = 5;
 
 const bdSize = 7;
 
@@ -248,7 +296,7 @@ function makeInitBdTab() {
         for (j=0;j<bdSize;j+=1){
             var c = startMat[i][j];
             c = (c===0) ? " " : c;
-            const bgcol = corncent.has([i,j]) ? "#7f5" : "#5f7";
+            const bgcol = corncent.has([i,j]) ? "#8f4" : "#5f7";
             row.push([c,[i,j],
                       {'height' : 56, 'width' : 64, 'fontsize' : 48,
                        'bg':bgcol,'fg':"black"}] ); }
@@ -299,7 +347,7 @@ const taflPos = {
 	//newpos.history = this.history.clone();
         return newpos; }
 }
-var posInit = taflPos.clone();
+posInit = taflPos.clone();
 
 function makePosInit(){
     "use strict";
@@ -330,15 +378,26 @@ function poscurToDisplay(pos){
             '\u2656'});
 }
 
-function movesFromPos(pos,sortedQ){
+function movesFromPos(pos,sortedQ,valsQ){
     "use strict";
+    if(valsQ===undefined){
+	valsQ = false; }
     if(pos.equal(posInit)&&comp===1){
-        return [[[1,3],[1,2]],
-                [[1,3],[1,1]],
-                [[1,3],[1,0]],
-                [[0,3],[0,2]],
-                [[0,3],[0,1]]]; }
-    if (sortedQ===undefined){ sortedQ = true; }
+        const res = Object.create(partiallyOrderedList);
+        res.top = Infinity;
+        res.list = valsQ ?
+            [[0,[[1,3],[1,2]]],
+             [0,[[1,3],[1,1]]],
+             [0,[[1,3],[1,0]]],
+             [0,[[0,3],[0,2]]],
+             [0,[[0,3],[0,1]]]] :
+            [[[1,3],[1,2]],
+             [[1,3],[1,1]],
+             [[1,3],[1,0]],
+             [[0,3],[0,2]],
+             [[0,3],[0,1]]];
+        return valsQ ? res : res.list; }
+    if (sortedQ===undefined || Number(sortedQ)===sortedQ){ sortedQ = true; }
     let res = [];
     const mat = pos.mat;
     for (var i=0;i<size;i+=1){
@@ -361,7 +420,11 @@ function movesFromPos(pos,sortedQ){
         const vals = mapLp(res,
                            m => [m,scoreFor(positionFromMove(m,pos))]);
         sorted.concat(vals);
-        return sorted.getList(); }
+	if(valsQ){
+            sorted.list = sorted.list.slice(0,numChoices);
+	    return sorted; }
+        else{
+	    return sorted.getList(); } }
           // allmoves.sort(function(a,b){
 	  //     return sortOrder(positionFromMove(a,pos),
           //                      positionFromMove(b,pos)); })
@@ -418,7 +481,9 @@ function lossQ(pos){
     const score = scoreMat(pos.mat);
     const q = oppColor(pos.color);
     return score.win[q]>0 ||
+        score.pieces[pos.color]===0 ||
         (repQ(pos)&&(pos.color==="w")) ||
+        score.moves[pos.color]===0 ||
         pos.kingLoc.equal([-1,-1])&&pos.color==="w"; }
 
 function winQ(pos){
@@ -447,32 +512,33 @@ function destsFrom(loc,mat){
     "use strict"
 //    const mat = mat0.clone();
     const mvs = movesFromLoc(mat,loc,orthDirs,size,size,true);
-    return mapLp(mvs,m => m[1]); }
+    return [loc].concat(mapLp(mvs,m => m[1])); }
 
-function rankLoc(loc,mat,distances){
+function rankLoc(loc,mat,lud,rcons,multiQ,dold){
     "use strict"
-    const dold = lookUp(distances,loc);
-    if(dold<Infinity){
+    if(corners.has(loc)){
         return dold; }
     const dests = destsFrom(loc,mat);
     var destdict = {};
-    mapLp(dests,function(l){destdict[l] = lookUp(distances,l)});
+    mapLp(dests,l => destdict[l] = lud(l,loc));
     // for(let k of Object.keys(destdict)){
     //         if(!destdict[k]>0){
     //             delete destdict[k]; }}
     let newv;
     const pce = lookUp(mat,loc);
     const ks = Object.keys(destdict);
-    if(ks.length===0){
-        newv = Infinity; }
-    else if(ks.length===1){
-        newv = Object.values(destdict)[0] + 1; }
-    else if(pce==="w"){
-	newv = Math.min(...Object.values(destdict)) + 1; }
+    // if(ks.length===0){
+    //     newv = Infinity; }
+    if(pce==="w"){
+	newv = Math.min(...Object.values(destdict)) + 1 + rcons.w; }
     else if(pce==="b"){
-	newv = Math.min(...Object.values(destdict)) + 1.2; }
-    else{
+	newv = Math.min(...Object.values(destdict)) + 1 + rcons.b; }
+    // else if(ks.length===1){
+    //     newv = Object.values(destdict)[0] + 1; }
+    else if(multiQ){
         newv = multiplePaths(destdict,loc,mat); }
+    else{
+        newv = Math.min(...Object.values(destdict)) + 1; }
     return newv;
 }
 
@@ -492,42 +558,124 @@ function multiplePaths(dict,loc,mat){
     //     return 1 + best; }
     // else{
     //     return best; }
-    return num===1 ? best + 1 : best===Infinity ? Infinity : best + best/(best+1);;
+    return num===1 ? best + 1 :
+        best===Infinity ? Infinity :
+        best===-Infinity ? -Infinity :
+        best<0 ? best:
+        best + best/(best+1);
 }
 
-function rankNext(mat,ranks){
+function rankNext(mat,ranks,rcons,multiQ,ludr){
     "use strict"
     const nextranks = ranks.clone();
     mapLp(allLocs,function(l){
-        lookUpSet(nextranks,l,rankLoc(l,mat,ranks)); });
+        lookUpSet(nextranks,l,rankLoc(l,mat,
+                                      (l,loc) => ludr(ranks,l,loc),
+                                      rcons,multiQ,
+                                      lookUp(ranks,l))); });
     return nextranks;
 }
 
-function rankMat(mat){
+function rankMatWRT(mat,init,rcons,multiQ,ludr){
     "use strict"
-    let ranks = makeRankInit(mat);
+    let ranks = init(mat);
     do{ const lastr = ranks.clone();        
-        ranks = rankNext(mat,ranks);
+        ranks = rankNext(mat,ranks,rcons,multiQ,ludr);
         if(ranks.equal(lastr)){
             break; }
     }while(true)
     return ranks;
 }
 
-function makeRankInit(posmat){
+function rankMat(mat){
+    "use strict";
+    return rankMatWRT(mat,
+                      makeRankInitWDist,
+                      {"w":cons.RankLocW,"b":cons.RankLocW},
+                      true,
+                      (rnks,l,loc) => lookUp(rnks,l));
+}
+function rankMatBDist(mat){
+    "use strict";
+    return rankMatWRT(mat,
+                      makeRankInitBDist,
+                      {"w":Infinity,"b":-1},
+                      false,
+                      (rnks,l,loc) => lookUp(rnks,l));
+}
+
+function rankMatSafeDist(mat){
+    "use strict";
+    const bDistMat = rankMatBDist(mat);
+    return rankMatWRT(mat,
+                      makeRankInitWDist,
+                      {"w":cons.RankLocW,"b":cons.RankLocW},
+                      true,
+                      (rnks,l,loc) => safeDist(rnks,bDistMat,l,loc));
+}
+
+function safeDist(rnks,bDistMat,l,loc){
+    "use strict";
+    const lval = lookUp(rnks,l);
+    const safety = pathSafety(bDistMat,l,loc);
+    return Math.max(lval,cons.safety - safety);
+}
+
+function makeRankInitWDist(posmat){
     "use strict"
     var mat = Array(size);
     mat = mapLp(mat,function(){return Array(size)});
     for(var i=0;i<size;i+=1){
         for(var j=0;j<size;j+=1){
             if((i===0||i===size-1)&&(j===0||j===size-1)){
-                    lookUpSet(mat,[i,j],0); }
+                    lookUpSet(mat,[i,j],-cons.wdCorner); }
             else{
                 lookUpSet(mat,[i,j],Infinity); } } }
     return mat;
 }
 
+function makeRankInitBDist(posmat){
+    "use strict"
+    var mat = Array(size);
+    mat = mapLp(mat,function(){return Array(size)});
+    for(var i=0;i<size;i+=1){
+        for(var j=0;j<size;j+=1){
+            if(lookUp(posmat,[i,j])==="b"){
+                lookUpSet(mat,[i,j],0); }
+            else{
+                lookUpSet(mat,[i,j],Infinity); } } }
+    return mat;
+}
+
+function pathSafety(mat,l1,l2){
+    "use strict";
+    const locs = betweenLocs(l1,l2);
+    const vals = locs.map(l => lookUp(mat,l));
+    return Math.min(...vals);
+}
+
 //const rankInit = makeRankInit(posInit.mat);
 const allLocs = makeAllLocs(size,size);
 
-clearAllCaches();
+//clearAllCaches();
+
+// testing
+testpos0 = posInit.clone();
+testpos0.mat = [[0,0,0,"b",0,0,0],[0,0,"b",0,"w",0,0],[0,0,0,0,0,"k","w"],["b",0,"w",0,0,"b","b"],[0,"b",0,"w","b",0,0],[0,0,0,"b",0,0,0],[0,0,0,0,0,0,0]];
+testpos0.kingLoc = [2,5];
+
+testpos1 = posInit.clone();
+testpos1.mat = [[0,0,0,"b",0,0,0],[0,0,0,0,0,"b",0],[0,0,"b","w",0,0,0],["b",0,"w",0,"k",0,"b"],[0,"b",0,0,0,"w",0],[0,0,"b",0,0,0,0],[0,0,0,"b","w",0,0]];
+testpos1.kingLoc = [3,4];
+
+testpos2 = posInit.clone();
+testpos2.mat = [[0,0,0,"b",0,0,0],[0,0,"b",0,"w","k",0],[0,0,0,0,0,"b","w"],["b","b","w",0,0,0,0],[0,0,0,0,0,0,"b"],[0,0,0,"b",0,0,0],[0,0,0,0,"b",0,0]];
+testpos2.kingLoc = [1,5];
+testpos2.color = "w";
+testpos2.plyr = 2;
+
+testpos3 = posInit.clone();
+testpos3.mat = [[0,0,0,0,0,0,0],[0,0,0,0,"b",0,0],[0,0,"b",0,0,0,"w"],["b","b","w","k","b",0,"b"],[0,0,0,"w",0,"b",0],[0,0,0,0,0,0,0],[0,0,0,"b",0,0,0]];
+testpos3.plyr = 2;
+testpos3.color = "w";
+testpos3.kingLoc = [3,3];

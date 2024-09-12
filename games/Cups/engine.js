@@ -112,7 +112,7 @@ var cupsPos = {
 	}
 };
 
-var posInit = cupsPos.clone();
+posInit = cupsPos.clone();
 //posInit.plyr = cupsPos.opposite( posInit.plyr );
 
 function makePosInit(){

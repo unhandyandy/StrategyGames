@@ -471,14 +471,14 @@ Array.prototype.filter2 = function(fun,o){
 function numberSequence(start,finish,del){
     "use strict";
     if(del===undefined){
-	del = 1;
+	del = (start<=finish) ? 1 : -1;
     }
-    var res = [start],
-        cur = start + del;
-    while(cur<=finish){
-	res.push(cur);
+    let res = [];
+    let cur = start - del;
+    do{
 	cur += del;
-    }
+	res.push(cur);
+    }while(cur!=finish)
     return res;
 }
 
@@ -733,6 +733,10 @@ Array.prototype.dot = function( lst ){
     c2 = lst.clone();
     return dotD( c1, c2 );
 };
+Array.prototype.sum = function(){
+    "use strict";
+    return this.reduce((a,n)=>a+n);;
+};
 
 
 // return best item in lst according to preference func prf 
@@ -749,6 +753,28 @@ function bestWRT( lst, prf, cur ){
     hd = lst.pop();
     nwcr = ( prf( cur, hd ) ) ? cur : hd;
     return bestWRT( lst, prf, nwcr );
+}
+// return max item in lst according to value func val 
+// cur = current best
+// Destructive of lst!
+function maxWRT( lst, val, cur, curval ){
+    "use strict";
+    if ( !cur ){
+	cur = lst.pop();
+        curval = val(cur);
+    }
+    if ( lst.length === 0 ) {
+	return {"best":cur,
+                "bestVal":curval};
+    }
+    let hd = lst.pop();
+    let hdval = val(hd);
+    let newcur = cur;
+    let newcurval = curval;
+    if( curval < hdval ){
+        newcur = hd;
+        newcurval = hdval; }
+    return maxWRT( lst, val, newcur, newcurval );
 }
 
 function best( lst ){
@@ -922,6 +948,9 @@ const partiallyOrderedList = {
     "getList":function(){
         "use strict";
         return mapLp(this.list,e => e[1]); },
+    "getVals":function(){
+        "use strict";
+        return mapLp(this.list,e => e[0]); },
     "create":function(top){
         "use strict";
         const newpol = Object.create(partiallyOrderedList);
@@ -932,7 +961,195 @@ const partiallyOrderedList = {
     "concat":function(newlist){
         "use strict";
         for(let cur of newlist){
-            this.add(...cur); } }
+            this.add(...cur); } },
+    "mapVals":function(fun){
+        "use strict"
+        this.list = this.list.map(ve => [fun(ve[0]),ve[1]]); }
 }
         
-                    
+function addObjs(o1,o2,min){
+    "use strict";
+    if(min===undefined){
+        min = -Infinity; }
+    let res;
+    if(typeof(o1)==='number'){
+        return Math.max(o1 + o2,min); }
+    else{
+        res = Object.clone(o1);
+        for(let k of Object.keys(o1)){
+            res[k] = addObjs(o1[k],o2[k],min); } }
+    return res; }
+function multObj(s,o){
+    "use strict";
+    let res;
+    if(typeof(o)==='number'){
+        return s * o; }
+    else{
+        res = Object.clone(o);
+        for(let k of Object.keys(o)){
+            res[k] = multObj(s,o[k]); } }
+    return res; }
+function zeroObj(o){
+    "use strict";
+    let res;
+    if(typeof(o)==='number'){
+        return 0; }
+    else{
+        res = Object.clone(o);
+        for(let k of Object.keys(o)){
+            res[k] = zeroObj(o[k]); } }
+    return res; }
+function equalObj(o1,o2){
+    "use strict";
+    let res;
+    if(typeof(o1)==='number'){
+        return o1===o2; }
+    else{
+        for(let k of Object.keys(o1)){
+            if(!equalObj(o1[k],o2[k])){
+                return false; }; } }
+    return true; }
+
+function randChoice(lst,wts){
+    "use strict";
+    const sum = wts.sum();
+    const r=Math.random();
+    let i=-1,cum=0;
+    do{
+        i += 1;
+        cum += wts[i]/sum;
+    }while(cum<r)
+    return lst[i];
+}
+
+function randBool(p){
+    "use strict";
+    if(p===undefined){
+        p = 0.5; }
+    return Math.random() < p;
+}
+
+function copyValsToObj(obj,vals){
+    "use strict";
+    if(typeof(obj)==='number'){
+        return vals; }
+    else{
+        for(let k of Object.keys(obj)){
+           obj[k] = copyValsToObj(obj[k],vals[k]); } }
+    return obj;
+}
+
+function choose(n,r){
+    "use strict";
+    let res = 1;
+    for(let i=0; i<r; i+=1){
+        res *= (n-i)/(i+1); }
+    return res;
+}
+
+function bernoulli(n,p,r){
+    "use strict";
+    return choose(n,r) * p**r * (1-p)**(n-r);
+}
+
+function bernoulliCum(n,p,r){
+    "use strict";
+    let res = 0;
+    for(let i=0; i<=r; i+=1){
+        res += bernoulli(n,p,i); }
+    return res;
+}
+
+function findMin(fun,del,flag){
+    "use strict"
+    let x1 = -1;
+    let x2 = -1/3;
+    let x3 = 1/3;
+    let x4 = 1;
+    let error = x4 - x1;
+    if(flag===undefined){
+        flag = false; }
+    let miny;
+    let maxy;
+    while(error>del && error<1000){
+        let y1 = fun(x1);
+        let y2 = fun(x2);
+        let y3 = fun(x3);
+        let y4 = fun(x4);
+        miny = Math.min(y1,y2,y3,y4);
+        maxy = Math.max(y1,y2,y3,y4);
+        if(!flag && (y1===miny || y4===miny || (y1<y2 && y3>y4))){
+            if(Math.abs(y1-y4)<del){
+                x1 = x1 - error/3;
+                x4 = x4 + error/3; }
+            else if(y1<y4){
+                x4 = x2;
+                x1 = x2 - 4/3*error; }
+            else{
+                x1 = x3;
+                x4 = x3 + 4/3*error; } }
+        else{
+            flag = true;
+            if(miny===y1 || miny===y2){
+                x1 = x1;
+                x4 = x3; }
+            else{
+                x1 = x2;
+                x4 = x4; } }
+        error = x4 - x1;
+        x2 = x1 + error/3;
+        x3 = x4 - error/3;
+        //console.log("y width = ",miny,maxy);
+    }
+    return error<del ? [(x1+x4)/2,miny] : undefined;
+}
+
+function constantV(val,len){
+    "use strict";
+    const res = [];
+    res.length = len;
+    res.fill(val);
+    return res;
+}
+
+function basisVec(i,len){
+    "use strict";
+    const res = constantV(0,len);
+    res[i] = 1;
+    return res;
+}
+
+function basis(n){
+    "use strict";
+    const res = [];
+    for(let i=0; i<n; i+=1){
+        let newv = basisVec(i,n);
+        res.push(newv); }
+    return res;
+}
+
+function gradient(xvec,f){
+    "use strict";
+    const n = xvec.length;
+    const del = 0.01
+    let span = basis(n);
+    span = span.map(v => v.scalarMult(del));
+    let res = span.map(v => f(xvec.vectorAdd(v))-f(xvec));
+    res = res.map(v => v/del);
+    return res;
+}
+
+function lookDown(ob,vals){
+    "use strict";
+    if(vals.length==0){
+        return ob; }
+    else{
+        return lookDown(ob[vals[0]],vals.slice(1)); }
+}
+function lookDownSet(ob,vals,newval){
+    "use strict";
+    if(vals.length==1){
+        ob[vals[0]] = newval; }
+    else{
+        lookDownSet(ob[vals[0]],vals.slice(1),newval); }
+}

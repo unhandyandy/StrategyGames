@@ -19,7 +19,8 @@ var maxVal = 1000000;
 
 var pauseQ;
 
-var depthTable;
+let depthTable;
+let parameters;
 
 var scores = {
     "H": 0,
@@ -183,7 +184,7 @@ function minimaxAB(pos,depth,player){
         cchval = minimaxABcache[[JSON.stringify(posID),newdep,player]];
     //console.log("cchval: ",cchval);
     if(cchval===undefined){
-	res = minimaxABaux(pos,newdep,player,maxVal,-maxVal);
+	res = minimaxABaux(pos,newdep,player,Infinity,-Infinity);
 	minimaxABcache[[JSON.stringify(posID),newdep,player]] = res;
 	depthTable[[JSON.stringify(posID),player]] = newdep;
     }
@@ -209,12 +210,12 @@ function minimaxABaux(pos,depth,player,useThresh,passThresh){
     else{
 	successors = newmvs;
     }
-    bestPath = [successors[0]];
 
     if(successors.length === 0){
 	return makeStr(staticPos(pos,player),[]);
     }
     else{
+	bestPath = [successors[0]];
 	quit = false;
 	s = successors.reverse();
 	do{
@@ -223,12 +224,14 @@ function minimaxABaux(pos,depth,player,useThresh,passThresh){
 	    //console.debug("pos = %s",pos.join());
 	    newpos = positionFromMove(succ,pos,player);
 	    updateGameHistory( "mmAB", pos );
+            statusN = opposite(statusN);
 	    //console.debug("newpos computed");
 	    newplayer = opposite(player);
 	    if(winQ(newpos,newplayer)){
 		newValue = -maxVal;}
 	    else if(lossQ(newpos,newplayer)){
 		undoGameHistory();
+                statusN = opposite(statusN);
 		return makeStr( maxVal,[succ]);}
 	    else if ( drawQ( newpos, newplayer ) ){
 		newValue = 0;
@@ -244,12 +247,14 @@ function minimaxABaux(pos,depth,player,useThresh,passThresh){
 	    
 	    if(newValue > passThresh){
 		passThresh = newValue;
-		bestPath = [succ].concat(path(resSucc));
+		if(resSucc!=undefined){
+		    bestPath = [succ].concat(path(resSucc)); }
 	    }
 	    if(passThresh >= useThresh){
 		quit = true;
 	    }
 	    undoGameHistory();
+            statusN = opposite(statusN);
 	} while(!quit && s.length>0);
 	return makeStr(passThresh,bestPath);
     }
@@ -265,7 +270,12 @@ function updatePosCur(newmov){
     var scr;
     updateGameHistory( newmov, posCur );
     //console.debug("updating posCur...");
+    // if(resortNode!=undefined && gameHistory[1].length>1){
+    //     resortNode(tree,tree[minID(gameHistory[1][0])]);
+    //     resortNode(tree,tree[minID(gameHistory[1][1])]); }
     posCur = positionFromMove(newmov,posCur,statusN);
+    if(typeof(checkTreePos)!="undefined"){
+        checkTreePos(posCur); }
     //console.debug("...done");
     histButt = [];
     postPosition(posCur);
@@ -319,7 +329,7 @@ function compTurn(){
 	    //     newdep = desiredDepth;
 	    // };
 	    newcalc = minimaxAB(posCur,desiredDepth,statusN);
-	    //console.log(newcalc);
+	    console.log(newcalc);
 	    mov = nextMove(newcalc);
 	    // var val = moveValue( newcalc );
 	    // console.log( "val = ", val );
@@ -395,6 +405,20 @@ function defineMinimaxCache(){
     }
 }
 
+function defineParameters(){
+    "use strict";
+    if( localStorage.hasOwnProperty( gameName + "_Parameters" ) ){
+	try {
+	    parameters = JSON.parse(localStorage[gameName+"_Parameters"]);
+	} catch (x) {
+	    parameters = cons;
+	}	
+    }
+    else{
+	parameters = cons;
+    }
+}
+
 //initialize the scores
 function defineScores(){
     "use strict";
@@ -414,11 +438,13 @@ function clearAllCaches(){
     localStorage.clear();
 }
 
-var posInit;
+let posInit;
 
 function setup( you, posInit ){
     "use strict";
     var modeBtn, pyou;
+    if(typeof(resetReps)!="undefined"){
+        resetReps(tree); }
     pyou = (you === undefined) ? comp : you; 
     setPause(false);
     statusN = 1;
@@ -427,7 +453,6 @@ function setup( you, posInit ){
     histButt = [];
 
     posCur = ( posInit===undefined ) ? makePosInit() : posInit;
-
     comp = opposite( pyou );
 
     if (!noComps){
@@ -573,6 +598,7 @@ function repetitionQaux(pos,plyr,hist,stt){
 
 function repetitionQ(pos,plyr){
     "use strict";
+    if(gameHistory.length===0){return false;}
     return repetitionQaux(pos,plyr,gameHistory[1].slice(2),statusN);
 }
 
@@ -619,10 +645,13 @@ function reEval(pscur,pslst,plyr,dep){
     }
 }
 
+var pmAdd = 1;
+
 function postMortem(hist,plyr){
     "use strict";
-    var fct = 1, pscur, pslst, hstrmn, dep, hsttot;
-    numChoices = fct*numChoices;
+    let pscur, pslst, hstrmn, dep, hsttot;
+    const numChoicesOrig = numChoices;
+    numChoices += pmAdd;
     hsttot = hist[1];
     hsttot = [posCur.clone()].concat(hsttot);
     if(statusN===plyr){
@@ -631,18 +660,22 @@ function postMortem(hist,plyr){
     //pslst = hsttot[0];
     //pscur = hsttot[1];
     hstrmn = hsttot.clone();
-    dep = desiredDepth;
+    dep = desiredDepth + 1;
+    let gameHistOld = gameHistory.clone();
 
     do{
 	if(hstrmn.length < 2){
 	    hstrmn = hsttot.clone();
+            gameHistory = gameHistOld.clone();
 	    dep += 1;
+            numChoices += pmAdd;
 	}
 	pslst = hstrmn[0];
 	pscur = hstrmn[1];
 	hstrmn = hstrmn.slice(2);
+        undoGameHistory(2);
     }while(!reEval(pscur,pslst,plyr,dep));
-    numChoices = numChoices/fct;
+    numChoices = numChoicesOrig;
     postMessage("...done!");
 }
 
