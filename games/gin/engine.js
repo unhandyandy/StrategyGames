@@ -774,12 +774,12 @@ function joinAdj( lst ){
 // join adjacent nonempty elements if related by connStr2Q
 function joinAdjStr2( lst ){
     "use strict";
-    var i, res, cur, nxt;
-    res = [];
+    var i, cur, nxt;
+    const res = [];
     cur = lst.pop();
     while ( lst.length > 0 ){
-	nxt = lst.pop();
-	if ( cur.connected( nxt, connStr2Q ) ) {
+	const nxt = lst.pop();
+	if ( connected(cur, nxt, connStr2Q ) ) {
 	    cur = cur.concat( nxt );
 	} else {
 	    res.push( cur );
@@ -788,6 +788,14 @@ function joinAdjStr2( lst ){
     }
     res.push( cur );
     return res;
+}
+
+function connected(g1,g2,rel){
+    for(i in g1){
+	for(j in g2){
+	    if(rel(g1[i],g2[j])){
+		return(true); }}}
+    return(false);
 }
 
 // get all connected subgroups
@@ -972,7 +980,7 @@ function nbrsClose( grp, posscrds ){
 	posscrds = unknowns( lOCATION );
     }
     function close( c1, c2 ){ return connSetQ( c1, c2 ) || connStr1Q( c1, c2 ); }
-    function connQ( c ){ return grp.connected( [ c ], close ); }
+    function connQ( c ){ return connected(grp, [ c ], close ); }
     return posscrds.filter( connQ );
 }
 
