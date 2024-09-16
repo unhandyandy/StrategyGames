@@ -47,7 +47,7 @@ function groupScore(pos,grp){
     return pceScore(res);
 }
 
-var komi = 2.5;
+const komi = 2.5;
 
 function score(mat,plyr){
     "use strict";
