@@ -1,4 +1,4 @@
-// -*-js-*-
+
 
 /*jslint browser: true, devel: true, es5: true */
 
@@ -255,7 +255,7 @@ function pceFn(r,c){
     }
 }
 
-var posInit = new GerryPos(makeEmptyPos(),[makeAllLocs()]);
+posInit = new GerryPos(makeEmptyPos(),[makeAllLocs()]);
 
 eachLp( posInit.allLocs, function(l){
     "use strict";
