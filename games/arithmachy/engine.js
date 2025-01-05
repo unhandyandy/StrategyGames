@@ -1,4 +1,4 @@
-// -*-js2-*-
+// -*-JavaScript-*-
 
 // Number Chess
 
@@ -11,16 +11,17 @@
   switchPlayers:true, repetitionQ, numberSequence, setTagOpt, setTagSty, numChoices:true, cloneList, cartesianProduct, previousMov, pmDisabled:true, noComp:true, evenQ, numberSeqSum, noComps,
  makePanel */
 
-// This is a required variable.
-// It represents the default search depth.  
 
 pmDisabled = true;
 
 noComp = true;
 
-var desiredDepth = 4;
+// This is a required variable.
+// It represents the default search depth.  
 
-var bdSize = 6;
+const desiredDepth = 4;
+
+const bdSize = 6;
 
 var passSq = [ bdSize, 0 ];
 

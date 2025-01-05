@@ -1,4 +1,4 @@
-// -*-js2-*-
+// -*-javascript-*-
 
 // Life & death
 

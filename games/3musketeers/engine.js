@@ -295,7 +295,7 @@ function makeInitBdTab(){
 var initBdTab = makeInitBdTab();
 
 
-var posInit = muskPos.create();
+posInit = muskPos.create();
 
 
 function makePosInit(){
