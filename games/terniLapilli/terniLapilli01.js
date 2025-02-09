@@ -194,7 +194,7 @@ function makeInitBdTab(){
 
 var initBdTab = makeInitBdTab();
 
-var posInit = [[0,0,0],[0,0,0],[0,0,0]];
+posInit = [[0,0,0],[0,0,0],[0,0,0]];
 
 function makePosInit(){
     "use strict";
