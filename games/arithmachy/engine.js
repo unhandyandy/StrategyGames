@@ -19,7 +19,7 @@ noComp = true;
 // This is a required variable.
 // It represents the default search depth.  
 
-const desiredDepth = 4;
+desiredDepth = 4;
 
 const bdSize = 6;
 
@@ -403,6 +403,8 @@ function makePosInit() {
     recycleQ = !recycleQ;
     return previousPos.clone();
 }
+
+// posInit = makePosInit();
 
 // function makePosInit() {
 //     "use strict";

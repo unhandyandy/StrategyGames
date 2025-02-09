@@ -222,7 +222,7 @@ function makeInitBdTab(){
 var initBdTab = makeInitBdTab();
 
 
-var posInit = makeConstantArray(makeConstantArraySimp(0,numCols),numRows);
+posInit = makeConstantArray(makeConstantArraySimp(0,numCols),numRows);
 
 //required function which returns a table, 
 // each entry of which is the code for the 

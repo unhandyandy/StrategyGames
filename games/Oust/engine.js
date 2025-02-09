@@ -311,7 +311,7 @@ function makeInitBdTab(){
 var initBdTab = makeInitBdTab();
 
 
-var posInit = new oustPos(makeEmptyPos(),[]);
+posInit = new oustPos(makeEmptyPos(),[]);
 
 function makePosInit(){
     var pce = "O";

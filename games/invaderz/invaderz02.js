@@ -304,5 +304,5 @@ function makePosInit(){
     return [firstrow].concat(makeConstantArray(midrow,numRows-2),[lastrow],[[10]]);
 }
 
-var posInit = makePosInit();
+posInit = makePosInit();
 
